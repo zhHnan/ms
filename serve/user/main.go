@@ -10,5 +10,5 @@ import (
 func main() {
 	r := gin.Default()
 	router.InitRouter(r)
-	srv.Run(r, ":8046", "ms_user")
+	srv.Run(r, ":8088", "ms_user")
 }
