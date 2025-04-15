@@ -1,0 +1,13 @@
+syntax = "proto3";
+package login.service.v1;
+option go_package = "ms-user/pkg/service/login_service.v1";
+
+
+message CaptchaMessage {
+  string mobile = 1;
+}
+message CaptchaResponse{
+}
+service LoginService {
+  rpc GetCaptcha(CaptchaMessage) returns (CaptchaResponse) {}
+}
