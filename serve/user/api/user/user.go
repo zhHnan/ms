@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"hnz.com/ms_serve/common"
 	"hnz.com/ms_serve/user/pkg/dao"
 	"hnz.com/ms_serve/user/pkg/model"
@@ -34,7 +35,7 @@ func (h *HandlerLogin) GetCaptcha(ctx *gin.Context) {
 	go func() {
 		// 发送验证码
 		time.Sleep(time.Second * 2)
-		log.Println("验证码发送成功！", code)
+		zap.L().Info("验证码发送成功！")
 		c, cancel := context.WithTimeout(context.Background(), time.Second*2)
 		defer cancel()
 		err := h.cache.Put(c, "REGISTER_"+mobile, code, time.Minute*5)

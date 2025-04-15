@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -20,7 +21,7 @@ func Run(r *gin.Engine, addr, serverName string) {
 	// 启动http服务
 	go func() {
 		log.Printf("%s server running in %s \n", serverName, srv.Addr)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalln(err)
 		}
 	}()
