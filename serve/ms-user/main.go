@@ -10,9 +10,9 @@ import (
 func main() {
 	r := gin.Default()
 	//从配置中读取日志配置，初始化日志
-	config.Cfg.InitZapLog()
 	router.InitRouter(r)
 	grpc := router.RegisterGrpc()
+	router.RegisterEtcdServer()
 	stop := func() {
 		grpc.Stop()
 	}

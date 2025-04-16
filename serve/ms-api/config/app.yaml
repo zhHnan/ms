@@ -9,3 +9,6 @@ zap:
   maxAge: 28,
   MaxBackups: 3
 
+etcd:
+  addrs:
+    - 127.0.0.1:2379

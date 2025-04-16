@@ -2,14 +2,16 @@ package login_service_v1
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"time"
+
 	"go.uber.org/zap"
 	"hnz.com/ms_serve/common"
 	"hnz.com/ms_serve/common/errs"
 	"hnz.com/ms_serve/ms-user/pkg/dao"
 	"hnz.com/ms_serve/ms-user/pkg/model"
 	"hnz.com/ms_serve/ms-user/pkg/repo"
-	"log"
-	"time"
 )
 
 type LoginService struct {
@@ -17,7 +19,11 @@ type LoginService struct {
 	cache repo.Cache
 }
 
-func NewLoginService() *LoginService {
+func New() *LoginService {
+	fmt.Println("run LoginService New...")
+	if dao.Rc == nil {
+		fmt.Println("dao.Rc is nil, please initialize redis cache first")
+	}
 	return &LoginService{
 		cache: dao.Rc,
 	}
@@ -36,6 +42,12 @@ func (l *LoginService) GetCaptcha(ctx context.Context, msg *CaptchaMessage) (*Ca
 		zap.L().Info("验证码发送成功！")
 		c, cancel := context.WithTimeout(context.Background(), time.Second*2)
 		defer cancel()
+
+		//if l.cache == nil {
+		//	log.Println("cache 未初始化")
+		//	return
+		//}
+
 		err := l.cache.Put(c, "REGISTER_"+mobile, code, time.Minute*5)
 		if err != nil {
 			log.Println("验证码存入redis失败！", err)

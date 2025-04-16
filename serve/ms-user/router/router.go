@@ -1,12 +1,16 @@
 package router
 
 import (
-	"github.com/gin-gonic/gin"
-	"google.golang.org/grpc"
-	"hnz.com/ms_serve/ms-user/config"
-	loginServiceV1 "hnz.com/ms_serve/ms-user/pkg/service/login_service.v1"
 	"log"
 	"net"
+
+	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/resolver"
+	"hnz.com/ms_serve/common/discovery"
+	"hnz.com/ms_serve/common/logs"
+	"hnz.com/ms_serve/ms-user/config"
+	loginServiceV1 "hnz.com/ms_serve/ms-user/pkg/service/login_service.v1"
 )
 
 type Router interface {
@@ -43,7 +47,8 @@ func RegisterGrpc() *grpc.Server {
 	c := grpcConfig{
 		Addr: config.Cfg.Gc.Addr,
 		RegisterFunc: func(g *grpc.Server) {
-			loginServiceV1.RegisterLoginServiceServer(g, &loginServiceV1.LoginService{})
+			//loginServiceV1.RegisterLoginServiceServer(g, &loginServiceV1.LoginService{})
+			loginServiceV1.RegisterLoginServiceServer(g, loginServiceV1.New())
 		}}
 	s := grpc.NewServer()
 	c.RegisterFunc(s)
@@ -60,4 +65,20 @@ func RegisterGrpc() *grpc.Server {
 		}
 	}()
 	return s
+}
+
+func RegisterEtcdServer() {
+	etcdRegister := discovery.NewResolver(config.Cfg.Ec.Addrs, logs.Lg)
+	resolver.Register(etcdRegister)
+	info := discovery.Server{
+		Name:    config.Cfg.Gc.Name,
+		Addr:    config.Cfg.Gc.Addr,
+		Version: config.Cfg.Gc.Version,
+		Weight:  config.Cfg.Gc.Weight,
+	}
+	r := discovery.NewRegister(config.Cfg.Ec.Addrs, logs.Lg)
+	_, err := r.Register(info, 2)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

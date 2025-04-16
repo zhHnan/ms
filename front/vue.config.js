@@ -26,7 +26,7 @@ module.exports = {
         proxy: { // 配置跨域
             '/api': {
                 //要访问的跨域的api的域名
-                target: `http://127.0.0.1:8088/`,
+                target: `${process.env.VUE_APP_API_URL}/`,
                 ws: true,
                 changOrigin: true,
                 pathRewrite: {

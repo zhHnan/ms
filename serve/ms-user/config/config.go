@@ -14,14 +14,20 @@ type Config struct {
 	viper *viper.Viper
 	Sc    *ServerConfig
 	Gc    *GrpcConfig
+	Ec    *EtcdConfig
 }
 type ServerConfig struct {
 	Name string
 	Addr string
 }
 type GrpcConfig struct {
-	Name string
-	Addr string
+	Name    string
+	Addr    string
+	Version string
+	Weight  int64
+}
+type EtcdConfig struct {
+	Addrs []string
 }
 
 // InitConfig 初始化配置
@@ -40,8 +46,9 @@ func InitConfig() *Config {
 	}
 	conf.ReadServerConfig()
 	conf.InitZapLog()
-	conf.InitRedisOptions()
+	//conf.InitRedisOptions()
 	conf.ReadGrpcConfig()
+	conf.ReadEtcdConfig()
 	return conf
 }
 
@@ -55,6 +62,8 @@ func (cfg *Config) ReadGrpcConfig() {
 	gc := &GrpcConfig{}
 	gc.Name = cfg.viper.GetString("grpc.name")
 	gc.Addr = cfg.viper.GetString("grpc.addr")
+	gc.Version = cfg.viper.GetString("grpc.version")
+	gc.Weight = cfg.viper.GetInt64("grpc.weight")
 	cfg.Gc = gc
 }
 func (c *Config) InitZapLog() {
@@ -72,10 +81,21 @@ func (c *Config) InitZapLog() {
 		log.Fatalln(err)
 	}
 }
-func (c *Config) InitRedisOptions() *redis.Options {
+func (c *Config) ReadRedisConfig() *redis.Options {
 	return &redis.Options{
 		Addr:     c.viper.GetString("redis.host") + ":" + c.viper.GetString("redis.port"),
 		Password: c.viper.GetString("redis.password"), // no password set
 		DB:       c.viper.GetInt("db"),                // use default DB
 	}
+}
+
+func (cfg *Config) ReadEtcdConfig() {
+	ec := &EtcdConfig{}
+	var addrs []string
+	err := cfg.viper.UnmarshalKey("etcd.addrs", &addrs)
+	if err != nil {
+		log.Fatalln("读取etcd配置失败！", err)
+	}
+	ec.Addrs = addrs
+	cfg.Ec = ec
 }

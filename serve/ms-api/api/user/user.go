@@ -18,9 +18,8 @@ func New() *HandlerUser {
 }
 
 func (h *HandlerUser) GetCaptcha(ctx *gin.Context) {
-
 	result := &common.Result{}
-	mobile := ctx.Query("mobile")
+	mobile := ctx.PostForm("mobile")
 	c, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 	resp, err := UserClient.GetCaptcha(c, &loginServiceV1.CaptchaMessage{

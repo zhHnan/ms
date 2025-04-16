@@ -12,10 +12,14 @@ var Cfg = InitConfig()
 type Config struct {
 	viper *viper.Viper
 	Sc    *ServerConfig
+	Ec    *EtcdConfig
 }
 type ServerConfig struct {
 	Name string
 	Addr string
+}
+type EtcdConfig struct {
+	Addrs []string
 }
 
 // InitConfig 初始化配置
@@ -34,6 +38,7 @@ func InitConfig() *Config {
 	}
 	conf.ReadServerConfig()
 	conf.InitZapLog()
+	conf.ReadEtcdConfig()
 	return conf
 }
 
@@ -57,4 +62,15 @@ func (c *Config) InitZapLog() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func (cfg *Config) ReadEtcdConfig() {
+	ec := &EtcdConfig{}
+	var addrs []string
+	err := cfg.viper.UnmarshalKey("etcd.addrs", &addrs)
+	if err != nil {
+		log.Fatalln("读取etcd配置失败！", err)
+	}
+	ec.Addrs = addrs
+	cfg.Ec = ec
 }
