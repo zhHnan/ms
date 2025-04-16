@@ -2,6 +2,7 @@ package common
 
 import (
 	"context"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -11,7 +12,7 @@ import (
 	"time"
 )
 
-func Run(r *gin.Engine, addr, serverName string) {
+func Run(r *gin.Engine, addr, serverName string, stop func()) {
 	// 启动http服务
 	srv := &http.Server{
 		Addr:    addr,
@@ -20,7 +21,7 @@ func Run(r *gin.Engine, addr, serverName string) {
 	// 启动http服务
 	go func() {
 		log.Printf("%s server running in %s \n", serverName, srv.Addr)
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Fatalln(err)
 		}
 	}()
@@ -33,7 +34,9 @@ func Run(r *gin.Engine, addr, serverName string) {
 	log.Printf("shutting down project %s server... \n", serverName)
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-
+	if stop != nil {
+		stop()
+	}
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatalf("%s server shutdown, caused by %v:\n", serverName, err)
 	}

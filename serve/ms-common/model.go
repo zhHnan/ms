@@ -2,9 +2,9 @@ package common
 
 type BusinessCode int
 type Result struct {
-	Code BusinessCode
-	Msg  string
-	Data interface{}
+	Code BusinessCode `json:"code"`
+	Msg  string       `json:"msg"`
+	Data interface{}  `json:"data"`
 }
 
 func (r *Result) Success(data interface{}) *Result {

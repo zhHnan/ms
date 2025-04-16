@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"google.golang.org/grpc"
 )
 
 type Router interface {
@@ -27,4 +28,9 @@ func InitRouter(r *gin.Engine) {
 
 func Register(ros ...Router) {
 	routers = append(routers, ros...)
+}
+
+type grpcConfig struct {
+	Addr         string
+	RegisterFunc func(server *grpc.Server)
 }
