@@ -2,6 +2,8 @@ package login_service_v1
 
 import (
 	"context"
+	"errors"
+	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 	common "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-common/encrypts"
@@ -63,6 +65,9 @@ func (l *LoginService) Register(ctx context.Context, msg *login.RegisterMessage)
 	// 检验参数
 	// 校验验证码
 	redisCode, err := l.cache.Get(ctx, model.RegisterKey+msg.Mobile)
+	if errors.Is(err, redis.Nil) {
+		return nil, errs.GrpcError(model.CaptchaNotFound)
+	}
 	if err != nil {
 		zap.L().Error("验证码校验失败！", zap.Error(err))
 		return nil, errs.GrpcError(model.RedisError)
