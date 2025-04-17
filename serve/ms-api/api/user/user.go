@@ -3,9 +3,12 @@ package user
 import (
 	"context"
 	"github.com/gin-gonic/gin"
-	"hnz.com/ms_serve/common"
-	"hnz.com/ms_serve/common/errs"
-	loginServiceV1 "hnz.com/ms_serve/ms-user/pkg/service/login_service.v1"
+	"github.com/jinzhu/copier"
+	"hnz.com/ms_serve/ms-api/pkg/model/user"
+	common "hnz.com/ms_serve/ms-common"
+	"hnz.com/ms_serve/ms-common/errs"
+	"hnz.com/ms_serve/ms-grpc/user/login"
+	"net/http"
 	"time"
 )
 
@@ -17,12 +20,12 @@ func New() *HandlerUser {
 	return &HandlerUser{}
 }
 
-func (h *HandlerUser) GetCaptcha(ctx *gin.Context) {
+func (h *HandlerUser) getCaptcha(ctx *gin.Context) {
 	result := &common.Result{}
 	mobile := ctx.PostForm("mobile")
 	c, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
-	resp, err := UserClient.GetCaptcha(c, &loginServiceV1.CaptchaMessage{
+	resp, err := UserClient.GetCaptcha(c, &login.CaptchaMessage{
 		Mobile: mobile,
 	})
 	if err != nil {
@@ -31,4 +34,36 @@ func (h *HandlerUser) GetCaptcha(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, result.Success(resp.Code))
+}
+
+// Register 注册
+func (h *HandlerUser) register(c *gin.Context) {
+	// 接收参数
+	result := &common.Result{}
+	var req user.RegisterReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
+		return
+	}
+	// 校验参数
+	if err := req.Verify(); err != nil {
+		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, err.Error()))
+		return
+	}
+	// 调用rpc
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	msg := &login.RegisterMessage{}
+	if err := copier.Copy(msg, &req); err != nil {
+		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
+		return
+	}
+	_, err := UserClient.Register(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+		return
+	}
+	// 返回结果
+	c.JSON(http.StatusOK, result.Success(nil))
 }

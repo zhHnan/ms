@@ -9,6 +9,19 @@ message CaptchaMessage {
 message CaptchaResponse{
   string code = 1;
 }
+message RegisterMessage {
+  string mobile = 1;
+  string name = 2;
+  string password = 3;
+  string captcha = 4;
+  string email = 5;
+}
+message RegisterResponse{
+}
+
+
+
 service LoginService {
   rpc GetCaptcha(CaptchaMessage) returns (CaptchaResponse) {}
+  rpc Register(RegisterMessage) returns (RegisterResponse) {}
 }

@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/spf13/viper"
-	"hnz.com/ms_serve/common/logs"
+	"hnz.com/ms_serve/ms-common/logs"
 	"log"
 	"os"
 )
@@ -28,7 +28,7 @@ func InitConfig() *Config {
 		viper: viper.New(),
 	}
 	dir, _ := os.Getwd()
-	conf.viper.SetConfigName("app")
+	conf.viper.SetConfigName("config")
 	conf.viper.SetConfigType("yaml")
 	conf.viper.AddConfigPath("/etc/ms/ms-user")
 	conf.viper.AddConfigPath(dir + "/config")

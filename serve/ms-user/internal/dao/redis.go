@@ -2,7 +2,6 @@ package dao
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-redis/redis"
 	"hnz.com/ms_serve/ms-user/config"
 	"time"
@@ -20,12 +19,10 @@ func init() {
 }
 
 func (rc *RedisCache) Put(ctx context.Context, key, value string, expire time.Duration) error {
-	fmt.Printf("key:%s,value:%s\n", key, value)
 	err := rc.rdb.Set(key, value, expire).Err()
 	return err
 }
 func (rc *RedisCache) Get(ctx context.Context, key string) (string, error) {
 	result, err := rc.rdb.Get(key).Result()
 	return result, err
-
 }

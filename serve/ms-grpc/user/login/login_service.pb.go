@@ -4,7 +4,7 @@
 // 	protoc        v4.25.3
 // source: login_service.proto
 
-package login_service_v1
+package login
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -109,6 +109,118 @@ func (x *CaptchaResponse) GetCode() string {
 	return ""
 }
 
+type RegisterMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Mobile        string                 `protobuf:"bytes,1,opt,name=mobile,proto3" json:"mobile,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Password      string                 `protobuf:"bytes,3,opt,name=password,proto3" json:"password,omitempty"`
+	Captcha       string                 `protobuf:"bytes,4,opt,name=captcha,proto3" json:"captcha,omitempty"`
+	Email         string                 `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterMessage) Reset() {
+	*x = RegisterMessage{}
+	mi := &file_login_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterMessage) ProtoMessage() {}
+
+func (x *RegisterMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_login_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterMessage.ProtoReflect.Descriptor instead.
+func (*RegisterMessage) Descriptor() ([]byte, []int) {
+	return file_login_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *RegisterMessage) GetMobile() string {
+	if x != nil {
+		return x.Mobile
+	}
+	return ""
+}
+
+func (x *RegisterMessage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RegisterMessage) GetPassword() string {
+	if x != nil {
+		return x.Password
+	}
+	return ""
+}
+
+func (x *RegisterMessage) GetCaptcha() string {
+	if x != nil {
+		return x.Captcha
+	}
+	return ""
+}
+
+func (x *RegisterMessage) GetEmail() string {
+	if x != nil {
+		return x.Email
+	}
+	return ""
+}
+
+type RegisterResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RegisterResponse) Reset() {
+	*x = RegisterResponse{}
+	mi := &file_login_service_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RegisterResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RegisterResponse) ProtoMessage() {}
+
+func (x *RegisterResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_login_service_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RegisterResponse.ProtoReflect.Descriptor instead.
+func (*RegisterResponse) Descriptor() ([]byte, []int) {
+	return file_login_service_proto_rawDescGZIP(), []int{3}
+}
+
 var File_login_service_proto protoreflect.FileDescriptor
 
 const file_login_service_proto_rawDesc = "" +
@@ -117,10 +229,18 @@ const file_login_service_proto_rawDesc = "" +
 	"\x0eCaptchaMessage\x12\x16\n" +
 	"\x06mobile\x18\x01 \x01(\tR\x06mobile\"%\n" +
 	"\x0fCaptchaResponse\x12\x12\n" +
-	"\x04code\x18\x01 \x01(\tR\x04code2c\n" +
+	"\x04code\x18\x01 \x01(\tR\x04code\"\x89\x01\n" +
+	"\x0fRegisterMessage\x12\x16\n" +
+	"\x06mobile\x18\x01 \x01(\tR\x06mobile\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x18\n" +
+	"\acaptcha\x18\x04 \x01(\tR\acaptcha\x12\x14\n" +
+	"\x05email\x18\x05 \x01(\tR\x05email\"\x12\n" +
+	"\x10RegisterResponse2\xb8\x01\n" +
 	"\fLoginService\x12S\n" +
 	"\n" +
-	"GetCaptcha\x12 .login.service.v1.CaptchaMessage\x1a!.login.service.v1.CaptchaResponse\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
+	"GetCaptcha\x12 .login.service.v1.CaptchaMessage\x1a!.login.service.v1.CaptchaResponse\"\x00\x12S\n" +
+	"\bRegister\x12!.login.service.v1.RegisterMessage\x1a\".login.service.v1.RegisterResponse\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
 
 var (
 	file_login_service_proto_rawDescOnce sync.Once
@@ -134,16 +254,20 @@ func file_login_service_proto_rawDescGZIP() []byte {
 	return file_login_service_proto_rawDescData
 }
 
-var file_login_service_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_login_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_login_service_proto_goTypes = []any{
-	(*CaptchaMessage)(nil),  // 0: login.service.v1.CaptchaMessage
-	(*CaptchaResponse)(nil), // 1: login.service.v1.CaptchaResponse
+	(*CaptchaMessage)(nil),   // 0: login.service.v1.CaptchaMessage
+	(*CaptchaResponse)(nil),  // 1: login.service.v1.CaptchaResponse
+	(*RegisterMessage)(nil),  // 2: login.service.v1.RegisterMessage
+	(*RegisterResponse)(nil), // 3: login.service.v1.RegisterResponse
 }
 var file_login_service_proto_depIdxs = []int32{
 	0, // 0: login.service.v1.LoginService.GetCaptcha:input_type -> login.service.v1.CaptchaMessage
-	1, // 1: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: login.service.v1.LoginService.Register:input_type -> login.service.v1.RegisterMessage
+	1, // 2: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
+	3, // 3: login.service.v1.LoginService.Register:output_type -> login.service.v1.RegisterResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -160,7 +284,7 @@ func file_login_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_login_service_proto_rawDesc), len(file_login_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -3,7 +3,7 @@ package errs
 import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"hnz.com/ms_serve/common"
+	"hnz.com/ms_serve/ms-common"
 )
 
 func GrpcError(err *BError) error {

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	srv "hnz.com/ms_serve/common"
+	srv "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-user/config"
 	"hnz.com/ms_serve/ms-user/router"
 )

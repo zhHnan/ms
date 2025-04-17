@@ -1,4 +1,4 @@
-module hnz.com/ms_serve/common
+module hnz.com/ms_serve/ms-common
 
 go 1.24
 

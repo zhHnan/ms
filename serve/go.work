@@ -4,4 +4,5 @@ use (
 	./ms-common
 	./ms-user
 	./ms-api
+	./ms-grpc
 )

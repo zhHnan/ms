@@ -1,16 +1,17 @@
 package router
 
 import (
+	"hnz.com/ms_serve/ms-common/discovery"
+	"hnz.com/ms_serve/ms-common/logs"
+	"hnz.com/ms_serve/ms-grpc/user/login"
 	"log"
 	"net"
 
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
-	"hnz.com/ms_serve/common/discovery"
-	"hnz.com/ms_serve/common/logs"
 	"hnz.com/ms_serve/ms-user/config"
-	loginServiceV1 "hnz.com/ms_serve/ms-user/pkg/service/login_service.v1"
+	login_service "hnz.com/ms_serve/ms-user/pkg/service/login_service.v1"
 )
 
 type Router interface {
@@ -48,7 +49,7 @@ func RegisterGrpc() *grpc.Server {
 		Addr: config.Cfg.Gc.Addr,
 		RegisterFunc: func(g *grpc.Server) {
 			//loginServiceV1.RegisterLoginServiceServer(g, &loginServiceV1.LoginService{})
-			loginServiceV1.RegisterLoginServiceServer(g, loginServiceV1.New())
+			login.RegisterLoginServiceServer(g, login_service.New())
 		}}
 	s := grpc.NewServer()
 	c.RegisterFunc(s)

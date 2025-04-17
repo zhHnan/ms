@@ -2,10 +2,10 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	srv "hnz.com/ms_serve/common"
 	_ "hnz.com/ms_serve/ms-api/api"
 	"hnz.com/ms_serve/ms-api/config"
 	"hnz.com/ms_serve/ms-api/router"
+	srv "hnz.com/ms_serve/ms-common"
 )
 
 func main() {

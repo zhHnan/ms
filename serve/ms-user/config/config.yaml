@@ -1,0 +1,29 @@
+server:
+  addr: 127.0.0.1:8080
+  name: "ms-user"
+zap:
+  debugFileName: "E:\\Projects\\go_proj\\ms\\serve\\logs\\debug\\project-debug.log"
+  infoFileName: "E:\\Projects\\go_proj\\ms\\serve\\logs\\info\\project-info.log"
+  warnFileName: "E:\\Projects\\go_proj\\ms\\serve\\logs\\error\\project-error.log"
+  maxSize: 500,
+  maxAge: 28,
+  MaxBackups: 3
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+grpc:
+  addr: 127.0.0.1:8081
+  name: "user"
+  version: "1.0.0"
+  weight: 2
+etcd:
+  addrs:
+    - 127.0.0.1:2379
+mysql:
+  username: root
+  password: root
+  host: 127.0.0.1
+  port: 3309
+  db: ms
