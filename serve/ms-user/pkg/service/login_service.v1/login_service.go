@@ -12,6 +12,8 @@ import (
 	"hnz.com/ms_serve/ms-user/internal/dao"
 	"hnz.com/ms_serve/ms-user/internal/data/member"
 	"hnz.com/ms_serve/ms-user/internal/data/organization"
+	"hnz.com/ms_serve/ms-user/internal/database"
+	"hnz.com/ms_serve/ms-user/internal/database/tran"
 	"hnz.com/ms_serve/ms-user/internal/repo"
 	"hnz.com/ms_serve/ms-user/pkg/model"
 	"log"
@@ -23,6 +25,7 @@ type LoginService struct {
 	cache            repo.Cache
 	memberRepo       repo.MemberRepo
 	organizationRepo repo.OrganizationRepo
+	transaction      tran.Transaction
 }
 
 func New() *LoginService {
@@ -30,6 +33,7 @@ func New() *LoginService {
 		cache:            dao.Rc,
 		memberRepo:       dao.NewMemberDao(),
 		organizationRepo: dao.NewOrganizationDao(),
+		transaction:      dao.NewTrans(),
 	}
 }
 
@@ -112,24 +116,28 @@ func (l *LoginService) Register(ctx context.Context, msg *login.RegisterMessage)
 		Status:        model.Normal,
 		LastLoginTime: time.Now().UnixMilli(),
 	}
-	err = l.memberRepo.SaveMember(ctx, mem)
-	if err != nil {
-		zap.L().Error("register database save error！", zap.Error(err))
-		return nil, errs.GrpcError(model.DataBaseError)
-	}
-	// 存入组织
-	org := &organization.Organization{
-		Name:       mem.Name + "个人组织",
-		MemberId:   mem.Id,
-		CreateTime: time.Now().UnixMilli(),
-		Personal:   int32(model.Personal),
-		Avatar:     "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.dtstatic.com%2Fuploads%2Fblog%2F202103%2F31%2F20210331160001_9a852.thumb.1000_0.jpg&refer=http%3A%2F%2Fc-ssl.dtstatic.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1673017724&t=ced22fc74624e6940fd6a89a21d30cc5",
-	}
-	err = l.organizationRepo.SaveOrganization(ctx, org)
-	if err != nil {
-		zap.L().Error("register SaveOrganization db err", zap.Error(err))
-		return nil, errs.GrpcError(model.DataBaseError)
-	}
+	// 事务
+	err = l.transaction.Action(func(conn database.DBConn) error {
+		err = l.memberRepo.SaveMember(conn, ctx, mem)
+		if err != nil {
+			zap.L().Error("register database save error！", zap.Error(err))
+			return errs.GrpcError(model.DataBaseError)
+		}
+		// 存入组织
+		org := &organization.Organization{
+			Name:       mem.Name + "个人组织",
+			MemberId:   mem.Id,
+			CreateTime: time.Now().UnixMilli(),
+			Personal:   int32(model.Personal),
+			Avatar:     "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.dtstatic.com%2Fuploads%2Fblog%2F202103%2F31%2F20210331160001_9a852.thumb.1000_0.jpg&refer=http%3A%2F%2Fc-ssl.dtstatic.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1673017724&t=ced22fc74624e6940fd6a89a21d30cc5",
+		}
+		err = l.organizationRepo.SaveOrganization(conn, ctx, org)
+		if err != nil {
+			zap.L().Error("register SaveOrganization db err", zap.Error(err))
+			return errs.GrpcError(model.DataBaseError)
+		}
+		return nil
+	})
 	// 返回结果
-	return &login.RegisterResponse{}, nil
+	return &login.RegisterResponse{}, err
 }

@@ -3,6 +3,7 @@ package dao
 import (
 	"context"
 	"hnz.com/ms_serve/ms-user/internal/data/member"
+	"hnz.com/ms_serve/ms-user/internal/database"
 	"hnz.com/ms_serve/ms-user/internal/database/gorms"
 )
 
@@ -33,6 +34,7 @@ func (m *MemberDao) GetMemberByMobile(ctx context.Context, mobile string) (bool,
 	err := m.conn.Session(ctx).Model(&member.Member{}).Where("mobile = ?", mobile).Count(&count).Error
 	return count > 0, err
 }
-func (m *MemberDao) SaveMember(ctx context.Context, mem *member.Member) error {
-	return m.conn.Session(ctx).Create(mem).Error
+func (m *MemberDao) SaveMember(conn database.DBConn, ctx context.Context, mem *member.Member) error {
+	m.conn = conn.(*gorms.GormConn)
+	return m.conn.Tx(ctx).Create(mem).Error
 }
