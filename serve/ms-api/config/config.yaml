@@ -2,9 +2,9 @@ server:
   addr: 127.0.0.1:8085
   name: "ms-api"
 zap:
-  debugFileName: "E:\Projects\go_proj\ms\serve\logs\\debug\\project-debug.log"
-  infoFileName: "E:\Projects\go_proj\ms\serve\logs\\info\\project-info.log"
-  warnFileName: "E:\Projects\go_proj\ms\serve\logs\\error\\project-error.log"
+  debugFileName: "E:\\Projects\\go_proj\\ms\\serve\\logs\\debug\\project-debug.log"
+  infoFileName: "E:\\Projects\\go_proj\\ms\\serve\\logs\\info\\project-info.log"
+  warnFileName: "E:\\Projects\\go_proj\\ms\\serve\\logs\\error\\project-error.log"
   maxSize: 500,
   maxAge: 28,
   MaxBackups: 3

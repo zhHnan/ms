@@ -4,9 +4,12 @@ import (
 	"context"
 	"go.uber.org/zap"
 	common "hnz.com/ms_serve/ms-common"
+	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/errs"
 	"hnz.com/ms_serve/ms-grpc/user/login"
 	"hnz.com/ms_serve/ms-user/internal/dao"
+	"hnz.com/ms_serve/ms-user/internal/data/member"
+	"hnz.com/ms_serve/ms-user/internal/data/organization"
 	"hnz.com/ms_serve/ms-user/internal/repo"
 	"hnz.com/ms_serve/ms-user/pkg/model"
 	"log"
@@ -15,14 +18,16 @@ import (
 
 type LoginService struct {
 	login.UnimplementedLoginServiceServer
-	cache      repo.Cache
-	memberRepo repo.MemberRepo
+	cache            repo.Cache
+	memberRepo       repo.MemberRepo
+	organizationRepo repo.OrganizationRepo
 }
 
 func New() *LoginService {
 	return &LoginService{
-		cache:      dao.Rc,
-		memberRepo: dao.NewMemberDao(),
+		cache:            dao.Rc,
+		memberRepo:       dao.NewMemberDao(),
+		organizationRepo: dao.NewOrganizationDao(),
 	}
 }
 
@@ -91,6 +96,35 @@ func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage
 		return nil, errs.GrpcError(model.MobileExist)
 	}
 	// 执行业务 -- 将数据插入到member表中 生成一个数据存入到组织表organization中
+	pwd := encrypts.Md5(msg.Password)
+	mem := &member.Member{
+		Account:       msg.Name,
+		Password:      pwd,
+		Name:          msg.Name,
+		Mobile:        msg.Mobile,
+		Email:         msg.Email,
+		CreateTime:    time.Now().UnixMilli(),
+		Status:        model.Normal,
+		LastLoginTime: time.Now().UnixMilli(),
+	}
+	err = ls.memberRepo.SaveMember(ctx, mem)
+	if err != nil {
+		zap.L().Error("register database save error！", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	// 存入组织
+	org := &organization.Organization{
+		Name:       mem.Name + "个人组织",
+		MemberId:   mem.Id,
+		CreateTime: time.Now().UnixMilli(),
+		Personal:   int32(model.Personal),
+		Avatar:     "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.dtstatic.com%2Fuploads%2Fblog%2F202103%2F31%2F20210331160001_9a852.thumb.1000_0.jpg&refer=http%3A%2F%2Fc-ssl.dtstatic.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1673017724&t=ced22fc74624e6940fd6a89a21d30cc5",
+	}
+	err = ls.organizationRepo.SaveOrganization(ctx, org)
+	if err != nil {
+		zap.L().Error("register SaveOrganization db err", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
 	// 返回结果
 	return &login.RegisterResponse{}, nil
 }

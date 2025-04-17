@@ -2,7 +2,7 @@ package user
 
 import (
 	"errors"
-	"hnz.com/ms_serve/common"
+	"hnz.com/ms_serve/ms-common"
 )
 
 type RegisterReq struct {

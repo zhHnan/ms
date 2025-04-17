@@ -16,20 +16,23 @@ func NewMemberDao() *MemberDao {
 	}
 }
 
-func (m MemberDao) GetMemberByEmail(ctx context.Context, email string) (bool, error) {
+func (m *MemberDao) GetMemberByEmail(ctx context.Context, email string) (bool, error) {
 	var count int64
 	err := m.conn.Session(ctx).Model(&member.Member{}).Where("email = ?", email).Count(&count).Error
 	return count > 0, err
 }
 
-func (m MemberDao) GetMemberByAccount(ctx context.Context, name string) (bool, error) {
+func (m *MemberDao) GetMemberByAccount(ctx context.Context, name string) (bool, error) {
 	var count int64
 	err := m.conn.Session(ctx).Model(&member.Member{}).Where("account = ?", name).Count(&count).Error
 	return count > 0, err
 }
 
-func (m MemberDao) GetMemberByMobile(ctx context.Context, mobile string) (bool, error) {
+func (m *MemberDao) GetMemberByMobile(ctx context.Context, mobile string) (bool, error) {
 	var count int64
 	err := m.conn.Session(ctx).Model(&member.Member{}).Where("mobile = ?", mobile).Count(&count).Error
 	return count > 0, err
+}
+func (m *MemberDao) SaveMember(ctx context.Context, mem *member.Member) error {
+	return m.conn.Session(ctx).Create(mem).Error
 }
