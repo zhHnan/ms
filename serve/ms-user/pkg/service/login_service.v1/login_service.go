@@ -59,10 +59,10 @@ func (l *LoginService) GetCaptcha(ctx context.Context, msg *login.CaptchaMessage
 	return &login.CaptchaResponse{Code: code}, nil
 }
 
-func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage) (*login.RegisterResponse, error) {
+func (l *LoginService) Register(ctx context.Context, msg *login.RegisterMessage) (*login.RegisterResponse, error) {
 	// 检验参数
 	// 校验验证码
-	redisCode, err := ls.cache.Get(ctx, model.RegisterKey+msg.Mobile)
+	redisCode, err := l.cache.Get(ctx, model.RegisterKey+msg.Mobile)
 	if err != nil {
 		zap.L().Error("验证码校验失败！", zap.Error(err))
 		return nil, errs.GrpcError(model.RedisError)
@@ -71,7 +71,7 @@ func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage
 		return nil, errs.GrpcError(model.CaptchaError)
 	}
 	// 校验业务逻辑（邮箱是否注册、账号是否注册、手机号是否注册）
-	exist, err := ls.memberRepo.GetMemberByEmail(ctx, msg.Email)
+	exist, err := l.memberRepo.GetMemberByEmail(ctx, msg.Email)
 	if err != nil {
 		zap.L().Error("register database get error！", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
@@ -79,7 +79,7 @@ func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage
 	if exist {
 		return nil, errs.GrpcError(model.EmailExist)
 	}
-	exist, err = ls.memberRepo.GetMemberByAccount(ctx, msg.Name)
+	exist, err = l.memberRepo.GetMemberByAccount(ctx, msg.Name)
 	if err != nil {
 		zap.L().Error("register database get error！", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
@@ -87,7 +87,7 @@ func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage
 	if exist {
 		return nil, errs.GrpcError(model.NameExist)
 	}
-	exist, err = ls.memberRepo.GetMemberByMobile(ctx, msg.Mobile)
+	exist, err = l.memberRepo.GetMemberByMobile(ctx, msg.Mobile)
 	if err != nil {
 		zap.L().Error("register database get error！", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
@@ -107,7 +107,7 @@ func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage
 		Status:        model.Normal,
 		LastLoginTime: time.Now().UnixMilli(),
 	}
-	err = ls.memberRepo.SaveMember(ctx, mem)
+	err = l.memberRepo.SaveMember(ctx, mem)
 	if err != nil {
 		zap.L().Error("register database save error！", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
@@ -120,7 +120,7 @@ func (ls *LoginService) Register(ctx context.Context, msg *login.RegisterMessage
 		Personal:   int32(model.Personal),
 		Avatar:     "https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fc-ssl.dtstatic.com%2Fuploads%2Fblog%2F202103%2F31%2F20210331160001_9a852.thumb.1000_0.jpg&refer=http%3A%2F%2Fc-ssl.dtstatic.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1673017724&t=ced22fc74624e6940fd6a89a21d30cc5",
 	}
-	err = ls.organizationRepo.SaveOrganization(ctx, org)
+	err = l.organizationRepo.SaveOrganization(ctx, org)
 	if err != nil {
 		zap.L().Error("register SaveOrganization db err", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
