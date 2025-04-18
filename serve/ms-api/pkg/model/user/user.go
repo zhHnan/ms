@@ -24,10 +24,11 @@ type LoginRsp struct {
 	OrganizationList []OrganizationList `json:"organizationList"`
 }
 type Member struct {
-	Id     int64  `json:"id"`
+	//Id     int64  `json:"id"`
 	Name   string `json:"name"`
 	Mobile string `json:"mobile"`
 	Status int    `json:"status"`
+	Code   string `json:"code"`
 }
 
 type TokenList struct {
@@ -38,7 +39,7 @@ type TokenList struct {
 }
 
 type OrganizationList struct {
-	Id          int64  `json:"id"`
+	//Id          int64  `json:"id"`
 	Name        string `json:"name"`
 	Avatar      string `json:"avatar"`
 	Description string `json:"description"`
@@ -49,6 +50,7 @@ type OrganizationList struct {
 	Province    int32  `json:"province"`
 	City        int32  `json:"city"`
 	Area        int32  `json:"area"`
+	Code        string `json:"code"`
 }
 
 func (r RegisterReq) VerifyPassword() bool {
