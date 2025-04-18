@@ -159,6 +159,7 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 	}
 	membMessage := &login.MemberMessage{}
 	err = copier.Copy(membMessage, mem)
+	membMessage.Code, err = encrypts.Encrypt(strconv.FormatInt(mem.Id, 10), model.AESKey)
 	// 根据用户id 查询用户信息--组织
 	orgs, err := l.organizationRepo.FindOrganizationByMemId(c, mem.Id)
 	if err != nil {
@@ -167,7 +168,9 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 	}
 	var orgsMessage []*login.OrganizationMessage
 	err = copier.Copy(&orgsMessage, orgs)
-
+	for _, v := range orgsMessage {
+		v.Code, _ = encrypts.Encrypt(strconv.FormatInt(v.Id, 10), model.AESKey)
+	}
 	// 使用jwt生成token
 	memIdStr := strconv.FormatInt(mem.Id, 10)
 	accessExp := time.Duration(config.Cfg.Jc.AccessExp*3600*24) * time.Second

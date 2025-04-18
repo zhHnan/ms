@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v4.25.3
-// source: login_service.proto
+// source: project_service.proto
 
 package login
 
@@ -347,6 +347,7 @@ type MemberMessage struct {
 	City          int32                  `protobuf:"varint,10,opt,name=city,proto3" json:"city,omitempty"`
 	Area          int32                  `protobuf:"varint,11,opt,name=area,proto3" json:"area,omitempty"`
 	Email         string                 `protobuf:"bytes,12,opt,name=email,proto3" json:"email,omitempty"`
+	Code          string                 `protobuf:"bytes,13,opt,name=code,proto3" json:"code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -465,6 +466,13 @@ func (x *MemberMessage) GetEmail() string {
 	return ""
 }
 
+func (x *MemberMessage) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
 type OrganizationMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -478,6 +486,7 @@ type OrganizationMessage struct {
 	Province      int32                  `protobuf:"varint,9,opt,name=province,proto3" json:"province,omitempty"`
 	City          int32                  `protobuf:"varint,10,opt,name=city,proto3" json:"city,omitempty"`
 	Area          int32                  `protobuf:"varint,11,opt,name=area,proto3" json:"area,omitempty"`
+	Code          string                 `protobuf:"bytes,12,opt,name=code,proto3" json:"code,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -589,6 +598,13 @@ func (x *OrganizationMessage) GetArea() int32 {
 	return 0
 }
 
+func (x *OrganizationMessage) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
 type TokenMessage struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	AccessToken    string                 `protobuf:"bytes,1,opt,name=accessToken,proto3" json:"accessToken,omitempty"`
@@ -679,7 +695,7 @@ const file_login_service_proto_rawDesc = "" +
 	"\rLoginResponse\x127\n" +
 	"\x06member\x18\x01 \x01(\v2\x1f.login.service.v1.MemberMessageR\x06member\x12Q\n" +
 	"\x10organizationList\x18\x02 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList\x12<\n" +
-	"\ttokenList\x18\x03 \x01(\v2\x1e.login.service.v1.TokenMessageR\ttokenList\"\xb3\x02\n" +
+	"\ttokenList\x18\x03 \x01(\v2\x1e.login.service.v1.TokenMessageR\ttokenList\"\xc7\x02\n" +
 	"\rMemberMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -693,7 +709,8 @@ const file_login_service_proto_rawDesc = "" +
 	"\x04city\x18\n" +
 	" \x01(\x05R\x04city\x12\x12\n" +
 	"\x04area\x18\v \x01(\x05R\x04area\x12\x14\n" +
-	"\x05email\x18\f \x01(\tR\x05email\"\xa9\x02\n" +
+	"\x05email\x18\f \x01(\tR\x05email\x12\x12\n" +
+	"\x04code\x18\r \x01(\tR\x04code\"\xbd\x02\n" +
 	"\x13OrganizationMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -708,7 +725,8 @@ const file_login_service_proto_rawDesc = "" +
 	"\bprovince\x18\t \x01(\x05R\bprovince\x12\x12\n" +
 	"\x04city\x18\n" +
 	" \x01(\x05R\x04city\x12\x12\n" +
-	"\x04area\x18\v \x01(\x05R\x04area\"\x9a\x01\n" +
+	"\x04area\x18\v \x01(\x05R\x04area\x12\x12\n" +
+	"\x04code\x18\f \x01(\tR\x04code\"\x9a\x01\n" +
 	"\fTokenMessage\x12 \n" +
 	"\vaccessToken\x18\x01 \x01(\tR\vaccessToken\x12\"\n" +
 	"\frefreshToken\x18\x02 \x01(\tR\frefreshToken\x12\x1c\n" +

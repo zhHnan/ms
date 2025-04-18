@@ -14,7 +14,7 @@ redis:
   password: ""
   db: 0
 grpc:
-  addr: 127.0.0.1:8081
+  addr: 127.0.0.1:8880
   name: "user"
   version: "1.0.0"
   weight: 2
