@@ -1,5 +1,6 @@
 package config
 
+import "C"
 import (
 	"github.com/go-redis/redis"
 	"github.com/spf13/viper"
@@ -16,6 +17,7 @@ type Config struct {
 	Gc    *GrpcConfig
 	Ec    *EtcdConfig
 	Mc    *MysqlConfig
+	Jc    *JwtConfig
 }
 type ServerConfig struct {
 	Name string
@@ -36,6 +38,12 @@ type MysqlConfig struct {
 	Host     string
 	Port     int
 	Db       string
+}
+type JwtConfig struct {
+	AccessSecret  string
+	RefreshSecret string
+	AccessExp     int
+	RefreshExp    int
 }
 
 // InitConfig 初始化配置
@@ -58,6 +66,7 @@ func InitConfig() *Config {
 	conf.ReadGrpcConfig()
 	conf.ReadEtcdConfig()
 	conf.InitMysqlConfig()
+	conf.ReadJwtConfig()
 	return conf
 }
 
@@ -127,4 +136,13 @@ func (cfg *Config) InitMysqlConfig() {
 		Db:       cfg.viper.GetString("mysql.db"),
 	}
 	cfg.Mc = mc
+}
+func (c *Config) ReadJwtConfig() {
+	jc := &JwtConfig{
+		AccessSecret:  c.viper.GetString("jwt.accessSecret"),
+		RefreshSecret: c.viper.GetString("jwt.refreshSecret"),
+		AccessExp:     c.viper.GetInt("jwt.accessExp"),
+		RefreshExp:    c.viper.GetInt("jwt.refreshExp"),
+	}
+	c.Jc = jc
 }

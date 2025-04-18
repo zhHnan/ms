@@ -18,10 +18,52 @@ message RegisterMessage {
 }
 message RegisterResponse{
 }
-
+message LoginMessage {
+  string account = 1;
+  string password = 2;
+}
+message LoginResponse{
+  MemberMessage member = 1;
+  repeated OrganizationMessage organizationList = 2;
+  TokenMessage tokenList = 3;
+}
+message MemberMessage {
+  int64 id = 1;
+  string name = 2;
+  string mobile = 3;
+  string realname = 4;
+  string account = 5;
+  int32 status = 6;
+  int64  lastLoginTime = 7;
+  string address = 8;
+  int32 province = 9;
+  int32 city = 10;
+  int32 area = 11;
+  string email = 12;
+}
+message OrganizationMessage {
+  int64 id = 1;
+  string name = 2;
+  string avatar = 3;
+  string description = 4;
+  int64 memberId = 5;
+  int64 createTime = 6;
+  int32 personal = 7;
+  string address = 8;
+  int32 province = 9;
+  int32 city = 10;
+  int32 area = 11;
+}
+message TokenMessage{
+  string accessToken = 1;
+  string refreshToken = 2;
+  string tokenType = 3;
+  int64 accessTokenExp = 4;
+}
 
 
 service LoginService {
   rpc GetCaptcha(CaptchaMessage) returns (CaptchaResponse) {}
   rpc Register(RegisterMessage) returns (RegisterResponse) {}
+  rpc Login(LoginMessage) returns (LoginResponse) {}
 }

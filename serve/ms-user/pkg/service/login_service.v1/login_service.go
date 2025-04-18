@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"github.com/go-redis/redis/v8"
+	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
 	common "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/errs"
+	"hnz.com/ms_serve/ms-common/jwts"
 	"hnz.com/ms_serve/ms-grpc/user/login"
+	"hnz.com/ms_serve/ms-user/config"
 	"hnz.com/ms_serve/ms-user/internal/dao"
 	"hnz.com/ms_serve/ms-user/internal/data/member"
 	"hnz.com/ms_serve/ms-user/internal/data/organization"
@@ -17,6 +20,7 @@ import (
 	"hnz.com/ms_serve/ms-user/internal/repo"
 	"hnz.com/ms_serve/ms-user/pkg/model"
 	"log"
+	"strconv"
 	"time"
 )
 
@@ -140,4 +144,44 @@ func (l *LoginService) Register(ctx context.Context, msg *login.RegisterMessage)
 	})
 	// 返回结果
 	return &login.RegisterResponse{}, err
+}
+func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*login.LoginResponse, error) {
+	c := context.Background()
+	// 数据库查询账号密码是否正确
+	pwd := encrypts.Md5(msg.Password)
+	mem, err := l.memberRepo.FindMember(c, msg.Account, pwd)
+	if err != nil {
+		zap.L().Error("login database get error！", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if mem == nil {
+		return nil, errs.GrpcError(model.AccountOrPasswordError)
+	}
+	membMessage := &login.MemberMessage{}
+	err = copier.Copy(membMessage, mem)
+	// 根据用户id 查询用户信息--组织
+	orgs, err := l.organizationRepo.FindOrganizationByMemId(c, mem.Id)
+	if err != nil {
+		zap.L().Error("login database get error！", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	var orgsMessage []*login.OrganizationMessage
+	err = copier.Copy(&orgsMessage, orgs)
+
+	// 使用jwt生成token
+	memIdStr := strconv.FormatInt(mem.Id, 10)
+	accessExp := time.Duration(config.Cfg.Jc.AccessExp * 3600 * 24)
+	refreshExp := time.Duration(config.Cfg.Jc.RefreshExp * 3600 * 24)
+	jwtToken := jwts.CreateToken(memIdStr, config.Cfg.Jc.AccessSecret, config.Cfg.Jc.RefreshSecret, accessExp, refreshExp)
+	tokenList := &login.TokenMessage{
+		AccessToken:    jwtToken.AccessToken,
+		RefreshToken:   jwtToken.RefreshToken,
+		AccessTokenExp: int64(jwtToken.AccessExp),
+		TokenType:      "bearer",
+	}
+	return &login.LoginResponse{
+		Member:           membMessage,
+		OrganizationList: orgsMessage,
+		TokenList:        tokenList,
+	}, nil
 }

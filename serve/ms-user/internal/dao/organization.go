@@ -20,8 +20,9 @@ func NewOrganizationDao() *OrganizationDao {
 // implements
 // FindOrganizationByMemId 根据会员ID查询组织信息
 func (o *OrganizationDao) FindOrganizationByMemId(ctx context.Context, memId int64) ([]organization.Organization, error) {
-	//TODO implement me
-	panic("implement me")
+	var orgs []organization.Organization
+	err := o.conn.Session(ctx).Where("member_id = ?", memId).Find(&orgs).Error
+	return orgs, err
 }
 
 // SaveOrganization 保存组织信息

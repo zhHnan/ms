@@ -27,3 +27,9 @@ mysql:
   host: 127.0.0.1
   port: 3309
   db: ms
+jwt:
+  accessSecret: "msproject"
+  refreshSecret: "ms_project"
+  # 单位为天
+  accessExp: 7
+  refreshExp: 14

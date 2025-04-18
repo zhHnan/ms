@@ -67,3 +67,32 @@ func (h *HandlerUser) register(c *gin.Context) {
 	// 返回结果
 	c.JSON(http.StatusOK, result.Success(nil))
 }
+
+// Login 登录
+func (h *HandlerUser) login(c *gin.Context) {
+	// 接收参数
+	result := &common.Result{}
+	var req user.LoginReq
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
+		return
+	}
+	// 调用grpc 完成登录
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	msg := &login.LoginMessage{}
+	if err := copier.Copy(msg, &req); err != nil {
+		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
+		return
+	}
+	res, err := UserClient.Login(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+		return
+	}
+	var resp user.LoginRsp
+	err = copier.Copy(&resp, res)
+	// 返回结果
+	c.JSON(http.StatusOK, result.Success(resp))
+}
