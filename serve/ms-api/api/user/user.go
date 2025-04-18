@@ -41,7 +41,7 @@ func (h *HandlerUser) register(c *gin.Context) {
 	// 接收参数
 	result := &common.Result{}
 	var req user.RegisterReq
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
 		return
 	}
@@ -72,8 +72,20 @@ func (h *HandlerUser) register(c *gin.Context) {
 func (h *HandlerUser) login(c *gin.Context) {
 	// 接收参数
 	result := &common.Result{}
+	//// 读取原始请求体
+	//body, err := ioutil.ReadAll(c.Request.Body)
+	//if err != nil {
+	//	log.Printf("Failed to read request body: %v", err)
+	//	c.JSON(http.StatusBadRequest, result.Failure(http.StatusBadRequest, "无法读取请求体"))
+	//	return
+	//}
+	//log.Printf("Raw request body: %s", string(body))
+	//
+	//// 重新设置请求体以便后续解析
+	//c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
 	var req user.LoginReq
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
 		return
 	}

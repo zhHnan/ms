@@ -150,6 +150,7 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 	// 数据库查询账号密码是否正确
 	pwd := encrypts.Md5(msg.Password)
 	mem, err := l.memberRepo.FindMember(c, msg.Account, pwd)
+	log.Printf("msg: %v", msg)
 	if err != nil {
 		zap.L().Error("login database get error！", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
