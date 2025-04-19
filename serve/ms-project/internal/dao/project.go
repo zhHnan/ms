@@ -25,8 +25,8 @@ func (p *ProjectDao) FindProjectByMemId(ctx context.Context, memId int64, condit
 	var mp []*project.ProjectAndMember
 	err := db.Scan(&mp).Error
 	var total int64
-	query := fmt.Sprintf("member_code=? %s", condition)
-	session.Model(&project.ProjectMember{}).Where(query, memId).Count(&total)
+	query := fmt.Sprintf("select count(*) from ms_project a, ms_project_member b where a.id=b.project_code and b.member_code=? %s", condition)
+	err = session.Raw(query, memId).Scan(&total).Error
 	return mp, total, err
 }
 func (p *ProjectDao) FindCollectProjectByMemId(ctx context.Context, id int64, page int64, size int64) ([]*project.ProjectAndMember, int64, error) {
