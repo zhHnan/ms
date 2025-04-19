@@ -21,6 +21,7 @@ import (
 	"hnz.com/ms_serve/ms-user/pkg/model"
 	"log"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -188,4 +189,26 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 		OrganizationList: orgsMessage,
 		TokenList:        tokenList,
 	}, nil
+}
+func (l *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage) (*login.LoginResponse, error) {
+	token := msg.Token
+	if strings.Contains(token, "bearer") {
+		token = strings.Replace(token, "bearer ", "", 1)
+	}
+	parseToken, err := jwts.ParseToken(token, config.Cfg.Jc.AccessSecret)
+	if err != nil {
+		zap.L().Error("login token verify error！", zap.Error(err))
+		return nil, errs.GrpcError(model.NoLogin)
+	}
+	// todo 放于redis中
+	id, _ := strconv.ParseInt(parseToken, 10, 64)
+	membyId, err := l.memberRepo.FindMemberById(ctx, id)
+	if err != nil {
+		zap.L().Error("find user db 【FindMemberById】 error！", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	memMessage := &login.MemberMessage{}
+	_ = copier.Copy(memMessage, membyId)
+	memMessage.Code, _ = encrypts.Encrypt(strconv.FormatInt(membyId.Id, 10), model.AESKey)
+	return &login.LoginResponse{Member: memMessage}, nil
 }

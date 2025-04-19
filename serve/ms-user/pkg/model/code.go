@@ -7,6 +7,7 @@ import (
 var (
 	RedisError             = errs.NewError(9001, "redis错误")
 	DataBaseError          = errs.NewError(9002, "数据库错误")
+	NoLogin                = errs.NewError(9003, "未登录")
 	NoLegalMobile          = errs.NewError(2001, "手机号不合法")
 	CaptchaError           = errs.NewError(2002, "验证码不正确")
 	EmailExist             = errs.NewError(2003, "邮箱已存在")

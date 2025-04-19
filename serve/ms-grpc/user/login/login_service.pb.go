@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.6
 // 	protoc        v4.25.3
-// source: project_service.proto
+// source: login_service.proto
 
 package login
 
@@ -225,6 +225,7 @@ type LoginMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Account       string                 `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	Token         string                 `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -269,6 +270,13 @@ func (x *LoginMessage) GetAccount() string {
 func (x *LoginMessage) GetPassword() string {
 	if x != nil {
 		return x.Password
+	}
+	return ""
+}
+
+func (x *LoginMessage) GetToken() string {
+	if x != nil {
+		return x.Token
 	}
 	return ""
 }
@@ -688,10 +696,11 @@ const file_login_service_proto_rawDesc = "" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x18\n" +
 	"\acaptcha\x18\x04 \x01(\tR\acaptcha\x12\x14\n" +
 	"\x05email\x18\x05 \x01(\tR\x05email\"\x12\n" +
-	"\x10RegisterResponse\"D\n" +
+	"\x10RegisterResponse\"Z\n" +
 	"\fLoginMessage\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\tR\aaccount\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"\xd9\x01\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x14\n" +
+	"\x05token\x18\x03 \x01(\tR\x05token\"\xd9\x01\n" +
 	"\rLoginResponse\x127\n" +
 	"\x06member\x18\x01 \x01(\v2\x1f.login.service.v1.MemberMessageR\x06member\x12Q\n" +
 	"\x10organizationList\x18\x02 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList\x12<\n" +
@@ -731,12 +740,13 @@ const file_login_service_proto_rawDesc = "" +
 	"\vaccessToken\x18\x01 \x01(\tR\vaccessToken\x12\"\n" +
 	"\frefreshToken\x18\x02 \x01(\tR\frefreshToken\x12\x1c\n" +
 	"\ttokenType\x18\x03 \x01(\tR\ttokenType\x12&\n" +
-	"\x0eaccessTokenExp\x18\x04 \x01(\x03R\x0eaccessTokenExp2\x84\x02\n" +
+	"\x0eaccessTokenExp\x18\x04 \x01(\x03R\x0eaccessTokenExp2\xd6\x02\n" +
 	"\fLoginService\x12S\n" +
 	"\n" +
 	"GetCaptcha\x12 .login.service.v1.CaptchaMessage\x1a!.login.service.v1.CaptchaResponse\"\x00\x12S\n" +
 	"\bRegister\x12!.login.service.v1.RegisterMessage\x1a\".login.service.v1.RegisterResponse\"\x00\x12J\n" +
-	"\x05Login\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
+	"\x05Login\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00\x12P\n" +
+	"\vTokenVerify\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
 
 var (
 	file_login_service_proto_rawDescOnce sync.Once
@@ -769,11 +779,13 @@ var file_login_service_proto_depIdxs = []int32{
 	0, // 3: login.service.v1.LoginService.GetCaptcha:input_type -> login.service.v1.CaptchaMessage
 	2, // 4: login.service.v1.LoginService.Register:input_type -> login.service.v1.RegisterMessage
 	4, // 5: login.service.v1.LoginService.Login:input_type -> login.service.v1.LoginMessage
-	1, // 6: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
-	3, // 7: login.service.v1.LoginService.Register:output_type -> login.service.v1.RegisterResponse
-	5, // 8: login.service.v1.LoginService.Login:output_type -> login.service.v1.LoginResponse
-	6, // [6:9] is the sub-list for method output_type
-	3, // [3:6] is the sub-list for method input_type
+	4, // 6: login.service.v1.LoginService.TokenVerify:input_type -> login.service.v1.LoginMessage
+	1, // 7: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
+	3, // 8: login.service.v1.LoginService.Register:output_type -> login.service.v1.RegisterResponse
+	5, // 9: login.service.v1.LoginService.Login:output_type -> login.service.v1.LoginResponse
+	5, // 10: login.service.v1.LoginService.TokenVerify:output_type -> login.service.v1.LoginResponse
+	7, // [7:11] is the sub-list for method output_type
+	3, // [3:7] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name

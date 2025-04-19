@@ -34,16 +34,25 @@ func CreateToken(val, accessSecret, refreshSecret string, accessExp, refreshExp 
 	}
 }
 
-func ParseToken(tokenString, secret string) {
+func ParseToken(tokenString, secret string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(secret), nil
 	})
+	if err != nil {
+		return "", err
+	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		fmt.Printf("error: %v", claims)
+		val := claims["token"].(string)
+		exp := int64(claims["exp"].(float64))
+		if time.Now().Unix() > exp {
+			return "", fmt.Errorf("token expired")
+		}
+		return val, nil
 	} else {
 		fmt.Println(err)
+		return "", err
 	}
 }
