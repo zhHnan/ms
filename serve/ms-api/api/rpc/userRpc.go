@@ -1,4 +1,4 @@
-package project
+package rpc
 
 import (
 	"google.golang.org/grpc"
@@ -6,19 +6,19 @@ import (
 	"google.golang.org/grpc/resolver"
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
-	"hnz.com/ms_serve/ms-grpc/project"
+	"hnz.com/ms_serve/ms-grpc/user/login"
 	"hnz.com/ms_serve/ms-user/config"
 	"log"
 )
 
-var ProjectClient project.ProjectServiceClient
+var UserClient login.LoginServiceClient
 
-func InitProjectRpc() {
+func InitUserRpc() {
 	etcdResolver := discovery.NewResolver(config.Cfg.Ec.Addrs, logs.Lg)
 	resolver.Register(etcdResolver)
-	conn, err := grpc.Dial("etcd:///project", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial("etcd:///user", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	ProjectClient = project.NewProjectServiceClient(conn)
+	UserClient = login.NewLoginServiceClient(conn)
 }

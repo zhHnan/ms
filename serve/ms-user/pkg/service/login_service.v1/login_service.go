@@ -10,6 +10,7 @@ import (
 	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/errs"
 	"hnz.com/ms_serve/ms-common/jwts"
+	"hnz.com/ms_serve/ms-common/times"
 	"hnz.com/ms_serve/ms-grpc/user/login"
 	"hnz.com/ms_serve/ms-user/config"
 	"hnz.com/ms_serve/ms-user/internal/dao"
@@ -162,6 +163,8 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 	membMessage := &login.MemberMessage{}
 	err = copier.Copy(membMessage, mem)
 	membMessage.Code, err = encrypts.Encrypt(strconv.FormatInt(mem.Id, 10), model.AESKey)
+	membMessage.LastLoginTime = times.FormatByMill(mem.LastLoginTime)
+	membMessage.CreateTime = times.FormatByMill(mem.CreateTime)
 	// 根据用户id 查询用户信息--组织
 	orgs, err := l.organizationRepo.FindOrganizationByMemId(c, mem.Id)
 	if err != nil {
@@ -172,6 +175,8 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 	err = copier.Copy(&orgsMessage, orgs)
 	for _, v := range orgsMessage {
 		v.Code, _ = encrypts.Encrypt(strconv.FormatInt(v.Id, 10), model.AESKey)
+		v.OwnerCode = membMessage.Code
+		v.CreateTime = times.FormatByMill(organization.ToMap(orgs)[v.Id].CreateTime)
 	}
 	// 使用jwt生成token
 	memIdStr := strconv.FormatInt(mem.Id, 10)
@@ -211,4 +216,18 @@ func (l *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage)
 	_ = copier.Copy(memMessage, membyId)
 	memMessage.Code, _ = encrypts.Encrypt(strconv.FormatInt(membyId.Id, 10), model.AESKey)
 	return &login.LoginResponse{Member: memMessage}, nil
+}
+func (l *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*login.OrgListResponse, error) {
+	memId := msg.MemId
+	orgs, err := l.organizationRepo.FindOrganizationByMemId(ctx, memId)
+	if err != nil {
+		zap.L().Error("MyOrgList FindOrganizationByMemId err", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	var orgsMessage []*login.OrganizationMessage
+	err = copier.Copy(&orgsMessage, orgs)
+	for _, org := range orgsMessage {
+		org.Code, _ = encrypts.Encrypt(strconv.FormatInt(org.Id, 10), model.AESKey)
+	}
+	return &login.OrgListResponse{OrganizationList: orgsMessage}, nil
 }

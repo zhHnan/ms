@@ -3,6 +3,7 @@ package project
 import (
 	"github.com/gin-gonic/gin"
 	"hnz.com/ms_serve/ms-api/api/midd"
+	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-api/router"
 	"log"
 )
@@ -17,7 +18,7 @@ func init() {
 }
 
 func (*RouterUser) Route(r *gin.Engine) {
-	InitProjectRpc()
+	rpc.InitProjectRpc()
 	h := New()
 	group := r.Group("/project/")
 	group.Use(midd.TokenVerify())

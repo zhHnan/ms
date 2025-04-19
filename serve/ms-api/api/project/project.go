@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
+	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-api/pkg/model"
 	"hnz.com/ms_serve/ms-api/pkg/model/apiProject"
 	common "hnz.com/ms_serve/ms-common"
@@ -26,7 +27,7 @@ func (p *HandlerProject) index(ctx *gin.Context) {
 	c, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 	msg := &project.IndexMessage{}
-	resp, err := ProjectClient.Index(c, msg)
+	resp, err := rpc.ProjectClient.Index(c, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		ctx.JSON(200, result.Failure(code, msg))
@@ -43,7 +44,7 @@ func (p *HandlerProject) projectList(c *gin.Context) {
 	id := idAny.(int64)
 	var page = &model.Page{}
 	page.Bind(c)
-	res, err := ProjectClient.FindProjectByMemId(ctx, &project.ProjectRpcMessage{MemberId: id, Page: page.Page, PageSize: page.PageSize})
+	res, err := rpc.ProjectClient.FindProjectByMemId(ctx, &project.ProjectRpcMessage{MemberId: id, Page: page.Page, PageSize: page.PageSize})
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Failure(code, msg))

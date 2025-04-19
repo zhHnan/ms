@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
+	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-api/pkg/model/user"
 	common "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-common/errs"
@@ -25,7 +26,7 @@ func (h *HandlerUser) getCaptcha(ctx *gin.Context) {
 	mobile := ctx.PostForm("mobile")
 	c, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
-	resp, err := UserClient.GetCaptcha(c, &login.CaptchaMessage{
+	resp, err := rpc.UserClient.GetCaptcha(c, &login.CaptchaMessage{
 		Mobile: mobile,
 	})
 	if err != nil {
@@ -58,7 +59,7 @@ func (h *HandlerUser) register(c *gin.Context) {
 		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
 		return
 	}
-	_, err := UserClient.Register(ctx, msg)
+	_, err := rpc.UserClient.Register(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Failure(code, msg))
@@ -97,7 +98,7 @@ func (h *HandlerUser) login(c *gin.Context) {
 		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
 		return
 	}
-	res, err := UserClient.Login(ctx, msg)
+	res, err := rpc.UserClient.Login(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Failure(code, msg))
@@ -107,4 +108,29 @@ func (h *HandlerUser) login(c *gin.Context) {
 	err = copier.Copy(&resp, res)
 	// 返回结果
 	c.JSON(http.StatusOK, result.Success(resp))
+}
+
+func (p *HandlerUser) myOrgList(c *gin.Context) {
+	result := &common.Result{}
+	token := c.GetHeader("Authorization")
+	//验证用户是否已经登录
+	mem, err2 := rpc.UserClient.TokenVerify(context.Background(), &login.LoginMessage{Token: token})
+	if err2 != nil {
+		code, msg := errs.ParseGrpcError(err2)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+		return
+	}
+	list, err2 := rpc.UserClient.MyOrgList(context.Background(), &login.UserMessage{MemId: mem.Member.Id})
+	if err2 != nil {
+		code, msg := errs.ParseGrpcError(err2)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+		return
+	}
+	if list.OrganizationList == nil {
+		c.JSON(http.StatusOK, result.Success([]*user.OrganizationList{}))
+		return
+	}
+	var orgs []*user.OrganizationList
+	_ = copier.Copy(&orgs, list.OrganizationList)
+	c.JSON(http.StatusOK, result.Success(orgs))
 }
