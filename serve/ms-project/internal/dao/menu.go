@@ -18,6 +18,6 @@ func NewMenuDao() *MenuDao {
 
 func (m *MenuDao) FindAll(ctx context.Context) ([]*menu.ProjectMenu, error) {
 	var pms []*menu.ProjectMenu
-	err := m.conn.Session(ctx).Find(&pms).Error
+	err := m.conn.Session(ctx).Order("pid,sort asc, id asc").Find(&pms).Error
 	return pms, err
 }

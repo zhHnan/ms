@@ -81,7 +81,10 @@ type MenuMessage struct {
 	IsInner       int32                  `protobuf:"varint,12,opt,name=isInner,proto3" json:"isInner,omitempty"`
 	Values        string                 `protobuf:"bytes,13,opt,name=values,proto3" json:"values,omitempty"`
 	ShowSlider    int32                  `protobuf:"varint,14,opt,name=showSlider,proto3" json:"showSlider,omitempty"`
-	Children      []*MenuMessage         `protobuf:"bytes,15,rep,name=children,proto3" json:"children,omitempty"`
+	StatusText    string                 `protobuf:"bytes,15,opt,name=statusText,proto3" json:"statusText,omitempty"`
+	InnerText     string                 `protobuf:"bytes,16,opt,name=innerText,proto3" json:"innerText,omitempty"`
+	FullUrl       string                 `protobuf:"bytes,17,opt,name=fullUrl,proto3" json:"fullUrl,omitempty"`
+	Children      []*MenuMessage         `protobuf:"bytes,18,rep,name=children,proto3" json:"children,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -214,6 +217,27 @@ func (x *MenuMessage) GetShowSlider() int32 {
 	return 0
 }
 
+func (x *MenuMessage) GetStatusText() string {
+	if x != nil {
+		return x.StatusText
+	}
+	return ""
+}
+
+func (x *MenuMessage) GetInnerText() string {
+	if x != nil {
+		return x.InnerText
+	}
+	return ""
+}
+
+func (x *MenuMessage) GetFullUrl() string {
+	if x != nil {
+		return x.FullUrl
+	}
+	return ""
+}
+
 func (x *MenuMessage) GetChildren() []*MenuMessage {
 	if x != nil {
 		return x.Children
@@ -271,14 +295,14 @@ type ProjectMessage struct {
 	Cover              string                 `protobuf:"bytes,2,opt,name=Cover,proto3" json:"Cover,omitempty"`
 	Name               string                 `protobuf:"bytes,3,opt,name=Name,proto3" json:"Name,omitempty"`
 	Description        string                 `protobuf:"bytes,4,opt,name=Description,proto3" json:"Description,omitempty"`
-	AccessControlType  int32                  `protobuf:"varint,5,opt,name=AccessControlType,proto3" json:"AccessControlType,omitempty"`
+	AccessControlType  string                 `protobuf:"bytes,5,opt,name=AccessControlType,proto3" json:"AccessControlType,omitempty"`
 	WhiteList          string                 `protobuf:"bytes,6,opt,name=WhiteList,proto3" json:"WhiteList,omitempty"`
 	Order              int32                  `protobuf:"varint,7,opt,name=Order,proto3" json:"Order,omitempty"`
 	Deleted            int32                  `protobuf:"varint,8,opt,name=Deleted,proto3" json:"Deleted,omitempty"`
 	TemplateCode       string                 `protobuf:"bytes,9,opt,name=TemplateCode,proto3" json:"TemplateCode,omitempty"`
 	Schedule           float64                `protobuf:"fixed64,10,opt,name=Schedule,proto3" json:"Schedule,omitempty"`
 	CreateTime         string                 `protobuf:"bytes,11,opt,name=CreateTime,proto3" json:"CreateTime,omitempty"`
-	OrganizationCode   int64                  `protobuf:"varint,12,opt,name=OrganizationCode,proto3" json:"OrganizationCode,omitempty"`
+	OrganizationCode   string                 `protobuf:"bytes,12,opt,name=OrganizationCode,proto3" json:"OrganizationCode,omitempty"`
 	DeletedTime        string                 `protobuf:"bytes,13,opt,name=DeletedTime,proto3" json:"DeletedTime,omitempty"`
 	Private            int32                  `protobuf:"varint,14,opt,name=Private,proto3" json:"Private,omitempty"`
 	Prefix             string                 `protobuf:"bytes,15,opt,name=Prefix,proto3" json:"Prefix,omitempty"`
@@ -288,14 +312,17 @@ type ProjectMessage struct {
 	OpenBeginTime      int32                  `protobuf:"varint,19,opt,name=OpenBeginTime,proto3" json:"OpenBeginTime,omitempty"`
 	OpenTaskPrivate    int32                  `protobuf:"varint,20,opt,name=OpenTaskPrivate,proto3" json:"OpenTaskPrivate,omitempty"`
 	TaskBoardTheme     string                 `protobuf:"bytes,21,opt,name=TaskBoardTheme,proto3" json:"TaskBoardTheme,omitempty"`
-	BeginTime          int64                  `protobuf:"varint,22,opt,name=BeginTime,proto3" json:"BeginTime,omitempty"`
-	EndTime            int64                  `protobuf:"varint,23,opt,name=EndTime,proto3" json:"EndTime,omitempty"`
+	BeginTime          string                 `protobuf:"bytes,22,opt,name=BeginTime,proto3" json:"BeginTime,omitempty"`
+	EndTime            string                 `protobuf:"bytes,23,opt,name=EndTime,proto3" json:"EndTime,omitempty"`
 	AutoUpdateSchedule int32                  `protobuf:"varint,24,opt,name=AutoUpdateSchedule,proto3" json:"AutoUpdateSchedule,omitempty"`
+	ProjectCode        int64                  `protobuf:"varint,25,opt,name=ProjectCode,proto3" json:"ProjectCode,omitempty"`
 	MemberCode         int64                  `protobuf:"varint,26,opt,name=MemberCode,proto3" json:"MemberCode,omitempty"`
-	JoinTime           int64                  `protobuf:"varint,27,opt,name=JoinTime,proto3" json:"JoinTime,omitempty"`
+	JoinTime           string                 `protobuf:"bytes,27,opt,name=JoinTime,proto3" json:"JoinTime,omitempty"`
 	IsOwner            int64                  `protobuf:"varint,28,opt,name=IsOwner,proto3" json:"IsOwner,omitempty"`
 	Authorize          string                 `protobuf:"bytes,29,opt,name=Authorize,proto3" json:"Authorize,omitempty"`
-	Code               string                 `protobuf:"bytes,30,opt,name=Code,proto3" json:"Code,omitempty"`
+	Code               string                 `protobuf:"bytes,30,opt,name=code,proto3" json:"code,omitempty"`
+	OwnerName          string                 `protobuf:"bytes,31,opt,name=ownerName,proto3" json:"ownerName,omitempty"`
+	Collected          int32                  `protobuf:"varint,32,opt,name=collected,proto3" json:"collected,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -358,11 +385,11 @@ func (x *ProjectMessage) GetDescription() string {
 	return ""
 }
 
-func (x *ProjectMessage) GetAccessControlType() int32 {
+func (x *ProjectMessage) GetAccessControlType() string {
 	if x != nil {
 		return x.AccessControlType
 	}
-	return 0
+	return ""
 }
 
 func (x *ProjectMessage) GetWhiteList() string {
@@ -407,11 +434,11 @@ func (x *ProjectMessage) GetCreateTime() string {
 	return ""
 }
 
-func (x *ProjectMessage) GetOrganizationCode() int64 {
+func (x *ProjectMessage) GetOrganizationCode() string {
 	if x != nil {
 		return x.OrganizationCode
 	}
-	return 0
+	return ""
 }
 
 func (x *ProjectMessage) GetDeletedTime() string {
@@ -477,23 +504,30 @@ func (x *ProjectMessage) GetTaskBoardTheme() string {
 	return ""
 }
 
-func (x *ProjectMessage) GetBeginTime() int64 {
+func (x *ProjectMessage) GetBeginTime() string {
 	if x != nil {
 		return x.BeginTime
 	}
-	return 0
+	return ""
 }
 
-func (x *ProjectMessage) GetEndTime() int64 {
+func (x *ProjectMessage) GetEndTime() string {
 	if x != nil {
 		return x.EndTime
 	}
-	return 0
+	return ""
 }
 
 func (x *ProjectMessage) GetAutoUpdateSchedule() int32 {
 	if x != nil {
 		return x.AutoUpdateSchedule
+	}
+	return 0
+}
+
+func (x *ProjectMessage) GetProjectCode() int64 {
+	if x != nil {
+		return x.ProjectCode
 	}
 	return 0
 }
@@ -505,11 +539,11 @@ func (x *ProjectMessage) GetMemberCode() int64 {
 	return 0
 }
 
-func (x *ProjectMessage) GetJoinTime() int64 {
+func (x *ProjectMessage) GetJoinTime() string {
 	if x != nil {
 		return x.JoinTime
 	}
-	return 0
+	return ""
 }
 
 func (x *ProjectMessage) GetIsOwner() int64 {
@@ -533,11 +567,26 @@ func (x *ProjectMessage) GetCode() string {
 	return ""
 }
 
+func (x *ProjectMessage) GetOwnerName() string {
+	if x != nil {
+		return x.OwnerName
+	}
+	return ""
+}
+
+func (x *ProjectMessage) GetCollected() int32 {
+	if x != nil {
+		return x.Collected
+	}
+	return 0
+}
+
 type ProjectRpcMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MemberId      int64                  `protobuf:"varint,1,opt,name=memberId,proto3" json:"memberId,omitempty"`
-	Page          int64                  `protobuf:"varint,2,opt,name=page,proto3" json:"page,omitempty"`
-	PageSize      int64                  `protobuf:"varint,3,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	MemberName    string                 `protobuf:"bytes,2,opt,name=memberName,proto3" json:"memberName,omitempty"`
+	Page          int64                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize      int64                  `protobuf:"varint,4,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -577,6 +626,13 @@ func (x *ProjectRpcMessage) GetMemberId() int64 {
 		return x.MemberId
 	}
 	return 0
+}
+
+func (x *ProjectRpcMessage) GetMemberName() string {
+	if x != nil {
+		return x.MemberName
+	}
+	return ""
 }
 
 func (x *ProjectRpcMessage) GetPage() int64 {
@@ -651,7 +707,7 @@ const file_project_service_proto_rawDesc = "" +
 	"\n" +
 	"\x15project_service.proto\x12\x12project.service.v1\"$\n" +
 	"\fIndexMessage\x12\x14\n" +
-	"\x05token\x18\x01 \x01(\tR\x05token\"\x8a\x03\n" +
+	"\x05token\x18\x01 \x01(\tR\x05token\"\xe2\x03\n" +
 	"\vMenuMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x10\n" +
 	"\x03pid\x18\x02 \x01(\x03R\x03pid\x12\x14\n" +
@@ -669,16 +725,21 @@ const file_project_service_proto_rawDesc = "" +
 	"\x06values\x18\r \x01(\tR\x06values\x12\x1e\n" +
 	"\n" +
 	"showSlider\x18\x0e \x01(\x05R\n" +
-	"showSlider\x12;\n" +
-	"\bchildren\x18\x0f \x03(\v2\x1f.project.service.v1.MenuMessageR\bchildren\"F\n" +
+	"showSlider\x12\x1e\n" +
+	"\n" +
+	"statusText\x18\x0f \x01(\tR\n" +
+	"statusText\x12\x1c\n" +
+	"\tinnerText\x18\x10 \x01(\tR\tinnerText\x12\x18\n" +
+	"\afullUrl\x18\x11 \x01(\tR\afullUrl\x12;\n" +
+	"\bchildren\x18\x12 \x03(\v2\x1f.project.service.v1.MenuMessageR\bchildren\"F\n" +
 	"\rIndexResponse\x125\n" +
-	"\x05menus\x18\x01 \x03(\v2\x1f.project.service.v1.MenuMessageR\x05menus\"\x8c\a\n" +
+	"\x05menus\x18\x01 \x03(\v2\x1f.project.service.v1.MenuMessageR\x05menus\"\xea\a\n" +
 	"\x0eProjectMessage\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\x03R\x02Id\x12\x14\n" +
 	"\x05Cover\x18\x02 \x01(\tR\x05Cover\x12\x12\n" +
 	"\x04Name\x18\x03 \x01(\tR\x04Name\x12 \n" +
 	"\vDescription\x18\x04 \x01(\tR\vDescription\x12,\n" +
-	"\x11AccessControlType\x18\x05 \x01(\x05R\x11AccessControlType\x12\x1c\n" +
+	"\x11AccessControlType\x18\x05 \x01(\tR\x11AccessControlType\x12\x1c\n" +
 	"\tWhiteList\x18\x06 \x01(\tR\tWhiteList\x12\x14\n" +
 	"\x05Order\x18\a \x01(\x05R\x05Order\x12\x18\n" +
 	"\aDeleted\x18\b \x01(\x05R\aDeleted\x12\"\n" +
@@ -688,7 +749,7 @@ const file_project_service_proto_rawDesc = "" +
 	"\n" +
 	"CreateTime\x18\v \x01(\tR\n" +
 	"CreateTime\x12*\n" +
-	"\x10OrganizationCode\x18\f \x01(\x03R\x10OrganizationCode\x12 \n" +
+	"\x10OrganizationCode\x18\f \x01(\tR\x10OrganizationCode\x12 \n" +
 	"\vDeletedTime\x18\r \x01(\tR\vDeletedTime\x12\x18\n" +
 	"\aPrivate\x18\x0e \x01(\x05R\aPrivate\x12\x16\n" +
 	"\x06Prefix\x18\x0f \x01(\tR\x06Prefix\x12\x1e\n" +
@@ -700,26 +761,32 @@ const file_project_service_proto_rawDesc = "" +
 	"\rOpenBeginTime\x18\x13 \x01(\x05R\rOpenBeginTime\x12(\n" +
 	"\x0fOpenTaskPrivate\x18\x14 \x01(\x05R\x0fOpenTaskPrivate\x12&\n" +
 	"\x0eTaskBoardTheme\x18\x15 \x01(\tR\x0eTaskBoardTheme\x12\x1c\n" +
-	"\tBeginTime\x18\x16 \x01(\x03R\tBeginTime\x12\x18\n" +
-	"\aEndTime\x18\x17 \x01(\x03R\aEndTime\x12.\n" +
-	"\x12AutoUpdateSchedule\x18\x18 \x01(\x05R\x12AutoUpdateSchedule\x12\x1e\n" +
+	"\tBeginTime\x18\x16 \x01(\tR\tBeginTime\x12\x18\n" +
+	"\aEndTime\x18\x17 \x01(\tR\aEndTime\x12.\n" +
+	"\x12AutoUpdateSchedule\x18\x18 \x01(\x05R\x12AutoUpdateSchedule\x12 \n" +
+	"\vProjectCode\x18\x19 \x01(\x03R\vProjectCode\x12\x1e\n" +
 	"\n" +
 	"MemberCode\x18\x1a \x01(\x03R\n" +
 	"MemberCode\x12\x1a\n" +
-	"\bJoinTime\x18\x1b \x01(\x03R\bJoinTime\x12\x18\n" +
+	"\bJoinTime\x18\x1b \x01(\tR\bJoinTime\x12\x18\n" +
 	"\aIsOwner\x18\x1c \x01(\x03R\aIsOwner\x12\x1c\n" +
 	"\tAuthorize\x18\x1d \x01(\tR\tAuthorize\x12\x12\n" +
-	"\x04Code\x18\x1e \x01(\tR\x04Code\"_\n" +
+	"\x04code\x18\x1e \x01(\tR\x04code\x12\x1c\n" +
+	"\townerName\x18\x1f \x01(\tR\townerName\x12\x1c\n" +
+	"\tcollected\x18  \x01(\x05R\tcollected\"\x7f\n" +
 	"\x11ProjectRpcMessage\x12\x1a\n" +
-	"\bmemberId\x18\x01 \x01(\x03R\bmemberId\x12\x12\n" +
-	"\x04page\x18\x02 \x01(\x03R\x04page\x12\x1a\n" +
-	"\bpageSize\x18\x03 \x01(\x03R\bpageSize\"]\n" +
+	"\bmemberId\x18\x01 \x01(\x03R\bmemberId\x12\x1e\n" +
+	"\n" +
+	"memberName\x18\x02 \x01(\tR\n" +
+	"memberName\x12\x12\n" +
+	"\x04page\x18\x03 \x01(\x03R\x04page\x12\x1a\n" +
+	"\bpageSize\x18\x04 \x01(\x03R\bpageSize\"]\n" +
 	"\x11MyProjectResponse\x122\n" +
 	"\x02pm\x18\x01 \x03(\v2\".project.service.v1.ProjectMessageR\x02pm\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total2\xc6\x01\n" +
 	"\x0eProjectService\x12N\n" +
 	"\x05Index\x12 .project.service.v1.IndexMessage\x1a!.project.service.v1.IndexResponse\"\x00\x12d\n" +
-	"\x12FindProjectByMemId\x12%.project.service.v1.ProjectRpcMessage\x1a%.project.service.v1.MyProjectResponse\"\x00B.Z,ms-apiProject/pkg/service/project_service.v1b\x06proto3"
+	"\x12FindProjectByMemId\x12%.project.service.v1.ProjectRpcMessage\x1a%.project.service.v1.MyProjectResponse\"\x00B+Z)ms-project/pkg/service/project_service.v1b\x06proto3"
 
 var (
 	file_project_service_proto_rawDescOnce sync.Once

@@ -19,7 +19,7 @@ func NewProjectDao() *ProjectDao {
 func (p *ProjectDao) FindProjectByMemId(ctx context.Context, memId int64, page int64, size int64) ([]*project.ProjectAndMember, int64, error) {
 	session := p.conn.Session(ctx)
 	index := (page - 1) * size
-	db := session.Raw("select * from ms_project a, ms_project_member b where a.id=b.project_code and b.member_code=? limit ?,?", memId, index, size)
+	db := session.Raw("select * from ms_project a, ms_project_member b where a.id=b.project_code and b.member_code=? order by sort limit ?,?", memId, index, size)
 	var mp []*project.ProjectAndMember
 	err := db.Scan(&mp).Error
 	var total int64

@@ -25,6 +25,7 @@ func TokenVerify() func(c *gin.Context) {
 			return
 		}
 		c.Set("memberId", resp.Member.Id)
+		c.Set("memberName", resp.Member.Name)
 		c.Next()
 	}
 }
