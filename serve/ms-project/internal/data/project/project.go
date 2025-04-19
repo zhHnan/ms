@@ -1,5 +1,13 @@
 package project
 
+import (
+	"hnz.com/ms_serve/ms-common/encrypts"
+	"hnz.com/ms_serve/ms-common/times"
+	"hnz.com/ms_serve/ms-project/internal/data/task"
+	"hnz.com/ms_serve/ms-project/pkg/model"
+	"strconv"
+)
+
 type Project struct {
 	Id                 int64
 	Cover              string
@@ -81,4 +89,61 @@ func ToMap(orgs []*ProjectAndMember) map[int64]*ProjectAndMember {
 		m[v.Id] = v
 	}
 	return m
+}
+
+type ProjectTemplate struct {
+	Id               int
+	Name             string
+	Description      string
+	Sort             int
+	CreateTime       int64
+	OrganizationCode int64
+	Cover            string
+	MemberCode       int64
+	IsSystem         int
+}
+
+func (*ProjectTemplate) TableName() string {
+	return "ms_project_template"
+}
+
+type ProjectTemplateAll struct {
+	Id               int
+	Name             string
+	Description      string
+	Sort             int
+	CreateTime       string
+	OrganizationCode string
+	Cover            string
+	MemberCode       string
+	IsSystem         int
+	TaskStages       []*task.TaskStagesOnlyName
+	Code             string
+}
+
+func (pt ProjectTemplate) Convert(taskStages []*task.TaskStagesOnlyName) *ProjectTemplateAll {
+	organizationCode, _ := encrypts.Encrypt(strconv.FormatInt(pt.OrganizationCode, 10), model.AESKey)
+	memberCode, _ := encrypts.Encrypt(strconv.FormatInt(pt.MemberCode, 10), model.AESKey)
+	code, _ := encrypts.Encrypt(strconv.FormatInt(int64(pt.Id), 10), model.AESKey)
+	pta := &ProjectTemplateAll{
+		Id:               pt.Id,
+		Name:             pt.Name,
+		Description:      pt.Description,
+		Sort:             pt.Sort,
+		CreateTime:       times.FormatByMill(pt.CreateTime),
+		OrganizationCode: organizationCode,
+		Cover:            pt.Cover,
+		MemberCode:       memberCode,
+		IsSystem:         pt.IsSystem,
+		TaskStages:       taskStages,
+		Code:             code,
+	}
+	return pta
+}
+func ToProjectTemplateIds(pts []ProjectTemplate) []int {
+	var ids []int
+	for _, v := range pts {
+		ids = append(ids, v.Id)
+	}
+	return ids
 }

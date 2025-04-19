@@ -582,14 +582,16 @@ func (x *ProjectMessage) GetCollected() int32 {
 }
 
 type ProjectRpcMessage struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	MemberId      int64                  `protobuf:"varint,1,opt,name=memberId,proto3" json:"memberId,omitempty"`
-	MemberName    string                 `protobuf:"bytes,2,opt,name=memberName,proto3" json:"memberName,omitempty"`
-	Page          int64                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
-	PageSize      int64                  `protobuf:"varint,4,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
-	SelectBy      string                 `protobuf:"bytes,5,opt,name=selectBy,proto3" json:"selectBy,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	MemberId         int64                  `protobuf:"varint,1,opt,name=memberId,proto3" json:"memberId,omitempty"`
+	MemberName       string                 `protobuf:"bytes,2,opt,name=memberName,proto3" json:"memberName,omitempty"`
+	Page             int64                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
+	PageSize         int64                  `protobuf:"varint,4,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	SelectBy         string                 `protobuf:"bytes,5,opt,name=selectBy,proto3" json:"selectBy,omitempty"`
+	OrganizationCode string                 `protobuf:"bytes,6,opt,name=organizationCode,proto3" json:"organizationCode,omitempty"`
+	ViewType         int32                  `protobuf:"varint,7,opt,name=viewType,proto3" json:"viewType,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *ProjectRpcMessage) Reset() {
@@ -657,6 +659,20 @@ func (x *ProjectRpcMessage) GetSelectBy() string {
 	return ""
 }
 
+func (x *ProjectRpcMessage) GetOrganizationCode() string {
+	if x != nil {
+		return x.OrganizationCode
+	}
+	return ""
+}
+
+func (x *ProjectRpcMessage) GetViewType() int32 {
+	if x != nil {
+		return x.ViewType
+	}
+	return 0
+}
+
 type MyProjectResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Pm            []*ProjectMessage      `protobuf:"bytes,1,rep,name=pm,proto3" json:"pm,omitempty"`
@@ -703,6 +719,226 @@ func (x *MyProjectResponse) GetPm() []*ProjectMessage {
 }
 
 func (x *MyProjectResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
+}
+
+type ProjectTemplateMessage struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               int32                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description      string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Sort             int32                  `protobuf:"varint,4,opt,name=sort,proto3" json:"sort,omitempty"`
+	CreateTime       string                 `protobuf:"bytes,5,opt,name=createTime,proto3" json:"createTime,omitempty"`
+	OrganizationCode string                 `protobuf:"bytes,6,opt,name=organizationCode,proto3" json:"organizationCode,omitempty"`
+	Cover            string                 `protobuf:"bytes,7,opt,name=cover,proto3" json:"cover,omitempty"`
+	MemberCode       string                 `protobuf:"bytes,8,opt,name=memberCode,proto3" json:"memberCode,omitempty"`
+	IsSystem         int32                  `protobuf:"varint,9,opt,name=isSystem,proto3" json:"isSystem,omitempty"`
+	TaskStages       []*TaskStages          `protobuf:"bytes,10,rep,name=taskStages,proto3" json:"taskStages,omitempty"`
+	Code             string                 `protobuf:"bytes,11,opt,name=code,proto3" json:"code,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *ProjectTemplateMessage) Reset() {
+	*x = ProjectTemplateMessage{}
+	mi := &file_project_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectTemplateMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectTemplateMessage) ProtoMessage() {}
+
+func (x *ProjectTemplateMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_project_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectTemplateMessage.ProtoReflect.Descriptor instead.
+func (*ProjectTemplateMessage) Descriptor() ([]byte, []int) {
+	return file_project_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ProjectTemplateMessage) GetId() int32 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ProjectTemplateMessage) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ProjectTemplateMessage) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ProjectTemplateMessage) GetSort() int32 {
+	if x != nil {
+		return x.Sort
+	}
+	return 0
+}
+
+func (x *ProjectTemplateMessage) GetCreateTime() string {
+	if x != nil {
+		return x.CreateTime
+	}
+	return ""
+}
+
+func (x *ProjectTemplateMessage) GetOrganizationCode() string {
+	if x != nil {
+		return x.OrganizationCode
+	}
+	return ""
+}
+
+func (x *ProjectTemplateMessage) GetCover() string {
+	if x != nil {
+		return x.Cover
+	}
+	return ""
+}
+
+func (x *ProjectTemplateMessage) GetMemberCode() string {
+	if x != nil {
+		return x.MemberCode
+	}
+	return ""
+}
+
+func (x *ProjectTemplateMessage) GetIsSystem() int32 {
+	if x != nil {
+		return x.IsSystem
+	}
+	return 0
+}
+
+func (x *ProjectTemplateMessage) GetTaskStages() []*TaskStages {
+	if x != nil {
+		return x.TaskStages
+	}
+	return nil
+}
+
+func (x *ProjectTemplateMessage) GetCode() string {
+	if x != nil {
+		return x.Code
+	}
+	return ""
+}
+
+type TaskStages struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *TaskStages) Reset() {
+	*x = TaskStages{}
+	mi := &file_project_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *TaskStages) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TaskStages) ProtoMessage() {}
+
+func (x *TaskStages) ProtoReflect() protoreflect.Message {
+	mi := &file_project_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TaskStages.ProtoReflect.Descriptor instead.
+func (*TaskStages) Descriptor() ([]byte, []int) {
+	return file_project_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *TaskStages) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type ProjectTemplateResponse struct {
+	state         protoimpl.MessageState    `protogen:"open.v1"`
+	Ptm           []*ProjectTemplateMessage `protobuf:"bytes,1,rep,name=ptm,proto3" json:"ptm,omitempty"`
+	Total         int64                     `protobuf:"varint,2,opt,name=Total,proto3" json:"Total,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectTemplateResponse) Reset() {
+	*x = ProjectTemplateResponse{}
+	mi := &file_project_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectTemplateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectTemplateResponse) ProtoMessage() {}
+
+func (x *ProjectTemplateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_project_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectTemplateResponse.ProtoReflect.Descriptor instead.
+func (*ProjectTemplateResponse) Descriptor() ([]byte, []int) {
+	return file_project_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ProjectTemplateResponse) GetPtm() []*ProjectTemplateMessage {
+	if x != nil {
+		return x.Ptm
+	}
+	return nil
+}
+
+func (x *ProjectTemplateResponse) GetTotal() int64 {
 	if x != nil {
 		return x.Total
 	}
@@ -781,7 +1017,7 @@ const file_project_service_proto_rawDesc = "" +
 	"\tAuthorize\x18\x1d \x01(\tR\tAuthorize\x12\x12\n" +
 	"\x04code\x18\x1e \x01(\tR\x04code\x12\x1c\n" +
 	"\townerName\x18\x1f \x01(\tR\townerName\x12\x1c\n" +
-	"\tcollected\x18  \x01(\x05R\tcollected\"\x9b\x01\n" +
+	"\tcollected\x18  \x01(\x05R\tcollected\"\xe3\x01\n" +
 	"\x11ProjectRpcMessage\x12\x1a\n" +
 	"\bmemberId\x18\x01 \x01(\x03R\bmemberId\x12\x1e\n" +
 	"\n" +
@@ -789,13 +1025,41 @@ const file_project_service_proto_rawDesc = "" +
 	"memberName\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x03R\x04page\x12\x1a\n" +
 	"\bpageSize\x18\x04 \x01(\x03R\bpageSize\x12\x1a\n" +
-	"\bselectBy\x18\x05 \x01(\tR\bselectBy\"]\n" +
+	"\bselectBy\x18\x05 \x01(\tR\bselectBy\x12*\n" +
+	"\x10organizationCode\x18\x06 \x01(\tR\x10organizationCode\x12\x1a\n" +
+	"\bviewType\x18\a \x01(\x05R\bviewType\"]\n" +
 	"\x11MyProjectResponse\x122\n" +
 	"\x02pm\x18\x01 \x03(\v2\".project.service.v1.ProjectMessageR\x02pm\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total2\xc6\x01\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xe4\x02\n" +
+	"\x16ProjectTemplateMessage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12\x12\n" +
+	"\x04sort\x18\x04 \x01(\x05R\x04sort\x12\x1e\n" +
+	"\n" +
+	"createTime\x18\x05 \x01(\tR\n" +
+	"createTime\x12*\n" +
+	"\x10organizationCode\x18\x06 \x01(\tR\x10organizationCode\x12\x14\n" +
+	"\x05cover\x18\a \x01(\tR\x05cover\x12\x1e\n" +
+	"\n" +
+	"memberCode\x18\b \x01(\tR\n" +
+	"memberCode\x12\x1a\n" +
+	"\bisSystem\x18\t \x01(\x05R\bisSystem\x12>\n" +
+	"\n" +
+	"taskStages\x18\n" +
+	" \x03(\v2\x1e.project.service.v1.TaskStagesR\n" +
+	"taskStages\x12\x12\n" +
+	"\x04code\x18\v \x01(\tR\x04code\" \n" +
+	"\n" +
+	"TaskStages\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"m\n" +
+	"\x17ProjectTemplateResponse\x12<\n" +
+	"\x03ptm\x18\x01 \x03(\v2*.project.service.v1.ProjectTemplateMessageR\x03ptm\x12\x14\n" +
+	"\x05Total\x18\x02 \x01(\x03R\x05Total2\xb3\x02\n" +
 	"\x0eProjectService\x12N\n" +
 	"\x05Index\x12 .project.service.v1.IndexMessage\x1a!.project.service.v1.IndexResponse\"\x00\x12d\n" +
-	"\x12FindProjectByMemId\x12%.project.service.v1.ProjectRpcMessage\x1a%.project.service.v1.MyProjectResponse\"\x00B+Z)ms-project/pkg/service/project_service.v1b\x06proto3"
+	"\x12FindProjectByMemId\x12%.project.service.v1.ProjectRpcMessage\x1a%.project.service.v1.MyProjectResponse\"\x00\x12k\n" +
+	"\x13FindProjectTemplate\x12%.project.service.v1.ProjectRpcMessage\x1a+.project.service.v1.ProjectTemplateResponse\"\x00B+Z)ms-project/pkg/service/project_service.v1b\x06proto3"
 
 var (
 	file_project_service_proto_rawDescOnce sync.Once
@@ -809,28 +1073,35 @@ func file_project_service_proto_rawDescGZIP() []byte {
 	return file_project_service_proto_rawDescData
 }
 
-var file_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_project_service_proto_goTypes = []any{
-	(*IndexMessage)(nil),      // 0: project.service.v1.IndexMessage
-	(*MenuMessage)(nil),       // 1: project.service.v1.MenuMessage
-	(*IndexResponse)(nil),     // 2: project.service.v1.IndexResponse
-	(*ProjectMessage)(nil),    // 3: project.service.v1.ProjectMessage
-	(*ProjectRpcMessage)(nil), // 4: project.service.v1.ProjectRpcMessage
-	(*MyProjectResponse)(nil), // 5: project.service.v1.MyProjectResponse
+	(*IndexMessage)(nil),            // 0: project.service.v1.IndexMessage
+	(*MenuMessage)(nil),             // 1: project.service.v1.MenuMessage
+	(*IndexResponse)(nil),           // 2: project.service.v1.IndexResponse
+	(*ProjectMessage)(nil),          // 3: project.service.v1.ProjectMessage
+	(*ProjectRpcMessage)(nil),       // 4: project.service.v1.ProjectRpcMessage
+	(*MyProjectResponse)(nil),       // 5: project.service.v1.MyProjectResponse
+	(*ProjectTemplateMessage)(nil),  // 6: project.service.v1.ProjectTemplateMessage
+	(*TaskStages)(nil),              // 7: project.service.v1.TaskStages
+	(*ProjectTemplateResponse)(nil), // 8: project.service.v1.ProjectTemplateResponse
 }
 var file_project_service_proto_depIdxs = []int32{
 	1, // 0: project.service.v1.MenuMessage.children:type_name -> project.service.v1.MenuMessage
 	1, // 1: project.service.v1.IndexResponse.menus:type_name -> project.service.v1.MenuMessage
 	3, // 2: project.service.v1.MyProjectResponse.pm:type_name -> project.service.v1.ProjectMessage
-	0, // 3: project.service.v1.ProjectService.Index:input_type -> project.service.v1.IndexMessage
-	4, // 4: project.service.v1.ProjectService.FindProjectByMemId:input_type -> project.service.v1.ProjectRpcMessage
-	2, // 5: project.service.v1.ProjectService.Index:output_type -> project.service.v1.IndexResponse
-	5, // 6: project.service.v1.ProjectService.FindProjectByMemId:output_type -> project.service.v1.MyProjectResponse
-	5, // [5:7] is the sub-list for method output_type
-	3, // [3:5] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	7, // 3: project.service.v1.ProjectTemplateMessage.taskStages:type_name -> project.service.v1.TaskStages
+	6, // 4: project.service.v1.ProjectTemplateResponse.ptm:type_name -> project.service.v1.ProjectTemplateMessage
+	0, // 5: project.service.v1.ProjectService.Index:input_type -> project.service.v1.IndexMessage
+	4, // 6: project.service.v1.ProjectService.FindProjectByMemId:input_type -> project.service.v1.ProjectRpcMessage
+	4, // 7: project.service.v1.ProjectService.FindProjectTemplate:input_type -> project.service.v1.ProjectRpcMessage
+	2, // 8: project.service.v1.ProjectService.Index:output_type -> project.service.v1.IndexResponse
+	5, // 9: project.service.v1.ProjectService.FindProjectByMemId:output_type -> project.service.v1.MyProjectResponse
+	8, // 10: project.service.v1.ProjectService.FindProjectTemplate:output_type -> project.service.v1.ProjectTemplateResponse
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_project_service_proto_init() }
@@ -844,7 +1115,7 @@ func file_project_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_project_service_proto_rawDesc), len(file_project_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

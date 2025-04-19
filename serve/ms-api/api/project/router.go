@@ -20,9 +20,10 @@ func init() {
 func (*RouterUser) Route(r *gin.Engine) {
 	rpc.InitProjectRpc()
 	h := New()
-	group := r.Group("/project/")
+	group := r.Group("/project")
 	group.Use(midd.TokenVerify())
-	group.POST("index", h.index)
-	group.POST("project/selfList", h.projectList)
-	group.POST("project", h.projectList)
+	group.POST("/index", h.index)
+	group.POST("/project/selfList", h.projectList)
+	group.POST("/project", h.projectList)
+	group.POST("/project_template", h.projectTemplate)
 }

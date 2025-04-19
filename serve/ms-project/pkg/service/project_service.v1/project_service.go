@@ -2,6 +2,7 @@ package project_service_v1
 
 import (
 	"context"
+	"fmt"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
 	"hnz.com/ms_serve/ms-common/encrypts"
@@ -11,6 +12,7 @@ import (
 	"hnz.com/ms_serve/ms-project/internal/dao"
 	"hnz.com/ms_serve/ms-project/internal/data/menu"
 	pro "hnz.com/ms_serve/ms-project/internal/data/project"
+	"hnz.com/ms_serve/ms-project/internal/data/task"
 	"hnz.com/ms_serve/ms-project/internal/database/tran"
 	"hnz.com/ms_serve/ms-project/internal/repo"
 	"hnz.com/ms_serve/ms-project/pkg/model"
@@ -19,18 +21,23 @@ import (
 
 type ProjectService struct {
 	project.UnimplementedProjectServiceServer
-	cache       repo.Cache
-	transaction tran.Transaction
-	menuRepo    repo.MenuRepo
-	projectRepo repo.ProjectRepo
+	cache           repo.Cache
+	transaction     tran.Transaction
+	menuRepo        repo.MenuRepo
+	projectRepo     repo.ProjectRepo
+	proTemplateRepo repo.ProjectTemplateRepo
+	taskStagesRepo  repo.TaskStagesTemplateRepo
 }
 
+// 初始化
 func New() *ProjectService {
 	return &ProjectService{
-		cache:       dao.Rc,
-		transaction: dao.NewTrans(),
-		menuRepo:    dao.NewMenuDao(),
-		projectRepo: dao.NewProjectDao(),
+		cache:           dao.Rc,
+		transaction:     dao.NewTrans(),
+		menuRepo:        dao.NewMenuDao(),
+		projectRepo:     dao.NewProjectDao(),
+		proTemplateRepo: dao.NewProjectTemplateDao(),
+		taskStagesRepo:  dao.NewTaskStagesTemplateDao(),
 	}
 }
 
@@ -86,4 +93,46 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, in *project.Pro
 		v.CreateTime = times.FormatByMill(pam.CreateTime)
 	}
 	return &project.MyProjectResponse{Pm: pmm, Total: total}, nil
+}
+
+func (p *ProjectService) FindProjectTemplate(ctx context.Context, in *project.ProjectRpcMessage) (*project.ProjectTemplateResponse, error) {
+	// 根据viewType去查询模板表
+	var proTems []pro.ProjectTemplate
+	var total int64
+	var err error
+	page := in.Page
+	pageSize := in.PageSize
+	orgCodeStr, _ := encrypts.Decrypt(in.OrganizationCode, model.AESKey)
+	orgCode, _ := strconv.ParseInt(orgCodeStr, 10, 64)
+	switch in.ViewType {
+	case -1:
+		// -1 查询全部
+		proTems, total, err = p.proTemplateRepo.FindProjectTemplateAll(ctx, orgCode, page, pageSize)
+	case 0:
+		proTems, total, err = p.proTemplateRepo.FindProjectTemplateCustom(ctx, in.MemberId, orgCode, page, pageSize)
+	case 1:
+		proTems, total, err = p.proTemplateRepo.FindProjectTemplateSystem(ctx, page, pageSize)
+	default:
+		zap.L().Error("menu findAll error", zap.Error(err))
+		return nil, fmt.Errorf("unsupported ViewType: %d", in.ViewType)
+	}
+	if err != nil {
+		zap.L().Error("menu findAll error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	// 模型转换，拿到模版id列表在任务步骤模板表中查询
+	tasks, err := p.taskStagesRepo.FindInProTemIds(ctx, pro.ToProjectTemplateIds(proTems))
+	if err != nil {
+		zap.L().Error("menu convertInProTemIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+
+	var ptas []*pro.ProjectTemplateAll
+	for _, v := range proTems {
+		ptas = append(ptas, v.Convert(task.CovertProjectMap(tasks)[v.Id]))
+	}
+	// 组装数据
+	var res []*project.ProjectTemplateMessage
+	_ = copier.Copy(&res, ptas)
+	return &project.ProjectTemplateResponse{Ptm: res, Total: total}, nil
 }

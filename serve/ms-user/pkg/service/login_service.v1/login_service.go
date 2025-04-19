@@ -57,11 +57,6 @@ func (l *LoginService) GetCaptcha(ctx context.Context, msg *login.CaptchaMessage
 		c, cancel := context.WithTimeout(context.Background(), time.Second*2)
 		defer cancel()
 
-		//if l.cache == nil {
-		//	log.Println("cache 未初始化")
-		//	return
-		//}
-
 		err := l.cache.Put(c, model.RegisterKey+mobile, code, time.Minute*5)
 		if err != nil {
 			log.Println("验证码存入redis失败！", err)
@@ -178,6 +173,9 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 		v.OwnerCode = membMessage.Code
 		v.CreateTime = times.FormatByMill(organization.ToMap(orgs)[v.Id].CreateTime)
 	}
+	if len(orgs) > 0 {
+		membMessage.OrganizationCode, _ = encrypts.Encrypt(strconv.FormatInt(orgs[0].Id, 10), model.AESKey)
+	}
 	// 使用jwt生成token
 	memIdStr := strconv.FormatInt(mem.Id, 10)
 	accessExp := time.Duration(config.Cfg.Jc.AccessExp*3600*24) * time.Second
@@ -189,6 +187,7 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 		AccessTokenExp: int64(jwtToken.AccessExp),
 		TokenType:      "bearer",
 	}
+	// todo 存入缓存中
 	return &login.LoginResponse{
 		Member:           membMessage,
 		OrganizationList: orgsMessage,
@@ -207,7 +206,7 @@ func (l *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage)
 	}
 	// todo 放于redis中
 	id, _ := strconv.ParseInt(parseToken, 10, 64)
-	membyId, err := l.memberRepo.FindMemberById(ctx, id)
+	membyId, err := l.memberRepo.FindMemberById(context.Background(), id)
 	if err != nil {
 		zap.L().Error("find user db 【FindMemberById】 error！", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
@@ -215,6 +214,14 @@ func (l *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage)
 	memMessage := &login.MemberMessage{}
 	_ = copier.Copy(memMessage, membyId)
 	memMessage.Code, _ = encrypts.Encrypt(strconv.FormatInt(membyId.Id, 10), model.AESKey)
+	orgs, err := l.organizationRepo.FindOrganizationByMemId(context.Background(), membyId.Id)
+	if err != nil {
+		zap.L().Error("login database get error！", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if len(orgs) > 0 {
+		memMessage.OrganizationCode, _ = encrypts.Encrypt(strconv.FormatInt(orgs[0].Id, 10), model.AESKey)
+	}
 	return &login.LoginResponse{Member: memMessage}, nil
 }
 func (l *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*login.OrgListResponse, error) {

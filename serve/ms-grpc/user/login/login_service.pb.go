@@ -342,23 +342,24 @@ func (x *LoginResponse) GetTokenList() *TokenMessage {
 }
 
 type MemberMessage struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Mobile        string                 `protobuf:"bytes,3,opt,name=mobile,proto3" json:"mobile,omitempty"`
-	Realname      string                 `protobuf:"bytes,4,opt,name=realname,proto3" json:"realname,omitempty"`
-	Account       string                 `protobuf:"bytes,5,opt,name=account,proto3" json:"account,omitempty"`
-	Status        int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
-	LastLoginTime string                 `protobuf:"bytes,7,opt,name=lastLoginTime,proto3" json:"lastLoginTime,omitempty"`
-	Address       string                 `protobuf:"bytes,8,opt,name=address,proto3" json:"address,omitempty"`
-	Province      int32                  `protobuf:"varint,9,opt,name=province,proto3" json:"province,omitempty"`
-	City          int32                  `protobuf:"varint,10,opt,name=city,proto3" json:"city,omitempty"`
-	Area          int32                  `protobuf:"varint,11,opt,name=area,proto3" json:"area,omitempty"`
-	Email         string                 `protobuf:"bytes,12,opt,name=email,proto3" json:"email,omitempty"`
-	Code          string                 `protobuf:"bytes,13,opt,name=code,proto3" json:"code,omitempty"`
-	CreateTime    string                 `protobuf:"bytes,14,opt,name=createTime,proto3" json:"createTime,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	Id               int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Mobile           string                 `protobuf:"bytes,3,opt,name=mobile,proto3" json:"mobile,omitempty"`
+	Realname         string                 `protobuf:"bytes,4,opt,name=realname,proto3" json:"realname,omitempty"`
+	Account          string                 `protobuf:"bytes,5,opt,name=account,proto3" json:"account,omitempty"`
+	Status           int32                  `protobuf:"varint,6,opt,name=status,proto3" json:"status,omitempty"`
+	LastLoginTime    string                 `protobuf:"bytes,7,opt,name=lastLoginTime,proto3" json:"lastLoginTime,omitempty"`
+	Address          string                 `protobuf:"bytes,8,opt,name=address,proto3" json:"address,omitempty"`
+	Province         int32                  `protobuf:"varint,9,opt,name=province,proto3" json:"province,omitempty"`
+	City             int32                  `protobuf:"varint,10,opt,name=city,proto3" json:"city,omitempty"`
+	Area             int32                  `protobuf:"varint,11,opt,name=area,proto3" json:"area,omitempty"`
+	Email            string                 `protobuf:"bytes,12,opt,name=email,proto3" json:"email,omitempty"`
+	Code             string                 `protobuf:"bytes,13,opt,name=code,proto3" json:"code,omitempty"`
+	CreateTime       string                 `protobuf:"bytes,14,opt,name=createTime,proto3" json:"createTime,omitempty"`
+	OrganizationCode string                 `protobuf:"bytes,15,opt,name=organizationCode,proto3" json:"organizationCode,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *MemberMessage) Reset() {
@@ -485,6 +486,13 @@ func (x *MemberMessage) GetCode() string {
 func (x *MemberMessage) GetCreateTime() string {
 	if x != nil {
 		return x.CreateTime
+	}
+	return ""
+}
+
+func (x *MemberMessage) GetOrganizationCode() string {
+	if x != nil {
+		return x.OrganizationCode
 	}
 	return ""
 }
@@ -808,7 +816,7 @@ const file_login_service_proto_rawDesc = "" +
 	"\rLoginResponse\x127\n" +
 	"\x06member\x18\x01 \x01(\v2\x1f.login.service.v1.MemberMessageR\x06member\x12Q\n" +
 	"\x10organizationList\x18\x02 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList\x12<\n" +
-	"\ttokenList\x18\x03 \x01(\v2\x1e.login.service.v1.TokenMessageR\ttokenList\"\xe7\x02\n" +
+	"\ttokenList\x18\x03 \x01(\v2\x1e.login.service.v1.TokenMessageR\ttokenList\"\x93\x03\n" +
 	"\rMemberMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -826,7 +834,8 @@ const file_login_service_proto_rawDesc = "" +
 	"\x04code\x18\r \x01(\tR\x04code\x12\x1e\n" +
 	"\n" +
 	"createTime\x18\x0e \x01(\tR\n" +
-	"createTime\"\xdb\x02\n" +
+	"createTime\x12*\n" +
+	"\x10organizationCode\x18\x0f \x01(\tR\x10organizationCode\"\xdb\x02\n" +
 	"\x13OrganizationMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
