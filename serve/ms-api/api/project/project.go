@@ -47,16 +47,25 @@ func (p *HandlerProject) projectList(c *gin.Context) {
 	memberName := c.GetString("memberName")
 	var page = &model.Page{}
 	page.Bind(c)
-	res, err := rpc.ProjectClient.FindProjectByMemId(ctx, &project.ProjectRpcMessage{MemberId: id, MemberName: memberName, Page: page.Page, PageSize: page.PageSize})
+	selectBy := c.PostForm("selectBy")
+
+	msg := &project.ProjectRpcMessage{
+		MemberId:   id,
+		MemberName: memberName,
+		Page:       page.Page,
+		PageSize:   page.PageSize,
+		SelectBy:   selectBy,
+	}
+	res, err := rpc.ProjectClient.FindProjectByMemId(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Failure(code, msg))
 	}
-	if res.Pm == nil {
-		res.Pm = []*project.ProjectMessage{}
-	}
 	var pam []*apiProject.ProjectAndMember
 	_ = copier.Copy(&pam, res.Pm)
+	if pam == nil {
+		pam = []*apiProject.ProjectAndMember{}
+	}
 	c.JSON(http.StatusOK, result.Success(gin.H{
 		"list":  pam,
 		"total": res.Total,

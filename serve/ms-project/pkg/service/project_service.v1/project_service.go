@@ -49,7 +49,23 @@ func (p *ProjectService) Index(ctx context.Context, in *project.IndexMessage) (*
 }
 func (p *ProjectService) FindProjectByMemId(ctx context.Context, in *project.ProjectRpcMessage) (*project.MyProjectResponse, error) {
 	id := in.MemberId
-	pm, total, err := p.projectRepo.FindProjectByMemId(ctx, id, in.Page, in.PageSize)
+	page := in.Page
+	pageSize := in.PageSize
+	var pm []*pro.ProjectAndMember
+	var total int64
+	var err error
+	if in.SelectBy == "" || in.SelectBy == "my" {
+		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "", page, pageSize)
+	}
+	if in.SelectBy == "archive" {
+		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "and archive = 1", page, pageSize)
+	}
+	if in.SelectBy == "deleted" {
+		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "and deleted = 1", page, pageSize)
+	}
+	if in.SelectBy == "collect" {
+		pm, total, err = p.projectRepo.FindCollectProjectByMemId(ctx, id, page, pageSize)
+	}
 	if err != nil {
 		zap.L().Error("menu findAll error", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)

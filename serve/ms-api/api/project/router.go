@@ -24,4 +24,5 @@ func (*RouterUser) Route(r *gin.Engine) {
 	group.Use(midd.TokenVerify())
 	group.POST("index", h.index)
 	group.POST("project/selfList", h.projectList)
+	group.POST("project", h.projectList)
 }

@@ -587,6 +587,7 @@ type ProjectRpcMessage struct {
 	MemberName    string                 `protobuf:"bytes,2,opt,name=memberName,proto3" json:"memberName,omitempty"`
 	Page          int64                  `protobuf:"varint,3,opt,name=page,proto3" json:"page,omitempty"`
 	PageSize      int64                  `protobuf:"varint,4,opt,name=pageSize,proto3" json:"pageSize,omitempty"`
+	SelectBy      string                 `protobuf:"bytes,5,opt,name=selectBy,proto3" json:"selectBy,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -647,6 +648,13 @@ func (x *ProjectRpcMessage) GetPageSize() int64 {
 		return x.PageSize
 	}
 	return 0
+}
+
+func (x *ProjectRpcMessage) GetSelectBy() string {
+	if x != nil {
+		return x.SelectBy
+	}
+	return ""
 }
 
 type MyProjectResponse struct {
@@ -773,14 +781,15 @@ const file_project_service_proto_rawDesc = "" +
 	"\tAuthorize\x18\x1d \x01(\tR\tAuthorize\x12\x12\n" +
 	"\x04code\x18\x1e \x01(\tR\x04code\x12\x1c\n" +
 	"\townerName\x18\x1f \x01(\tR\townerName\x12\x1c\n" +
-	"\tcollected\x18  \x01(\x05R\tcollected\"\x7f\n" +
+	"\tcollected\x18  \x01(\x05R\tcollected\"\x9b\x01\n" +
 	"\x11ProjectRpcMessage\x12\x1a\n" +
 	"\bmemberId\x18\x01 \x01(\x03R\bmemberId\x12\x1e\n" +
 	"\n" +
 	"memberName\x18\x02 \x01(\tR\n" +
 	"memberName\x12\x12\n" +
 	"\x04page\x18\x03 \x01(\x03R\x04page\x12\x1a\n" +
-	"\bpageSize\x18\x04 \x01(\x03R\bpageSize\"]\n" +
+	"\bpageSize\x18\x04 \x01(\x03R\bpageSize\x12\x1a\n" +
+	"\bselectBy\x18\x05 \x01(\tR\bselectBy\"]\n" +
 	"\x11MyProjectResponse\x122\n" +
 	"\x02pm\x18\x01 \x03(\v2\".project.service.v1.ProjectMessageR\x02pm\x12\x14\n" +
 	"\x05total\x18\x02 \x01(\x03R\x05total2\xc6\x01\n" +
