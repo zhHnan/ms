@@ -4,6 +4,7 @@ import (
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
 	"hnz.com/ms_serve/ms-grpc/user/login"
+	"hnz.com/ms_serve/ms-user/internal/interceptor"
 	"log"
 	"net"
 
@@ -51,7 +52,9 @@ func RegisterGrpc() *grpc.Server {
 			//loginServiceV1.RegisterLoginServiceServer(g, &loginServiceV1.LoginService{})
 			login.RegisterLoginServiceServer(g, login_service.New())
 		}}
-	s := grpc.NewServer()
+	cacheInterceptor := interceptor.NewInterceptor()
+	s := grpc.NewServer(cacheInterceptor.CacheInterceptor())
+	//s := grpc.NewServer()
 	c.RegisterFunc(s)
 
 	listen, err := net.Listen("tcp", c.Addr)
