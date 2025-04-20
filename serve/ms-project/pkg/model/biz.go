@@ -5,4 +5,21 @@ const (
 	Personal
 )
 
-var AESKey = "tuhgutkshhfkagbfjdjfarfh"
+const AESKey = "tuhgutkshhfkagbfjdjfarfh"
+const (
+	NoDeleted int = iota
+	Deleted
+)
+const (
+	NoArchive int = iota
+	Archive
+)
+const (
+	Open int = iota
+	Private
+	custom
+)
+const (
+	Default = "default"
+	Simple  = "simple"
+)

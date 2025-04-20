@@ -17,7 +17,7 @@ type Project struct {
 	WhiteList          string
 	Sort               int
 	Deleted            int
-	TemplateCode       string
+	TemplateCode       int
 	Schedule           float64
 	CreateTime         int64
 	OrganizationCode   int64
@@ -45,7 +45,7 @@ type ProjectMember struct {
 	MemberCode  int64
 	JoinTime    int64
 	IsOwner     int64
-	Authorise   string
+	Authorize   string
 }
 
 func (*ProjectMember) TableName() string {

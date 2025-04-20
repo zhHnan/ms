@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"hnz.com/ms_serve/ms-project/internal/data/project"
+	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/gorms"
 )
 
@@ -40,4 +41,13 @@ func (p *ProjectDao) FindCollectProjectByMemId(ctx context.Context, id int64, pa
 	query := fmt.Sprintf("member_code=?")
 	session.Model(&project.ProjectMember{}).Where(query, id).Count(&total)
 	return mp, total, err
+}
+func (p *ProjectDao) SaveProject(conn database.DBConn, ctx context.Context, pr *project.Project) error {
+	p.conn = conn.(*gorms.GormConn)
+	return p.conn.Tx(ctx).Save(&pr).Error
+}
+
+func (p *ProjectDao) SaveProjectMember(conn database.DBConn, ctx context.Context, pm *project.ProjectMember) error {
+	p.conn = conn.(*gorms.GormConn)
+	return p.conn.Tx(ctx).Save(&pm).Error
 }

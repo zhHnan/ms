@@ -112,3 +112,29 @@ func (p *HandlerProject) projectTemplate(c *gin.Context) {
 		"total": res.Total,
 	}))
 }
+
+func (p *HandlerProject) projectSave(c *gin.Context) {
+	result := &common.Result{}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	memberId := c.GetInt64("memberId")
+	organizationCode := c.GetString("organizationCode")
+	var req *apiProject.SaveProjectRequest
+	_ = c.ShouldBind(&req)
+	msg := &project.ProjectRpcMessage{
+		Id:               int64(req.Id),
+		Name:             req.Name,
+		Description:      req.Description,
+		TemplateCode:     req.TemplateCode,
+		OrganizationCode: organizationCode,
+		MemberId:         memberId,
+	}
+	res, err := rpc.ProjectClient.SaveProject(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var resp *project.SaveProjectMessage
+	_ = copier.Copy(&resp, res)
+	c.JSON(http.StatusOK, result.Success(resp))
+}

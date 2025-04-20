@@ -65,3 +65,21 @@ type ProjectTemplate struct {
 type TaskStagesOnlyName struct {
 	Name string `json:"name"`
 }
+
+type SaveProjectRequest struct {
+	Name         string `json:"name" form:"name"`
+	TemplateCode string `json:"templateCode" form:"templateCode"`
+	Description  string `json:"description" form:"description"`
+	Id           int    `json:"id" form:"id"`
+}
+
+type SaveProject struct {
+	Id               int64  `json:"id"`
+	Cover            string `json:"cover"`
+	Name             string `json:"name"`
+	Description      string `json:"description"`
+	Code             string `json:"code"`
+	CreateTime       string `json:"create_time"`
+	TaskBoardTheme   string `json:"task_board_theme"`
+	OrganizationCode string `json:"organization_code"`
+}

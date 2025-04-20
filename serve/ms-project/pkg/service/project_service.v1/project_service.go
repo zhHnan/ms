@@ -13,10 +13,12 @@ import (
 	"hnz.com/ms_serve/ms-project/internal/data/menu"
 	pro "hnz.com/ms_serve/ms-project/internal/data/project"
 	"hnz.com/ms_serve/ms-project/internal/data/task"
+	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/tran"
 	"hnz.com/ms_serve/ms-project/internal/repo"
 	"hnz.com/ms_serve/ms-project/pkg/model"
 	"strconv"
+	"time"
 )
 
 type ProjectService struct {
@@ -135,4 +137,58 @@ func (p *ProjectService) FindProjectTemplate(ctx context.Context, in *project.Pr
 	var res []*project.ProjectTemplateMessage
 	_ = copier.Copy(&res, ptas)
 	return &project.ProjectTemplateResponse{Ptm: res, Total: total}, nil
+}
+
+func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.SaveProjectMessage, error) {
+	organizationCodeStr, _ := encrypts.Decrypt(msg.OrganizationCode, model.AESKey)
+	organizationCode, _ := strconv.ParseInt(organizationCodeStr, 10, 64)
+	templateCodeStr, _ := encrypts.Decrypt(msg.TemplateCode, model.AESKey)
+	templateCode, _ := strconv.ParseInt(templateCodeStr, 10, 64)
+	pr := &pro.Project{
+		Name:              msg.Name,
+		Description:       msg.Description,
+		TemplateCode:      int(templateCode),
+		CreateTime:        time.Now().UnixMilli(),
+		Cover:             "https://img2.baidu.com/it/u=792555388,2449797505&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500",
+		Deleted:           model.NoDeleted,
+		Archive:           model.NoArchive,
+		OrganizationCode:  organizationCode,
+		AccessControlType: model.Open,
+		TaskBoardTheme:    model.Simple,
+	}
+	err := p.transaction.Action(func(conn database.DBConn) error {
+		err := p.projectRepo.SaveProject(conn, ctx, pr)
+		if err != nil {
+			zap.L().Error("project SaveProject error", zap.Error(err))
+			return errs.GrpcError(model.DataBaseError)
+		}
+		pm := &pro.ProjectMember{
+			ProjectCode: pr.Id,
+			MemberCode:  msg.MemberId,
+			JoinTime:    time.Now().UnixMilli(),
+			IsOwner:     msg.MemberId,
+			Authorize:   "",
+		}
+		err = p.projectRepo.SaveProjectMember(conn, ctx, pm)
+		if err != nil {
+			zap.L().Error("project SaveProjectMember error", zap.Error(err))
+			return errs.GrpcError(model.DataBaseError)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	code, _ := encrypts.Encrypt(strconv.FormatInt(pr.Id, 10), model.AESKey)
+	rsp := &project.SaveProjectMessage{
+		Id:               pr.Id,
+		Code:             code,
+		OrganizationCode: organizationCodeStr,
+		Name:             pr.Name,
+		Cover:            pr.Cover,
+		CreateTime:       times.FormatByMill(pr.CreateTime),
+		TaskBoardTheme:   pr.TaskBoardTheme,
+	}
+	return rsp, nil
 }

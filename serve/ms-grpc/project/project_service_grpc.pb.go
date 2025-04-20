@@ -22,6 +22,7 @@ const (
 	ProjectService_Index_FullMethodName               = "/project.service.v1.ProjectService/Index"
 	ProjectService_FindProjectByMemId_FullMethodName  = "/project.service.v1.ProjectService/FindProjectByMemId"
 	ProjectService_FindProjectTemplate_FullMethodName = "/project.service.v1.ProjectService/FindProjectTemplate"
+	ProjectService_SaveProject_FullMethodName         = "/project.service.v1.ProjectService/SaveProject"
 )
 
 // ProjectServiceClient is the client API for ProjectService service.
@@ -31,6 +32,7 @@ type ProjectServiceClient interface {
 	Index(ctx context.Context, in *IndexMessage, opts ...grpc.CallOption) (*IndexResponse, error)
 	FindProjectByMemId(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*MyProjectResponse, error)
 	FindProjectTemplate(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*ProjectTemplateResponse, error)
+	SaveProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*SaveProjectMessage, error)
 }
 
 type projectServiceClient struct {
@@ -71,6 +73,16 @@ func (c *projectServiceClient) FindProjectTemplate(ctx context.Context, in *Proj
 	return out, nil
 }
 
+func (c *projectServiceClient) SaveProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*SaveProjectMessage, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SaveProjectMessage)
+	err := c.cc.Invoke(ctx, ProjectService_SaveProject_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProjectServiceServer is the server API for ProjectService service.
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type ProjectServiceServer interface {
 	Index(context.Context, *IndexMessage) (*IndexResponse, error)
 	FindProjectByMemId(context.Context, *ProjectRpcMessage) (*MyProjectResponse, error)
 	FindProjectTemplate(context.Context, *ProjectRpcMessage) (*ProjectTemplateResponse, error)
+	SaveProject(context.Context, *ProjectRpcMessage) (*SaveProjectMessage, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedProjectServiceServer) FindProjectByMemId(context.Context, *Pr
 }
 func (UnimplementedProjectServiceServer) FindProjectTemplate(context.Context, *ProjectRpcMessage) (*ProjectTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FindProjectTemplate not implemented")
+}
+func (UnimplementedProjectServiceServer) SaveProject(context.Context, *ProjectRpcMessage) (*SaveProjectMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveProject not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}
 func (UnimplementedProjectServiceServer) testEmbeddedByValue()                        {}
@@ -172,6 +188,24 @@ func _ProjectService_FindProjectTemplate_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_SaveProject_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRpcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).SaveProject(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_SaveProject_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).SaveProject(ctx, req.(*ProjectRpcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProjectService_ServiceDesc is the grpc.ServiceDesc for ProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "FindProjectTemplate",
 			Handler:    _ProjectService_FindProjectTemplate_Handler,
+		},
+		{
+			MethodName: "SaveProject",
+			Handler:    _ProjectService_SaveProject_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
