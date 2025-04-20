@@ -13,4 +13,5 @@ type TaskStagesTemplateRepo interface {
 
 type TaskStagesRepo interface {
 	SaveTaskStages(conn database.DBConn, ctx context.Context, msg *task.TaskStages) error
+	FindByProjectCode(ctx context.Context, projectCode int64, page int64, size int64) ([]*task.TaskStages, int64, error)
 }

@@ -11,12 +11,18 @@ import (
 
 var commonIV = []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f}
 
+const AESKey = "tuhgutkshhfkagbfjdjfarfh"
+
 func Md5(pwd string) string {
 	hash := md5.New()
 	_, _ = io.WriteString(hash, pwd)
 	return hex.EncodeToString(hash.Sum(nil))
 }
-
+func DecryptToRes(cipherStr string) int64 {
+	value, _ := Decrypt(cipherStr, AESKey)
+	res, _ := strconv.ParseInt(value, 10, 64)
+	return res
+}
 func Encrypt(plainText string, keyText string) (cipherStr string, err error) {
 	// 转换成字节数据, 方便加密
 	plainByte := []byte(plainText)

@@ -4,6 +4,7 @@ import (
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
 	"hnz.com/ms_serve/ms-grpc/project"
+	task_service "hnz.com/ms_serve/ms-grpc/task"
 	"hnz.com/ms_serve/ms-project/internal/interceptor"
 	"hnz.com/ms_serve/ms-project/internal/rpc"
 	"log"
@@ -14,6 +15,7 @@ import (
 	"google.golang.org/grpc/resolver"
 	"hnz.com/ms_serve/ms-project/config"
 	projectServiceV1 "hnz.com/ms_serve/ms-project/pkg/service/project_service.v1"
+	taskServiceV1 "hnz.com/ms_serve/ms-project/pkg/service/task_service.v1"
 )
 
 type Router interface {
@@ -52,6 +54,7 @@ func RegisterGrpc() *grpc.Server {
 		RegisterFunc: func(g *grpc.Server) {
 			//loginServiceV1.RegisterLoginServiceServer(g, &loginServiceV1.LoginService{})
 			project.RegisterProjectServiceServer(g, projectServiceV1.New())
+			task_service.RegisterTaskServiceServer(g, taskServiceV1.New())
 		}}
 	s := grpc.NewServer(interceptor.NewInterceptor().CacheInterceptor())
 	c.RegisterFunc(s)

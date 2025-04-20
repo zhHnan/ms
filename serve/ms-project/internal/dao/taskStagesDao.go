@@ -22,3 +22,11 @@ func (t *TaskStagesDao) SaveTaskStages(conn database.DBConn, ctx context.Context
 	err := t.conn.Tx(ctx).Save(&msg).Error
 	return err
 }
+func (t *TaskStagesDao) FindByProjectCode(ctx context.Context, projectCode int64, page int64, size int64) ([]*task.TaskStages, int64, error) {
+	session := t.conn.Session(ctx)
+	var stages []*task.TaskStages
+	err := session.Model(&task.TaskStages{}).Where("project_code=? and deleted=?", projectCode, 0).Order("sort asc").Limit(int(size)).Offset(int((page - 1) * size)).Find(&stages).Error
+	var total int64
+	err = session.Model(&task.TaskStages{}).Where("project_code=?", projectCode).Count(&total).Error
+	return stages, total, err
+}
