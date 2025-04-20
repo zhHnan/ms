@@ -7,11 +7,13 @@ import (
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
 	"hnz.com/ms_serve/ms-grpc/project"
+	"hnz.com/ms_serve/ms-grpc/task"
 	"hnz.com/ms_serve/ms-user/config"
 	"log"
 )
 
 var ProjectClient project.ProjectServiceClient
+var TaskClient task_service_v1.TaskServiceClient
 
 func InitProjectRpc() {
 	etcdResolver := discovery.NewResolver(config.Cfg.Ec.Addrs, logs.Lg)
@@ -21,4 +23,5 @@ func InitProjectRpc() {
 		log.Fatalf("did not connect: %v", err)
 	}
 	ProjectClient = project.NewProjectServiceClient(conn)
+	TaskClient = task_service_v1.NewTaskServiceClient(conn)
 }

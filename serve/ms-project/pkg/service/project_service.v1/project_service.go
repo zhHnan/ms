@@ -25,23 +25,25 @@ import (
 
 type ProjectService struct {
 	project.UnimplementedProjectServiceServer
-	cache           repo.Cache
-	transaction     tran.Transaction
-	menuRepo        repo.MenuRepo
-	projectRepo     repo.ProjectRepo
-	proTemplateRepo repo.ProjectTemplateRepo
-	taskStagesRepo  repo.TaskStagesTemplateRepo
+	cache                  repo.Cache
+	transaction            tran.Transaction
+	menuRepo               repo.MenuRepo
+	projectRepo            repo.ProjectRepo
+	proTemplateRepo        repo.ProjectTemplateRepo
+	taskStagesTemplateRepo repo.TaskStagesTemplateRepo
+	taskStagesRepo         repo.TaskStagesRepo
 }
 
 // 初始化
 func New() *ProjectService {
 	return &ProjectService{
-		cache:           dao.Rc,
-		transaction:     dao.NewTrans(),
-		menuRepo:        dao.NewMenuDao(),
-		projectRepo:     dao.NewProjectDao(),
-		proTemplateRepo: dao.NewProjectTemplateDao(),
-		taskStagesRepo:  dao.NewTaskStagesTemplateDao(),
+		cache:                  dao.Rc,
+		transaction:            dao.NewTrans(),
+		menuRepo:               dao.NewMenuDao(),
+		projectRepo:            dao.NewProjectDao(),
+		proTemplateRepo:        dao.NewProjectTemplateDao(),
+		taskStagesRepo:         dao.NewTaskStagesDao(),
+		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
 	}
 }
 
@@ -150,7 +152,7 @@ func (p *ProjectService) FindProjectTemplate(ctx context.Context, in *project.Pr
 		return nil, errs.GrpcError(model.DataBaseError)
 	}
 	// 模型转换，拿到模版id列表在任务步骤模板表中查询
-	tasks, err := p.taskStagesRepo.FindInProTemIds(ctx, pro.ToProjectTemplateIds(proTems))
+	tasks, err := p.taskStagesTemplateRepo.FindInProTemIds(ctx, pro.ToProjectTemplateIds(proTems))
 	if err != nil {
 		zap.L().Error("menu convertInProTemIds error", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
@@ -166,11 +168,19 @@ func (p *ProjectService) FindProjectTemplate(ctx context.Context, in *project.Pr
 	return &project.ProjectTemplateResponse{Ptm: res, Total: total}, nil
 }
 
-func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.SaveProjectMessage, error) {
+func (p *ProjectService) SaveProject(c context.Context, msg *project.ProjectRpcMessage) (*project.SaveProjectMessage, error) {
 	organizationCodeStr, _ := encrypts.Decrypt(msg.OrganizationCode, model.AESKey)
 	organizationCode, _ := strconv.ParseInt(organizationCodeStr, 10, 64)
 	templateCodeStr, _ := encrypts.Decrypt(msg.TemplateCode, model.AESKey)
 	templateCode, _ := strconv.ParseInt(templateCodeStr, 10, 64)
+	// 获取模版信息
+	ctx, cancel := context.WithTimeout(c, 3*time.Second)
+	defer cancel()
+	stageTemplates, err := p.taskStagesTemplateRepo.FindByProjectId(ctx, int(templateCode))
+	if err != nil {
+		zap.L().Error("project SaveProject error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
 	pr := &pro.Project{
 		Name:              msg.Name,
 		Description:       msg.Description,
@@ -183,7 +193,7 @@ func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRp
 		AccessControlType: model.Open,
 		TaskBoardTheme:    model.Simple,
 	}
-	err := p.transaction.Action(func(conn database.DBConn) error {
+	err = p.transaction.Action(func(conn database.DBConn) error {
 		err := p.projectRepo.SaveProject(conn, ctx, pr)
 		if err != nil {
 			zap.L().Error("project SaveProject error", zap.Error(err))
@@ -201,6 +211,22 @@ func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRp
 		if err != nil {
 			zap.L().Error("project SaveProjectMember error", zap.Error(err))
 			return errs.GrpcError(model.DataBaseError)
+		}
+		// 生成任务步骤
+		for k, v := range stageTemplates {
+			taskStage := &task.TaskStages{
+				ProjectCode: pr.Id,
+				Name:        v.Name,
+				Sort:        k + 1,
+				CreateTime:  time.Now().UnixMilli(),
+				Deleted:     model.NoDeleted,
+				Description: "",
+			}
+			err = p.taskStagesRepo.SaveTaskStages(conn, ctx, taskStage)
+			if err != nil {
+				zap.L().Error("project SaveTaskStages error", zap.Error(err))
+				return errs.GrpcError(model.DataBaseError)
+			}
 		}
 		return nil
 	})

@@ -21,3 +21,9 @@ func (t *TaskStagesTemplateDao) FindInProTemIds(ctx context.Context, ids []int) 
 	err := session.Model(&task.MsTaskStagesTemplate{}).Where("project_template_code in ?", ids).Find(&tsts).Error
 	return tsts, err
 }
+
+func (t *TaskStagesTemplateDao) FindByProjectId(ctx context.Context, projectId int) (list []task.MsTaskStagesTemplate, err error) {
+	session := t.conn.Session(ctx)
+	err = session.Model(&task.MsTaskStagesTemplate{}).Where("project_template_code = ?", projectId).Order("sort desc, id asc").Find(&list).Error
+	return
+}
