@@ -6,6 +6,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"io"
+	"strconv"
 )
 
 var commonIV = []byte{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f}
@@ -47,4 +48,7 @@ func Decrypt(cipherStr string, keyText string) (plainText string, err error) {
 	cfbdec.XORKeyStream(plainByte, cipherByte)
 	plainText = string(plainByte)
 	return
+}
+func EncryptInt64(value int64, aesKey string) (cipherStr string, err error) {
+	return Encrypt(strconv.FormatInt(value, 10), aesKey)
 }

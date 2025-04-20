@@ -19,11 +19,12 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	LoginService_GetCaptcha_FullMethodName  = "/login.service.v1.LoginService/GetCaptcha"
-	LoginService_Register_FullMethodName    = "/login.service.v1.LoginService/Register"
-	LoginService_Login_FullMethodName       = "/login.service.v1.LoginService/Login"
-	LoginService_TokenVerify_FullMethodName = "/login.service.v1.LoginService/TokenVerify"
-	LoginService_MyOrgList_FullMethodName   = "/login.service.v1.LoginService/MyOrgList"
+	LoginService_GetCaptcha_FullMethodName         = "/login.service.v1.LoginService/GetCaptcha"
+	LoginService_Register_FullMethodName           = "/login.service.v1.LoginService/Register"
+	LoginService_Login_FullMethodName              = "/login.service.v1.LoginService/Login"
+	LoginService_TokenVerify_FullMethodName        = "/login.service.v1.LoginService/TokenVerify"
+	LoginService_MyOrgList_FullMethodName          = "/login.service.v1.LoginService/MyOrgList"
+	LoginService_FindMemberInfoById_FullMethodName = "/login.service.v1.LoginService/FindMemberInfoById"
 )
 
 // LoginServiceClient is the client API for LoginService service.
@@ -35,6 +36,7 @@ type LoginServiceClient interface {
 	Login(ctx context.Context, in *LoginMessage, opts ...grpc.CallOption) (*LoginResponse, error)
 	TokenVerify(ctx context.Context, in *LoginMessage, opts ...grpc.CallOption) (*LoginResponse, error)
 	MyOrgList(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*OrgListResponse, error)
+	FindMemberInfoById(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessage, error)
 }
 
 type loginServiceClient struct {
@@ -95,6 +97,16 @@ func (c *loginServiceClient) MyOrgList(ctx context.Context, in *UserMessage, opt
 	return out, nil
 }
 
+func (c *loginServiceClient) FindMemberInfoById(ctx context.Context, in *UserMessage, opts ...grpc.CallOption) (*MemberMessage, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MemberMessage)
+	err := c.cc.Invoke(ctx, LoginService_FindMemberInfoById_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LoginServiceServer is the server API for LoginService service.
 // All implementations must embed UnimplementedLoginServiceServer
 // for forward compatibility.
@@ -104,6 +116,7 @@ type LoginServiceServer interface {
 	Login(context.Context, *LoginMessage) (*LoginResponse, error)
 	TokenVerify(context.Context, *LoginMessage) (*LoginResponse, error)
 	MyOrgList(context.Context, *UserMessage) (*OrgListResponse, error)
+	FindMemberInfoById(context.Context, *UserMessage) (*MemberMessage, error)
 	mustEmbedUnimplementedLoginServiceServer()
 }
 
@@ -128,6 +141,9 @@ func (UnimplementedLoginServiceServer) TokenVerify(context.Context, *LoginMessag
 }
 func (UnimplementedLoginServiceServer) MyOrgList(context.Context, *UserMessage) (*OrgListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MyOrgList not implemented")
+}
+func (UnimplementedLoginServiceServer) FindMemberInfoById(context.Context, *UserMessage) (*MemberMessage, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindMemberInfoById not implemented")
 }
 func (UnimplementedLoginServiceServer) mustEmbedUnimplementedLoginServiceServer() {}
 func (UnimplementedLoginServiceServer) testEmbeddedByValue()                      {}
@@ -240,6 +256,24 @@ func _LoginService_MyOrgList_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LoginService_FindMemberInfoById_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LoginServiceServer).FindMemberInfoById(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: LoginService_FindMemberInfoById_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LoginServiceServer).FindMemberInfoById(ctx, req.(*UserMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // LoginService_ServiceDesc is the grpc.ServiceDesc for LoginService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -266,6 +300,10 @@ var LoginService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MyOrgList",
 			Handler:    _LoginService_MyOrgList_Handler,
+		},
+		{
+			MethodName: "FindMemberInfoById",
+			Handler:    _LoginService_FindMemberInfoById_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

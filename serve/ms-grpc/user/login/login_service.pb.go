@@ -358,6 +358,7 @@ type MemberMessage struct {
 	Code             string                 `protobuf:"bytes,13,opt,name=code,proto3" json:"code,omitempty"`
 	CreateTime       string                 `protobuf:"bytes,14,opt,name=createTime,proto3" json:"createTime,omitempty"`
 	OrganizationCode string                 `protobuf:"bytes,15,opt,name=organizationCode,proto3" json:"organizationCode,omitempty"`
+	Avatar           string                 `protobuf:"bytes,16,opt,name=avatar,proto3" json:"avatar,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -493,6 +494,13 @@ func (x *MemberMessage) GetCreateTime() string {
 func (x *MemberMessage) GetOrganizationCode() string {
 	if x != nil {
 		return x.OrganizationCode
+	}
+	return ""
+}
+
+func (x *MemberMessage) GetAvatar() string {
+	if x != nil {
+		return x.Avatar
 	}
 	return ""
 }
@@ -816,7 +824,7 @@ const file_login_service_proto_rawDesc = "" +
 	"\rLoginResponse\x127\n" +
 	"\x06member\x18\x01 \x01(\v2\x1f.login.service.v1.MemberMessageR\x06member\x12Q\n" +
 	"\x10organizationList\x18\x02 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList\x12<\n" +
-	"\ttokenList\x18\x03 \x01(\v2\x1e.login.service.v1.TokenMessageR\ttokenList\"\x93\x03\n" +
+	"\ttokenList\x18\x03 \x01(\v2\x1e.login.service.v1.TokenMessageR\ttokenList\"\xab\x03\n" +
 	"\rMemberMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -835,7 +843,8 @@ const file_login_service_proto_rawDesc = "" +
 	"\n" +
 	"createTime\x18\x0e \x01(\tR\n" +
 	"createTime\x12*\n" +
-	"\x10organizationCode\x18\x0f \x01(\tR\x10organizationCode\"\xdb\x02\n" +
+	"\x10organizationCode\x18\x0f \x01(\tR\x10organizationCode\x12\x16\n" +
+	"\x06avatar\x18\x10 \x01(\tR\x06avatar\"\xdb\x02\n" +
 	"\x13OrganizationMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
@@ -861,14 +870,15 @@ const file_login_service_proto_rawDesc = "" +
 	"\vUserMessage\x12\x14\n" +
 	"\x05memId\x18\x01 \x01(\x03R\x05memId\"d\n" +
 	"\x0fOrgListResponse\x12Q\n" +
-	"\x10organizationList\x18\x01 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList2\xa7\x03\n" +
+	"\x10organizationList\x18\x01 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList2\xff\x03\n" +
 	"\fLoginService\x12S\n" +
 	"\n" +
 	"GetCaptcha\x12 .login.service.v1.CaptchaMessage\x1a!.login.service.v1.CaptchaResponse\"\x00\x12S\n" +
 	"\bRegister\x12!.login.service.v1.RegisterMessage\x1a\".login.service.v1.RegisterResponse\"\x00\x12J\n" +
 	"\x05Login\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00\x12P\n" +
 	"\vTokenVerify\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00\x12O\n" +
-	"\tMyOrgList\x12\x1d.login.service.v1.UserMessage\x1a!.login.service.v1.OrgListResponse\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
+	"\tMyOrgList\x12\x1d.login.service.v1.UserMessage\x1a!.login.service.v1.OrgListResponse\"\x00\x12V\n" +
+	"\x12FindMemberInfoById\x12\x1d.login.service.v1.UserMessage\x1a\x1f.login.service.v1.MemberMessage\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
 
 var (
 	file_login_service_proto_rawDescOnce sync.Once
@@ -906,13 +916,15 @@ var file_login_service_proto_depIdxs = []int32{
 	4,  // 6: login.service.v1.LoginService.Login:input_type -> login.service.v1.LoginMessage
 	4,  // 7: login.service.v1.LoginService.TokenVerify:input_type -> login.service.v1.LoginMessage
 	9,  // 8: login.service.v1.LoginService.MyOrgList:input_type -> login.service.v1.UserMessage
-	1,  // 9: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
-	3,  // 10: login.service.v1.LoginService.Register:output_type -> login.service.v1.RegisterResponse
-	5,  // 11: login.service.v1.LoginService.Login:output_type -> login.service.v1.LoginResponse
-	5,  // 12: login.service.v1.LoginService.TokenVerify:output_type -> login.service.v1.LoginResponse
-	10, // 13: login.service.v1.LoginService.MyOrgList:output_type -> login.service.v1.OrgListResponse
-	9,  // [9:14] is the sub-list for method output_type
-	4,  // [4:9] is the sub-list for method input_type
+	9,  // 9: login.service.v1.LoginService.FindMemberInfoById:input_type -> login.service.v1.UserMessage
+	1,  // 10: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
+	3,  // 11: login.service.v1.LoginService.Register:output_type -> login.service.v1.RegisterResponse
+	5,  // 12: login.service.v1.LoginService.Login:output_type -> login.service.v1.LoginResponse
+	5,  // 13: login.service.v1.LoginService.TokenVerify:output_type -> login.service.v1.LoginResponse
+	10, // 14: login.service.v1.LoginService.MyOrgList:output_type -> login.service.v1.OrgListResponse
+	6,  // 15: login.service.v1.LoginService.FindMemberInfoById:output_type -> login.service.v1.MemberMessage
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
 	4,  // [4:4] is the sub-list for extension type_name
 	4,  // [4:4] is the sub-list for extension extendee
 	0,  // [0:4] is the sub-list for field type_name

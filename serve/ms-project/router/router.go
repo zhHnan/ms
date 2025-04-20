@@ -4,6 +4,7 @@ import (
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
 	"hnz.com/ms_serve/ms-grpc/project"
+	"hnz.com/ms_serve/ms-project/internal/rpc"
 	"log"
 	"net"
 
@@ -82,4 +83,8 @@ func RegisterEtcdServer() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func InitUserRpc() {
+	rpc.InitUserRpc()
 }

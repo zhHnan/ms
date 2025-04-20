@@ -59,6 +59,8 @@ type ProjectAndMember struct {
 	JoinTime    int64
 	IsOwner     int64
 	Authorise   string
+	OwnerName   string
+	Collected   int
 }
 type ProjectCollection struct {
 	Id          int64

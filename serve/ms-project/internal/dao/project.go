@@ -51,3 +51,18 @@ func (p *ProjectDao) SaveProjectMember(conn database.DBConn, ctx context.Context
 	p.conn = conn.(*gorms.GormConn)
 	return p.conn.Tx(ctx).Save(&pm).Error
 }
+func (p *ProjectDao) FindProjectByPIdAndMemId(ctx context.Context, code int64, id int64) (*project.ProjectAndMember, error) {
+	var pam *project.ProjectAndMember
+	session := p.conn.Session(ctx)
+	sql := fmt.Sprintf("select * from ms_project a, ms_project_member b where a.id=b.project_code and b.member_code= ? and b.project_code = ? limit 1")
+	err := session.Raw(sql, id, code).Scan(&pam).Error
+	return pam, err
+}
+
+func (p *ProjectDao) FindCollectByPidAndMemId(ctx context.Context, code int64, id int64) (bool, error) {
+	var count int64
+	session := p.conn.Session(ctx)
+	sql := fmt.Sprintf("select count(*) from ms_project_collection where member_code= ? and project_code = ?")
+	err := session.Raw(sql, id, code).Scan(&count).Error
+	return count > 0, err
+}

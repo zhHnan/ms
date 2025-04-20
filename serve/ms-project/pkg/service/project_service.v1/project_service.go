@@ -9,6 +9,7 @@ import (
 	"hnz.com/ms_serve/ms-common/errs"
 	"hnz.com/ms_serve/ms-common/times"
 	"hnz.com/ms_serve/ms-grpc/project"
+	"hnz.com/ms_serve/ms-grpc/user/login"
 	"hnz.com/ms_serve/ms-project/internal/dao"
 	"hnz.com/ms_serve/ms-project/internal/data/menu"
 	pro "hnz.com/ms_serve/ms-project/internal/data/project"
@@ -16,6 +17,7 @@ import (
 	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/tran"
 	"hnz.com/ms_serve/ms-project/internal/repo"
+	"hnz.com/ms_serve/ms-project/internal/rpc"
 	"hnz.com/ms_serve/ms-project/pkg/model"
 	"strconv"
 	"time"
@@ -83,9 +85,9 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, in *project.Pro
 		return &project.MyProjectResponse{Pm: []*project.ProjectMessage{}, Total: total}, nil
 	}
 	var pmm []*project.ProjectMessage
-	copier.Copy(&pmm, pm)
+	_ = copier.Copy(&pmm, pm)
 	for _, v := range pmm {
-		v.Code, _ = encrypts.Encrypt(strconv.FormatInt(v.Id, 10), model.AESKey)
+		v.Code, _ = encrypts.Encrypt(strconv.FormatInt(v.ProjectCode, 10), model.AESKey)
 		pam := pro.ToMap(pm)[v.Id]
 		v.AccessControlType = pam.GetAccessControlType()
 		v.OrganizationCode, _ = encrypts.Encrypt(strconv.FormatInt(pam.OrganizationCode, 10), model.AESKey)
@@ -169,6 +171,7 @@ func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRp
 			IsOwner:     msg.MemberId,
 			Authorize:   "",
 		}
+		fmt.Printf("save ProjectCode:【%s】/n", pm.ProjectCode)
 		err = p.projectRepo.SaveProjectMember(conn, ctx, pm)
 		if err != nil {
 			zap.L().Error("project SaveProjectMember error", zap.Error(err))
@@ -191,4 +194,42 @@ func (p *ProjectService) SaveProject(ctx context.Context, msg *project.ProjectRp
 		TaskBoardTheme:   pr.TaskBoardTheme,
 	}
 	return rsp, nil
+}
+
+func (p *ProjectService) GetProjectDetail(ctx context.Context, msg *project.ProjectRpcMessage) (*project.ProjectDetailMessage, error) {
+	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
+	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
+	memberId := msg.MemberId
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	projectAndMember, err := p.projectRepo.FindProjectByPIdAndMemId(c, projectCode, memberId)
+	if err != nil {
+		zap.L().Error("project FindProjectDetail FindProjectByPIdAndMemId error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	ownerId := projectAndMember.IsOwner
+	member, err := rpc.UserClient.FindMemberInfoById(c, &login.UserMessage{MemId: ownerId})
+	if err != nil {
+		zap.L().Error("project rpc FindProjectDetail FindMemberInfoById error", zap.Error(err))
+		return nil, err
+	}
+	// todo 放于redis中
+	isCollect, err := p.projectRepo.FindCollectByPidAndMemId(c, projectCode, memberId)
+	if err != nil {
+		zap.L().Error("project FindProjectDetail FindCollectByPidAndMemId error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if isCollect {
+		projectAndMember.Collected = model.Collected
+	}
+	var detailMsg = &project.ProjectDetailMessage{}
+	_ = copier.Copy(&detailMsg, projectAndMember)
+	detailMsg.OwnerAvatar = member.Avatar
+	detailMsg.OwnerName = member.Name
+	detailMsg.Code, _ = encrypts.EncryptInt64(projectAndMember.Id, model.AESKey)
+	detailMsg.AccessControlType = projectAndMember.GetAccessControlType()
+	detailMsg.OrganizationCode, _ = encrypts.EncryptInt64(projectAndMember.OrganizationCode, model.AESKey)
+	detailMsg.Order = int32(projectAndMember.Sort)
+	detailMsg.CreateTime = times.FormatByMill(projectAndMember.CreateTime)
+	return detailMsg, nil
 }

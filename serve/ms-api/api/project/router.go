@@ -27,4 +27,5 @@ func (*RouterUser) Route(r *gin.Engine) {
 	group.POST("/project", h.projectList)
 	group.POST("/project_template", h.projectTemplate)
 	group.POST("/project/save", h.projectSave)
+	group.POST("/project/read", h.projectRead)
 }

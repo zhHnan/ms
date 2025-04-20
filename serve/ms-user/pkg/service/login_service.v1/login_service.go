@@ -238,3 +238,23 @@ func (l *LoginService) MyOrgList(ctx context.Context, msg *login.UserMessage) (*
 	}
 	return &login.OrgListResponse{OrganizationList: orgsMessage}, nil
 }
+func (l *LoginService) FindMemberInfoById(ctx context.Context, msg *login.UserMessage) (*login.MemberMessage, error) {
+	memberById, err := l.memberRepo.FindMemberById(context.Background(), msg.MemId)
+	if err != nil {
+		zap.L().Error("TokenVerify db FindMemberById error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	memMsg := &login.MemberMessage{}
+	_ = copier.Copy(memMsg, memberById)
+	memMsg.Code, _ = encrypts.EncryptInt64(memberById.Id, model.AESKey)
+	orgs, err := l.organizationRepo.FindOrganizationByMemId(context.Background(), memberById.Id)
+	if err != nil {
+		zap.L().Error("TokenVerify db FindMember error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if len(orgs) > 0 {
+		memMsg.OrganizationCode, _ = encrypts.EncryptInt64(orgs[0].Id, model.AESKey)
+	}
+	memMsg.CreateTime = times.FormatByMill(memberById.CreateTime)
+	return memMsg, nil
+}

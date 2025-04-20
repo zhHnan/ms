@@ -16,5 +16,7 @@ func main() {
 	stop := func() {
 		grpc.Stop()
 	}
+	// 初始化rpc
+	router.InitUserRpc()
 	srv.Run(r, config.Cfg.Sc.Addr, config.Cfg.Sc.Name, stop)
 }

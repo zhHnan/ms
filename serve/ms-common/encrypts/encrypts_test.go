@@ -2,6 +2,7 @@ package encrypts
 
 import (
 	"fmt"
+	"hnz.com/ms_serve/ms-project/pkg/model"
 	"testing"
 )
 
@@ -21,4 +22,9 @@ func TestEncrypt(t *testing.T) {
 		fmt.Println(err)
 	}
 	fmt.Printf("%s ==> %s\n", cipherByte, plainText)
+}
+func TestDecrypt(t *testing.T) {
+	var code = "39a8"
+	text, err := Decrypt(code, model.AESKey)
+	fmt.Println(text, err)
 }
