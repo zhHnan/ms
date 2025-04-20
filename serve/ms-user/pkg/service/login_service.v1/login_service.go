@@ -2,6 +2,7 @@ package login_service_v1
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/copier"
@@ -188,6 +189,12 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 		TokenType:      "bearer",
 	}
 	// todo 存入缓存中
+	go func() {
+		memJson, _ := json.Marshal(mem)
+		l.cache.Put(c, model.Member+"::"+memIdStr, string(memJson), accessExp)
+		orgsJson, _ := json.Marshal(orgs)
+		l.cache.Put(c, model.MemberOrganization+"::"+memIdStr, string(orgsJson), accessExp)
+	}()
 	return &login.LoginResponse{
 		Member:           membMessage,
 		OrganizationList: orgsMessage,
@@ -205,20 +212,34 @@ func (l *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage)
 		return nil, errs.GrpcError(model.NoLogin)
 	}
 	// todo 放于redis中
-	id, _ := strconv.ParseInt(parseToken, 10, 64)
-	membyId, err := l.memberRepo.FindMemberById(context.Background(), id)
+	memJson, err := l.cache.Get(context.Background(), model.Member+"::"+parseToken)
 	if err != nil {
-		zap.L().Error("find user db 【FindMemberById】 error！", zap.Error(err))
-		return nil, errs.GrpcError(model.DataBaseError)
+		zap.L().Error("TokenVerify cache error！", zap.Error(err))
+		return nil, errs.GrpcError(model.NoLogin)
 	}
+	if memJson == "" {
+		zap.L().Error("TokenVerify cache token expired error！", zap.Error(err))
+		return nil, errs.GrpcError(model.NoLogin)
+	}
+	membyId := &member.Member{}
+	_ = json.Unmarshal([]byte(memJson), membyId)
+
 	memMessage := &login.MemberMessage{}
 	_ = copier.Copy(memMessage, membyId)
 	memMessage.Code, _ = encrypts.Encrypt(strconv.FormatInt(membyId.Id, 10), model.AESKey)
-	orgs, err := l.organizationRepo.FindOrganizationByMemId(context.Background(), membyId.Id)
+
+	orgJson, err := l.cache.Get(context.Background(), model.MemberOrganization+"::"+parseToken)
 	if err != nil {
-		zap.L().Error("login database get error！", zap.Error(err))
-		return nil, errs.GrpcError(model.DataBaseError)
+		zap.L().Error("TokenVerify cache error！", zap.Error(err))
+		return nil, errs.GrpcError(model.NoLogin)
 	}
+	if orgJson == "" {
+		zap.L().Error("TokenVerify cache token expired error！", zap.Error(err))
+		return nil, errs.GrpcError(model.NoLogin)
+	}
+	var orgs []*organization.Organization
+	_ = json.Unmarshal([]byte(orgJson), &orgs)
+
 	if len(orgs) > 0 {
 		memMessage.OrganizationCode, _ = encrypts.Encrypt(strconv.FormatInt(orgs[0].Id, 10), model.AESKey)
 	}
