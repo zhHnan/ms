@@ -197,3 +197,21 @@ func (p *HandlerProject) projectCollect(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success([]int{}))
 }
+
+func (p *HandlerProject) projectEdit(c *gin.Context) {
+	result := &common.Result{}
+	var req *apiProject.ProjectRequest
+	_ = c.ShouldBind(&req)
+	memberId := c.GetInt64("memberId")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &project.UpdateProjectMessage{}
+	copier.Copy(msg, req)
+	msg.MemberId = memberId
+	_, err := rpc.ProjectClient.UpdateProject(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
+}
