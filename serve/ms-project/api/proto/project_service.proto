@@ -75,6 +75,7 @@ message ProjectRpcMessage{
   string description = 10;
   int64 id = 11;
   string projectCode = 12;
+  bool deleted = 13;
 }
 message SaveProjectMessage {
   int64 Id = 1;
@@ -139,10 +140,12 @@ message ProjectDetailMessage{
   int32 collected = 27;
   string ownerAvatar = 28;
 }
+message ProjectUpdateDeletedResponse{}
 service ProjectService {
   rpc Index(IndexMessage) returns (IndexResponse) {}
   rpc FindProjectByMemId(ProjectRpcMessage) returns (MyProjectResponse){}
   rpc FindProjectTemplate(ProjectRpcMessage) returns (ProjectTemplateResponse){}
   rpc SaveProject(ProjectRpcMessage) returns (SaveProjectMessage){}
   rpc GetProjectDetail(ProjectRpcMessage) returns (ProjectDetailMessage){}
+  rpc UpdateDeletedProject(ProjectRpcMessage) returns (ProjectUpdateDeletedResponse){}
 }

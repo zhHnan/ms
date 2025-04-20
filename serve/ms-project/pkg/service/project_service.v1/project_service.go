@@ -66,7 +66,7 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, in *project.Pro
 	var total int64
 	var err error
 	if in.SelectBy == "" || in.SelectBy == "my" {
-		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "", page, pageSize)
+		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "and deleted = 0", page, pageSize)
 	}
 	if in.SelectBy == "archive" {
 		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "and archive = 1", page, pageSize)
@@ -232,4 +232,17 @@ func (p *ProjectService) GetProjectDetail(ctx context.Context, msg *project.Proj
 	detailMsg.Order = int32(projectAndMember.Sort)
 	detailMsg.CreateTime = times.FormatByMill(projectAndMember.CreateTime)
 	return detailMsg, nil
+}
+
+func (p *ProjectService) UpdateDeletedProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.ProjectUpdateDeletedResponse, error) {
+	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
+	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	err := p.projectRepo.UpdateDeletedProject(c, projectCode, msg.Deleted)
+	if err != nil {
+		zap.L().Error("project UpdateDeletedProject DeleteProject error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	return &project.ProjectUpdateDeletedResponse{}, nil
 }
