@@ -65,25 +65,50 @@ func (p *ProjectService) FindProjectByMemId(ctx context.Context, in *project.Pro
 	var pm []*pro.ProjectAndMember
 	var total int64
 	var err error
-	if in.SelectBy == "" || in.SelectBy == "my" {
-		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "and deleted = 0", page, pageSize)
-	}
-	if in.SelectBy == "archive" {
-		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "and archive = 1", page, pageSize)
-	}
-	if in.SelectBy == "deleted" {
-		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, "and deleted = 1", page, pageSize)
-	}
 	if in.SelectBy == "collect" {
 		pm, total, err = p.projectRepo.FindCollectProjectByMemId(ctx, id, page, pageSize)
+		if err != nil {
+			zap.L().Error("FindCollectProjectByMemId error", zap.Error(err))
+			return nil, errs.GrpcError(model.DataBaseError)
+		}
+		for _, v := range pm {
+			v.Collected = model.Collected
+		}
+	} else {
+		condition := "and deleted = 0"
+		if in.SelectBy == "archive" {
+			condition = "and archive = 1"
+		} else if in.SelectBy == "deleted" {
+			condition = "and deleted = 1"
+		}
+		pm, total, err = p.projectRepo.FindProjectByMemId(ctx, id, condition, page, pageSize)
+		if err != nil {
+			zap.L().Error("menu FindProjectByMemId error", zap.Error(err))
+			return nil, errs.GrpcError(model.DataBaseError)
+		}
+		// 获取所有收藏项目（不分页）
+		collectPms, _, err := p.projectRepo.FindCollectProjectByMemId(ctx, id, 1, 100000)
+		if err != nil {
+			zap.L().Error("FindCollectProjectByMemId error", zap.Error(err))
+			return nil, errs.GrpcError(model.DataBaseError)
+		}
+		// 构建收藏项目映射表
+		collectedMap := make(map[int64]struct{})
+		for _, v := range collectPms {
+			collectedMap[v.Id] = struct{}{}
+		}
+		// 标记已收藏项目
+		for _, v := range pm {
+			if _, ok := collectedMap[v.Id]; ok {
+				v.Collected = model.Collected
+			}
+		}
 	}
-	if err != nil {
-		zap.L().Error("menu findAll error", zap.Error(err))
-		return nil, errs.GrpcError(model.DataBaseError)
-	}
+
 	if pm == nil {
 		return &project.MyProjectResponse{Pm: []*project.ProjectMessage{}, Total: total}, nil
 	}
+
 	var pmm []*project.ProjectMessage
 	_ = copier.Copy(&pmm, pm)
 	for _, v := range pmm {
@@ -245,4 +270,28 @@ func (p *ProjectService) UpdateDeletedProject(ctx context.Context, msg *project.
 		return nil, errs.GrpcError(model.DataBaseError)
 	}
 	return &project.ProjectUpdateDeletedResponse{}, nil
+}
+func (p *ProjectService) UpdateCollectProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.UpdateCollectResponse, error) {
+	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
+	fmt.Println("【rpc server】projectCodeStr:", projectCodeStr)
+	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	var err error
+	if "collect" == msg.CollectType {
+		pc := &pro.ProjectCollection{
+			ProjectCode: projectCode,
+			MemberCode:  msg.MemberId,
+			CreateTime:  time.Now().UnixMilli(),
+		}
+		err = p.projectRepo.SaveProjectCollect(c, pc)
+	}
+	if "cancel" == msg.CollectType {
+		err = p.projectRepo.DeleteProjectCollect(c, msg.MemberId, projectCode)
+	}
+	if err != nil {
+		zap.L().Error("project UpdateCollectProject SaveProjectCollect error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	return &project.UpdateCollectResponse{}, nil
 }

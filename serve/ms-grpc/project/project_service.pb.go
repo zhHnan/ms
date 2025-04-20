@@ -596,6 +596,7 @@ type ProjectRpcMessage struct {
 	Id               int64                  `protobuf:"varint,11,opt,name=id,proto3" json:"id,omitempty"`
 	ProjectCode      string                 `protobuf:"bytes,12,opt,name=projectCode,proto3" json:"projectCode,omitempty"`
 	Deleted          bool                   `protobuf:"varint,13,opt,name=deleted,proto3" json:"deleted,omitempty"`
+	CollectType      string                 `protobuf:"bytes,14,opt,name=collectType,proto3" json:"collectType,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -719,6 +720,13 @@ func (x *ProjectRpcMessage) GetDeleted() bool {
 		return x.Deleted
 	}
 	return false
+}
+
+func (x *ProjectRpcMessage) GetCollectType() string {
+	if x != nil {
+		return x.CollectType
+	}
+	return ""
 }
 
 type SaveProjectMessage struct {
@@ -1381,6 +1389,50 @@ func (*ProjectUpdateDeletedResponse) Descriptor() ([]byte, []int) {
 	return file_project_service_proto_rawDescGZIP(), []int{11}
 }
 
+type UpdateCollectResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Collected     int32                  `protobuf:"varint,1,opt,name=collected,proto3" json:"collected,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateCollectResponse) Reset() {
+	*x = UpdateCollectResponse{}
+	mi := &file_project_service_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateCollectResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateCollectResponse) ProtoMessage() {}
+
+func (x *UpdateCollectResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_project_service_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateCollectResponse.ProtoReflect.Descriptor instead.
+func (*UpdateCollectResponse) Descriptor() ([]byte, []int) {
+	return file_project_service_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *UpdateCollectResponse) GetCollected() int32 {
+	if x != nil {
+		return x.Collected
+	}
+	return 0
+}
+
 var File_project_service_proto protoreflect.FileDescriptor
 
 const file_project_service_proto_rawDesc = "" +
@@ -1453,7 +1505,7 @@ const file_project_service_proto_rawDesc = "" +
 	"\tAuthorize\x18\x1d \x01(\tR\tAuthorize\x12\x12\n" +
 	"\x04code\x18\x1e \x01(\tR\x04code\x12\x1c\n" +
 	"\townerName\x18\x1f \x01(\tR\townerName\x12\x1c\n" +
-	"\tcollected\x18  \x01(\x05R\tcollected\"\x89\x03\n" +
+	"\tcollected\x18  \x01(\x05R\tcollected\"\xab\x03\n" +
 	"\x11ProjectRpcMessage\x12\x1a\n" +
 	"\bmemberId\x18\x01 \x01(\x03R\bmemberId\x12\x1e\n" +
 	"\n" +
@@ -1470,7 +1522,8 @@ const file_project_service_proto_rawDesc = "" +
 	" \x01(\tR\vdescription\x12\x0e\n" +
 	"\x02id\x18\v \x01(\x03R\x02id\x12 \n" +
 	"\vprojectCode\x18\f \x01(\tR\vprojectCode\x12\x18\n" +
-	"\adeleted\x18\r \x01(\bR\adeleted\"\xf8\x01\n" +
+	"\adeleted\x18\r \x01(\bR\adeleted\x12 \n" +
+	"\vcollectType\x18\x0e \x01(\tR\vcollectType\"\xf8\x01\n" +
 	"\x12SaveProjectMessage\x12\x0e\n" +
 	"\x02Id\x18\x01 \x01(\x03R\x02Id\x12\x14\n" +
 	"\x05Cover\x18\x02 \x01(\tR\x05Cover\x12\x12\n" +
@@ -1543,14 +1596,17 @@ const file_project_service_proto_rawDesc = "" +
 	"\townerName\x18\x1a \x01(\tR\townerName\x12\x1c\n" +
 	"\tcollected\x18\x1b \x01(\x05R\tcollected\x12 \n" +
 	"\vownerAvatar\x18\x1c \x01(\tR\vownerAvatar\"\x1e\n" +
-	"\x1cProjectUpdateDeletedResponse2\xed\x04\n" +
+	"\x1cProjectUpdateDeletedResponse\"5\n" +
+	"\x15UpdateCollectResponse\x12\x1c\n" +
+	"\tcollected\x18\x01 \x01(\x05R\tcollected2\xd9\x05\n" +
 	"\x0eProjectService\x12N\n" +
 	"\x05Index\x12 .project.service.v1.IndexMessage\x1a!.project.service.v1.IndexResponse\"\x00\x12d\n" +
 	"\x12FindProjectByMemId\x12%.project.service.v1.ProjectRpcMessage\x1a%.project.service.v1.MyProjectResponse\"\x00\x12k\n" +
 	"\x13FindProjectTemplate\x12%.project.service.v1.ProjectRpcMessage\x1a+.project.service.v1.ProjectTemplateResponse\"\x00\x12^\n" +
 	"\vSaveProject\x12%.project.service.v1.ProjectRpcMessage\x1a&.project.service.v1.SaveProjectMessage\"\x00\x12e\n" +
 	"\x10GetProjectDetail\x12%.project.service.v1.ProjectRpcMessage\x1a(.project.service.v1.ProjectDetailMessage\"\x00\x12q\n" +
-	"\x14UpdateDeletedProject\x12%.project.service.v1.ProjectRpcMessage\x1a0.project.service.v1.ProjectUpdateDeletedResponse\"\x00B+Z)ms-project/pkg/service/project_service.v1b\x06proto3"
+	"\x14UpdateDeletedProject\x12%.project.service.v1.ProjectRpcMessage\x1a0.project.service.v1.ProjectUpdateDeletedResponse\"\x00\x12j\n" +
+	"\x14UpdateCollectProject\x12%.project.service.v1.ProjectRpcMessage\x1a).project.service.v1.UpdateCollectResponse\"\x00B+Z)ms-project/pkg/service/project_service.v1b\x06proto3"
 
 var (
 	file_project_service_proto_rawDescOnce sync.Once
@@ -1564,7 +1620,7 @@ func file_project_service_proto_rawDescGZIP() []byte {
 	return file_project_service_proto_rawDescData
 }
 
-var file_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_project_service_proto_goTypes = []any{
 	(*IndexMessage)(nil),                 // 0: project.service.v1.IndexMessage
 	(*MenuMessage)(nil),                  // 1: project.service.v1.MenuMessage
@@ -1578,6 +1634,7 @@ var file_project_service_proto_goTypes = []any{
 	(*ProjectTemplateResponse)(nil),      // 9: project.service.v1.ProjectTemplateResponse
 	(*ProjectDetailMessage)(nil),         // 10: project.service.v1.ProjectDetailMessage
 	(*ProjectUpdateDeletedResponse)(nil), // 11: project.service.v1.ProjectUpdateDeletedResponse
+	(*UpdateCollectResponse)(nil),        // 12: project.service.v1.UpdateCollectResponse
 }
 var file_project_service_proto_depIdxs = []int32{
 	1,  // 0: project.service.v1.MenuMessage.children:type_name -> project.service.v1.MenuMessage
@@ -1591,14 +1648,16 @@ var file_project_service_proto_depIdxs = []int32{
 	4,  // 8: project.service.v1.ProjectService.SaveProject:input_type -> project.service.v1.ProjectRpcMessage
 	4,  // 9: project.service.v1.ProjectService.GetProjectDetail:input_type -> project.service.v1.ProjectRpcMessage
 	4,  // 10: project.service.v1.ProjectService.UpdateDeletedProject:input_type -> project.service.v1.ProjectRpcMessage
-	2,  // 11: project.service.v1.ProjectService.Index:output_type -> project.service.v1.IndexResponse
-	6,  // 12: project.service.v1.ProjectService.FindProjectByMemId:output_type -> project.service.v1.MyProjectResponse
-	9,  // 13: project.service.v1.ProjectService.FindProjectTemplate:output_type -> project.service.v1.ProjectTemplateResponse
-	5,  // 14: project.service.v1.ProjectService.SaveProject:output_type -> project.service.v1.SaveProjectMessage
-	10, // 15: project.service.v1.ProjectService.GetProjectDetail:output_type -> project.service.v1.ProjectDetailMessage
-	11, // 16: project.service.v1.ProjectService.UpdateDeletedProject:output_type -> project.service.v1.ProjectUpdateDeletedResponse
-	11, // [11:17] is the sub-list for method output_type
-	5,  // [5:11] is the sub-list for method input_type
+	4,  // 11: project.service.v1.ProjectService.UpdateCollectProject:input_type -> project.service.v1.ProjectRpcMessage
+	2,  // 12: project.service.v1.ProjectService.Index:output_type -> project.service.v1.IndexResponse
+	6,  // 13: project.service.v1.ProjectService.FindProjectByMemId:output_type -> project.service.v1.MyProjectResponse
+	9,  // 14: project.service.v1.ProjectService.FindProjectTemplate:output_type -> project.service.v1.ProjectTemplateResponse
+	5,  // 15: project.service.v1.ProjectService.SaveProject:output_type -> project.service.v1.SaveProjectMessage
+	10, // 16: project.service.v1.ProjectService.GetProjectDetail:output_type -> project.service.v1.ProjectDetailMessage
+	11, // 17: project.service.v1.ProjectService.UpdateDeletedProject:output_type -> project.service.v1.ProjectUpdateDeletedResponse
+	12, // 18: project.service.v1.ProjectService.UpdateCollectProject:output_type -> project.service.v1.UpdateCollectResponse
+	12, // [12:19] is the sub-list for method output_type
+	5,  // [5:12] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
 	5,  // [5:5] is the sub-list for extension extendee
 	0,  // [0:5] is the sub-list for field type_name
@@ -1615,7 +1674,7 @@ func file_project_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_project_service_proto_rawDesc), len(file_project_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

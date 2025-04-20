@@ -33,13 +33,13 @@ func (p *ProjectDao) FindProjectByMemId(ctx context.Context, memId int64, condit
 func (p *ProjectDao) FindCollectProjectByMemId(ctx context.Context, id int64, page int64, size int64) ([]*project.ProjectAndMember, int64, error) {
 	session := p.conn.Session(ctx)
 	index := (page - 1) * size
-	sql := fmt.Sprintf("select * from ms_project where id in (select project_code from ms_project_collection where member_code = ?) order by sort limit ?,?")
+	sql := fmt.Sprintf("select * from ms_project mp, ms_project_member mpm where mp.id = mpm.project_code and mp.id in (select project_code from ms_project_collection mpc where mpc.member_code = ?) order by sort limit ?,?")
 	db := session.Raw(sql, id, index, size)
 	var mp []*project.ProjectAndMember
 	err := db.Scan(&mp).Error
 	var total int64
-	query := fmt.Sprintf("member_code=?")
-	session.Model(&project.ProjectMember{}).Where(query, id).Count(&total)
+	query := fmt.Sprintf("select count(*) from ms_project where id in (select project_code from ms_project_collection where member_code = ?)")
+	err = session.Raw(query, id).Scan(&total).Error
 	return mp, total, err
 }
 func (p *ProjectDao) SaveProject(conn database.DBConn, ctx context.Context, pr *project.Project) error {
@@ -76,4 +76,11 @@ func (p *ProjectDao) UpdateDeletedProject(ctx context.Context, code int64, delet
 		err = session.Model(&project.Project{}).Where("id=?", code).Update("deleted", 0).Error
 	}
 	return err
+}
+func (p *ProjectDao) SaveProjectCollect(ctx context.Context, pc *project.ProjectCollection) error {
+	return p.conn.Session(ctx).Save(&pc).Error
+}
+
+func (p *ProjectDao) DeleteProjectCollect(ctx context.Context, memId int64, projectCode int64) error {
+	return p.conn.Session(ctx).Where("member_code=? and project_code=?", memId, projectCode).Delete(&project.ProjectCollection{}).Error
 }
