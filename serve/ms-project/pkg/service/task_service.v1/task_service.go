@@ -2,13 +2,17 @@ package project_service_v1
 
 import (
 	"context"
+	"fmt"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
+	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/errs"
 	"hnz.com/ms_serve/ms-common/times"
-	task_service "hnz.com/ms_serve/ms-grpc/task"
+	taskRpc "hnz.com/ms_serve/ms-grpc/task"
+	"hnz.com/ms_serve/ms-grpc/user/login"
 	"hnz.com/ms_serve/ms-project/internal/dao"
+	"hnz.com/ms_serve/ms-project/internal/data/project"
 	"hnz.com/ms_serve/ms-project/internal/data/task"
 	"hnz.com/ms_serve/ms-project/internal/database/tran"
 	"hnz.com/ms_serve/ms-project/internal/repo"
@@ -17,7 +21,7 @@ import (
 )
 
 type TaskService struct {
-	task_service.UnimplementedTaskServiceServer
+	taskRpc.UnimplementedTaskServiceServer
 	cache                  repo.Cache
 	transaction            tran.Transaction
 	projectRepo            repo.ProjectRepo
@@ -38,7 +42,7 @@ func New() *TaskService {
 	}
 }
 
-func (t *TaskService) TaskStages(c context.Context, msg *task_service.TaskReqMessage) (*task_service.TaskStagesResponse, error) {
+func (t *TaskService) TaskStages(c context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskStagesResponse, error) {
 	projectCode := encrypts.DecryptToRes(msg.ProjectCode)
 	page := msg.Page
 	pageSize := msg.PageSize
@@ -49,10 +53,10 @@ func (t *TaskService) TaskStages(c context.Context, msg *task_service.TaskReqMes
 		zap.L().Error("project task TaskStages FindByProjectCode error", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
 	}
-	var resp []*task_service.TaskStagesMessage
+	var resp []*taskRpc.TaskStagesMessage
 	_ = copier.Copy(&resp, taskStages)
 	if resp == nil {
-		return &task_service.TaskStagesResponse{
+		return &taskRpc.TaskStagesResponse{
 			List:  resp,
 			Total: 0,
 		}, nil
@@ -64,8 +68,61 @@ func (t *TaskService) TaskStages(c context.Context, msg *task_service.TaskReqMes
 		v.CreateTime = times.FormatByMill(stages.CreateTime)
 		v.ProjectCode = msg.ProjectCode
 	}
-	return &task_service.TaskStagesResponse{
+	return &taskRpc.TaskStagesResponse{
 		List:  resp,
+		Total: total,
+	}, nil
+}
+func (t *TaskService) MemberProjectList(c context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.MemberProjectResponse, error) {
+	projectCode := encrypts.DecryptToRes(msg.ProjectCode)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	memberInfos, total, err := t.projectRepo.FindMemberByProjectId(ctx, projectCode)
+	if err != nil {
+		zap.L().Error("project task TaskStages FindMemberByProjectId error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if memberInfos == nil || len(memberInfos) <= 0 {
+		return &taskRpc.MemberProjectResponse{
+			List:  nil,
+			Total: 0,
+		}, nil
+	}
+
+	var memberIds []int64
+	pmMap := make(map[int64]*project.ProjectMember)
+	for _, v := range memberInfos {
+		memberIds = append(memberIds, v.MemberCode)
+		pmMap[v.MemberCode] = v
+	}
+	userMessage := &login.UserMessage{
+		MemberIds: memberIds,
+	}
+	fmt.Printf("\n userMessage--memberIds:【%s】\n", userMessage.MemberIds)
+	members, err := rpc.UserClient.FindMemberInfoByIds(ctx, userMessage)
+	if err != nil {
+		zap.L().Error("project task TaskStages userClient.FindMemberInfoByIds error", zap.Error(err))
+		return nil, err
+	}
+	var list []*taskRpc.MemberProjectMessage
+	for _, v := range members.MemberList {
+		owner := pmMap[v.Id].IsOwner
+		mpm := &taskRpc.MemberProjectMessage{
+			MemberCode: v.Id,
+			Name:       v.Name,
+			Avatar:     v.Avatar,
+			Email:      v.Email,
+			Code:       v.Code,
+		}
+		if v.Id == owner {
+			mpm.IsOwner = int32(model.Owner)
+		} else {
+			mpm.IsOwner = int32(model.Normal)
+		}
+		list = append(list, mpm)
+	}
+	return &taskRpc.MemberProjectResponse{
+		List:  list,
 		Total: total,
 	}, nil
 }

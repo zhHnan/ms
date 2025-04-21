@@ -146,7 +146,11 @@ func (p *HandlerProject) projectRead(c *gin.Context) {
 	memberId := c.GetInt64("memberId")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	detail, err := rpc.ProjectClient.GetProjectDetail(ctx, &project.ProjectRpcMessage{ProjectCode: projectCode, MemberId: memberId})
+	msg := &project.ProjectRpcMessage{
+		ProjectCode: projectCode,
+		MemberId:    memberId,
+	}
+	detail, err := rpc.ProjectClient.GetProjectDetail(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Failure(code, msg))

@@ -51,9 +51,13 @@ func (m *MemberDao) FindMember(ctx context.Context, account string, pwd string) 
 
 func (m *MemberDao) FindMemberById(ctx context.Context, id int64) (*member.Member, error) {
 	var mem *member.Member
-	err := m.conn.Session(ctx).Where("id = ?", id).First(&mem).Error
+	err := m.conn.Session(ctx).Model(&member.Member{}).Where("id = ?", id).First(&mem).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return mem, err
+}
+func (m *MemberDao) FindMemberByIds(background context.Context, ids []int64) (list []*member.Member, err error) {
+	err = m.conn.Session(background).Model(&member.Member{}).Where("id in ?", ids).Find(&list).Error
+	return list, err
 }

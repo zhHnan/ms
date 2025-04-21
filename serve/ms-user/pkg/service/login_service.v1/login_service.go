@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
@@ -278,4 +279,24 @@ func (l *LoginService) FindMemberInfoById(ctx context.Context, msg *login.UserMe
 	}
 	memMsg.CreateTime = times.FormatByMill(memberById.CreateTime)
 	return memMsg, nil
+}
+func (l *LoginService) FindMemberInfoByIds(ctx context.Context, msg *login.UserMessage) (*login.MemberListResponse, error) {
+	memberByIds, err := l.memberRepo.FindMemberByIds(context.Background(), msg.MemberIds)
+	fmt.Printf("\n userMessage--memberIds:【%s】\n", msg.MemberIds)
+	if err != nil {
+		zap.L().Error("TokenVerify db FindMemberByIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	mMap := make(map[int64]*member.Member)
+	for _, v := range memberByIds {
+		mMap[v.Id] = v
+	}
+	var memMsgs []*login.MemberMessage
+	_ = copier.Copy(&memMsgs, memberByIds)
+	for _, v := range memMsgs {
+		m := mMap[v.Id]
+		v.CreateTime = times.FormatByMill(m.CreateTime)
+		v.Code, _ = encrypts.EncryptInt64(v.Id, model.AESKey)
+	}
+	return &login.MemberListResponse{MemberList: memMsgs}, nil
 }

@@ -716,6 +716,7 @@ func (x *TokenMessage) GetAccessTokenExp() int64 {
 type UserMessage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MemId         int64                  `protobuf:"varint,1,opt,name=memId,proto3" json:"memId,omitempty"`
+	MemberIds     []int64                `protobuf:"varint,2,rep,packed,name=memberIds,proto3" json:"memberIds,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -755,6 +756,13 @@ func (x *UserMessage) GetMemId() int64 {
 		return x.MemId
 	}
 	return 0
+}
+
+func (x *UserMessage) GetMemberIds() []int64 {
+	if x != nil {
+		return x.MemberIds
+	}
+	return nil
 }
 
 type OrgListResponse struct {
@@ -797,6 +805,50 @@ func (*OrgListResponse) Descriptor() ([]byte, []int) {
 func (x *OrgListResponse) GetOrganizationList() []*OrganizationMessage {
 	if x != nil {
 		return x.OrganizationList
+	}
+	return nil
+}
+
+type MemberListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MemberList    []*MemberMessage       `protobuf:"bytes,1,rep,name=memberList,proto3" json:"memberList,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MemberListResponse) Reset() {
+	*x = MemberListResponse{}
+	mi := &file_login_service_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MemberListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MemberListResponse) ProtoMessage() {}
+
+func (x *MemberListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_login_service_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MemberListResponse.ProtoReflect.Descriptor instead.
+func (*MemberListResponse) Descriptor() ([]byte, []int) {
+	return file_login_service_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *MemberListResponse) GetMemberList() []*MemberMessage {
+	if x != nil {
+		return x.MemberList
 	}
 	return nil
 }
@@ -866,11 +918,16 @@ const file_login_service_proto_rawDesc = "" +
 	"\vaccessToken\x18\x01 \x01(\tR\vaccessToken\x12\"\n" +
 	"\frefreshToken\x18\x02 \x01(\tR\frefreshToken\x12\x1c\n" +
 	"\ttokenType\x18\x03 \x01(\tR\ttokenType\x12&\n" +
-	"\x0eaccessTokenExp\x18\x04 \x01(\x03R\x0eaccessTokenExp\"#\n" +
+	"\x0eaccessTokenExp\x18\x04 \x01(\x03R\x0eaccessTokenExp\"A\n" +
 	"\vUserMessage\x12\x14\n" +
-	"\x05memId\x18\x01 \x01(\x03R\x05memId\"d\n" +
+	"\x05memId\x18\x01 \x01(\x03R\x05memId\x12\x1c\n" +
+	"\tmemberIds\x18\x02 \x03(\x03R\tmemberIds\"d\n" +
 	"\x0fOrgListResponse\x12Q\n" +
-	"\x10organizationList\x18\x01 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList2\xff\x03\n" +
+	"\x10organizationList\x18\x01 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList\"U\n" +
+	"\x12MemberListResponse\x12?\n" +
+	"\n" +
+	"memberList\x18\x01 \x03(\v2\x1f.login.service.v1.MemberMessageR\n" +
+	"memberList2\xdd\x04\n" +
 	"\fLoginService\x12S\n" +
 	"\n" +
 	"GetCaptcha\x12 .login.service.v1.CaptchaMessage\x1a!.login.service.v1.CaptchaResponse\"\x00\x12S\n" +
@@ -878,7 +935,8 @@ const file_login_service_proto_rawDesc = "" +
 	"\x05Login\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00\x12P\n" +
 	"\vTokenVerify\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00\x12O\n" +
 	"\tMyOrgList\x12\x1d.login.service.v1.UserMessage\x1a!.login.service.v1.OrgListResponse\"\x00\x12V\n" +
-	"\x12FindMemberInfoById\x12\x1d.login.service.v1.UserMessage\x1a\x1f.login.service.v1.MemberMessage\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
+	"\x12FindMemberInfoById\x12\x1d.login.service.v1.UserMessage\x1a\x1f.login.service.v1.MemberMessage\"\x00\x12\\\n" +
+	"\x13FindMemberInfoByIds\x12\x1d.login.service.v1.UserMessage\x1a$.login.service.v1.MemberListResponse\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
 
 var (
 	file_login_service_proto_rawDescOnce sync.Once
@@ -892,7 +950,7 @@ func file_login_service_proto_rawDescGZIP() []byte {
 	return file_login_service_proto_rawDescData
 }
 
-var file_login_service_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_login_service_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_login_service_proto_goTypes = []any{
 	(*CaptchaMessage)(nil),      // 0: login.service.v1.CaptchaMessage
 	(*CaptchaResponse)(nil),     // 1: login.service.v1.CaptchaResponse
@@ -905,29 +963,33 @@ var file_login_service_proto_goTypes = []any{
 	(*TokenMessage)(nil),        // 8: login.service.v1.TokenMessage
 	(*UserMessage)(nil),         // 9: login.service.v1.UserMessage
 	(*OrgListResponse)(nil),     // 10: login.service.v1.OrgListResponse
+	(*MemberListResponse)(nil),  // 11: login.service.v1.MemberListResponse
 }
 var file_login_service_proto_depIdxs = []int32{
 	6,  // 0: login.service.v1.LoginResponse.member:type_name -> login.service.v1.MemberMessage
 	7,  // 1: login.service.v1.LoginResponse.organizationList:type_name -> login.service.v1.OrganizationMessage
 	8,  // 2: login.service.v1.LoginResponse.tokenList:type_name -> login.service.v1.TokenMessage
 	7,  // 3: login.service.v1.OrgListResponse.organizationList:type_name -> login.service.v1.OrganizationMessage
-	0,  // 4: login.service.v1.LoginService.GetCaptcha:input_type -> login.service.v1.CaptchaMessage
-	2,  // 5: login.service.v1.LoginService.Register:input_type -> login.service.v1.RegisterMessage
-	4,  // 6: login.service.v1.LoginService.Login:input_type -> login.service.v1.LoginMessage
-	4,  // 7: login.service.v1.LoginService.TokenVerify:input_type -> login.service.v1.LoginMessage
-	9,  // 8: login.service.v1.LoginService.MyOrgList:input_type -> login.service.v1.UserMessage
-	9,  // 9: login.service.v1.LoginService.FindMemberInfoById:input_type -> login.service.v1.UserMessage
-	1,  // 10: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
-	3,  // 11: login.service.v1.LoginService.Register:output_type -> login.service.v1.RegisterResponse
-	5,  // 12: login.service.v1.LoginService.Login:output_type -> login.service.v1.LoginResponse
-	5,  // 13: login.service.v1.LoginService.TokenVerify:output_type -> login.service.v1.LoginResponse
-	10, // 14: login.service.v1.LoginService.MyOrgList:output_type -> login.service.v1.OrgListResponse
-	6,  // 15: login.service.v1.LoginService.FindMemberInfoById:output_type -> login.service.v1.MemberMessage
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	6,  // 4: login.service.v1.MemberListResponse.memberList:type_name -> login.service.v1.MemberMessage
+	0,  // 5: login.service.v1.LoginService.GetCaptcha:input_type -> login.service.v1.CaptchaMessage
+	2,  // 6: login.service.v1.LoginService.Register:input_type -> login.service.v1.RegisterMessage
+	4,  // 7: login.service.v1.LoginService.Login:input_type -> login.service.v1.LoginMessage
+	4,  // 8: login.service.v1.LoginService.TokenVerify:input_type -> login.service.v1.LoginMessage
+	9,  // 9: login.service.v1.LoginService.MyOrgList:input_type -> login.service.v1.UserMessage
+	9,  // 10: login.service.v1.LoginService.FindMemberInfoById:input_type -> login.service.v1.UserMessage
+	9,  // 11: login.service.v1.LoginService.FindMemberInfoByIds:input_type -> login.service.v1.UserMessage
+	1,  // 12: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
+	3,  // 13: login.service.v1.LoginService.Register:output_type -> login.service.v1.RegisterResponse
+	5,  // 14: login.service.v1.LoginService.Login:output_type -> login.service.v1.LoginResponse
+	5,  // 15: login.service.v1.LoginService.TokenVerify:output_type -> login.service.v1.LoginResponse
+	10, // 16: login.service.v1.LoginService.MyOrgList:output_type -> login.service.v1.OrgListResponse
+	6,  // 17: login.service.v1.LoginService.FindMemberInfoById:output_type -> login.service.v1.MemberMessage
+	11, // 18: login.service.v1.LoginService.FindMemberInfoByIds:output_type -> login.service.v1.MemberListResponse
+	12, // [12:19] is the sub-list for method output_type
+	5,  // [5:12] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_login_service_proto_init() }
@@ -941,7 +1003,7 @@ func file_login_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_login_service_proto_rawDesc), len(file_login_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

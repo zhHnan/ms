@@ -28,3 +28,7 @@ const (
 	NoCollected int = iota
 	Collected
 )
+const (
+	NoOwner int = iota
+	Owner
+)

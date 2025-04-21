@@ -23,6 +23,19 @@ message TaskStagesResponse{
   int64 total = 1;
   repeated TaskStagesMessage list = 2;
 }
+message MemberProjectMessage{
+  string name = 1;
+  string avatar = 2;
+  int64 memberCode = 3;
+  string code = 4;
+  string email = 5;
+  int32 isOwner = 6;
+}
+message MemberProjectResponse{
+  int64 total = 1;
+  repeated MemberProjectMessage list = 2;
+}
 service TaskService {
   rpc TaskStages(TaskReqMessage) returns (TaskStagesResponse){}
+  rpc MemberProjectList(TaskReqMessage) returns (MemberProjectResponse){}
 }

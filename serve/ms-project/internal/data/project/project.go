@@ -149,3 +149,20 @@ func ToProjectTemplateIds(pts []ProjectTemplate) []int {
 	}
 	return ids
 }
+
+type ProjectMemberInfo struct {
+	ProjectCode int64
+	MemberCode  int64
+	Name        string
+	Avatar      string
+	IsOwner     int64
+	Email       string
+}
+
+func ToProjectMemberInfoMap(pm []*ProjectMemberInfo) map[int64]*ProjectMemberInfo {
+	m := make(map[int64]*ProjectMemberInfo)
+	for _, v := range pm {
+		m[v.MemberCode] = v
+	}
+	return m
+}

@@ -6,10 +6,11 @@ import (
 	"github.com/jinzhu/copier"
 	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-api/pkg/model"
+	"hnz.com/ms_serve/ms-api/pkg/model/apiProject"
 	"hnz.com/ms_serve/ms-api/pkg/model/tasks"
 	common "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-common/errs"
-	taskService "hnz.com/ms_serve/ms-grpc/task"
+	taskRpc "hnz.com/ms_serve/ms-grpc/task"
 	"net/http"
 	"time"
 )
@@ -29,7 +30,7 @@ func (t *HandlerTask) taskStages(c *gin.Context) {
 	page.Bind(c)
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	msg := &taskService.TaskReqMessage{
+	msg := &taskRpc.TaskReqMessage{
 		MemberId:    c.GetInt64("memberId"),
 		ProjectCode: projectCode,
 		Page:        page.Page,
@@ -56,6 +57,35 @@ func (t *HandlerTask) taskStages(c *gin.Context) {
 	c.JSON(http.StatusOK, result.Success(gin.H{
 		"list":  resp,
 		"total": stages.Total,
+		"page":  page.Page,
+	}))
+}
+
+func (t *HandlerTask) taskMemberList(c *gin.Context) {
+	result := &common.Result{}
+	projectCode := c.PostForm("projectCode")
+	page := &model.Page{}
+	page.Bind(c)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		ProjectCode: projectCode,
+		Page:        page.Page,
+		PageSize:    page.PageSize,
+	}
+	memberResp, err := rpc.TaskClient.MemberProjectList(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var resp []*apiProject.MemberProjectResp
+	copier.Copy(&resp, memberResp.List)
+	if resp == nil {
+		resp = []*apiProject.MemberProjectResp{}
+	}
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"list":  resp,
+		"total": memberResp.Total,
 		"page":  page.Page,
 	}))
 }

@@ -106,3 +106,10 @@ type ProjectRequest struct {
 	Schedule           int    `json:"schedule" form:"schedule"`
 	AutoUpdateSchedule int    `json:"auto_update_schedule" form:"auto_update_schedule"`
 }
+type MemberProjectResp struct {
+	Name    string `json:"name"`
+	Email   string `json:"email"`
+	Avatar  string `json:"avatar"`
+	Code    string `json:"code"`
+	IsOwner int    `json:"isOwner"`
+}

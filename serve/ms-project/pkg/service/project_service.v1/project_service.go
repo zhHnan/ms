@@ -248,8 +248,7 @@ func (p *ProjectService) SaveProject(c context.Context, msg *project.ProjectRpcM
 }
 
 func (p *ProjectService) GetProjectDetail(ctx context.Context, msg *project.ProjectRpcMessage) (*project.ProjectDetailMessage, error) {
-	projectCodeStr, _ := encrypts.Decrypt(msg.ProjectCode, model.AESKey)
-	projectCode, _ := strconv.ParseInt(projectCodeStr, 10, 64)
+	projectCode := encrypts.DecryptToRes(msg.ProjectCode)
 	memberId := msg.MemberId
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
