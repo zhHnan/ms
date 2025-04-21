@@ -287,6 +287,9 @@ func (l *LoginService) FindMemberByIds(ctx context.Context, msg *login.UserMessa
 		zap.L().Error("TokenVerify db FindMemberByIds error", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
 	}
+	if memberByIds == nil || len(memberByIds) <= 0 {
+		return &login.MemberListResponse{MemberList: nil}, nil
+	}
 	mMap := make(map[int64]*member.Member)
 	for _, v := range memberByIds {
 		mMap[v.Id] = v

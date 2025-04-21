@@ -138,3 +138,55 @@ CREATE TABLE `ms_task_stages`  (
                                    `deleted` tinyint(1) NULL DEFAULT 0 COMMENT '删除标记',
                                    PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 77 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '任务列表表' ROW_FORMAT = COMPACT;
+
+
+CREATE TABLE `ms_task`  (
+                            `id` bigint(0) UNSIGNED NOT NULL AUTO_INCREMENT,
+                            `project_code` bigint(0) NOT NULL DEFAULT 0 COMMENT '项目编号',
+                            `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+                            `pri` tinyint(0) UNSIGNED NULL DEFAULT 0 COMMENT '紧急程度',
+                            `execute_status` tinyint(0) NULL DEFAULT NULL COMMENT '执行状态',
+                            `description` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '详情',
+                            `create_by` bigint(0) NULL DEFAULT NULL COMMENT '创建人',
+                            `done_by` bigint(0) NULL DEFAULT NULL COMMENT '完成人',
+                            `done_time` bigint(0) NULL DEFAULT NULL COMMENT '完成时间',
+                            `create_time` bigint(0) NULL DEFAULT NULL COMMENT '创建日期',
+                            `assign_to` bigint(0) NULL DEFAULT NULL COMMENT '指派给谁',
+                            `deleted` tinyint(1) NULL DEFAULT 0 COMMENT '回收站',
+                            `stage_code` int(0) NULL DEFAULT NULL COMMENT '任务列表',
+                            `task_tag` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '任务标签',
+                            `done` tinyint(0) NULL DEFAULT 0 COMMENT '是否完成',
+                            `begin_time` bigint(0) NULL DEFAULT NULL COMMENT '开始时间',
+                            `end_time` bigint(0) NULL DEFAULT NULL COMMENT '截止时间',
+                            `remind_time` bigint(0) NULL DEFAULT NULL COMMENT '提醒时间',
+                            `pcode` bigint(0) NULL DEFAULT NULL COMMENT '父任务id',
+                            `sort` int(0) NULL DEFAULT 0 COMMENT '排序',
+                            `like` int(0) NULL DEFAULT 0 COMMENT '点赞数',
+                            `star` int(0) NULL DEFAULT 0 COMMENT '收藏数',
+                            `deleted_time` bigint(0) NULL DEFAULT NULL COMMENT '删除时间',
+                            `private` tinyint(1) NULL DEFAULT 0 COMMENT '是否隐私模式',
+                            `id_num` int(0) NULL DEFAULT 1 COMMENT '任务id编号',
+                            `path` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '上级任务路径',
+                            `schedule` int(0) NULL DEFAULT 0 COMMENT '进度百分比',
+                            `version_code` bigint(0) NULL DEFAULT 0 COMMENT '版本id',
+                            `features_code` bigint(0) NULL DEFAULT 0 COMMENT '版本库id',
+                            `work_time` int(0) NULL DEFAULT 0 COMMENT '预估工时',
+                            `status` tinyint(0) NULL DEFAULT 0 COMMENT '执行状态。0：未开始，1：已完成，2：进行中，3：挂起，4：测试中',
+                            PRIMARY KEY (`id`, `project_code`) USING BTREE,
+                            INDEX `stage_code`(`stage_code`) USING BTREE,
+                            INDEX `project_code`(`project_code`) USING BTREE,
+                            INDEX `pcode`(`pcode`) USING BTREE,
+                            INDEX `sort`(`sort`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 12363 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '任务表' ROW_FORMAT = COMPACT;
+
+CREATE TABLE `ms_task_member`  (
+                                   `id` bigint(0) NOT NULL AUTO_INCREMENT,
+                                   `task_code` bigint(0) NULL DEFAULT 0 COMMENT '任务ID',
+                                   `is_executor` tinyint(1) NULL DEFAULT 0 COMMENT '执行者',
+                                   `member_code` bigint(0) NULL DEFAULT NULL COMMENT '成员id',
+                                   `join_time` bigint(0) NULL DEFAULT NULL,
+                                   `is_owner` tinyint(1) NULL DEFAULT 0 COMMENT '是否创建人',
+                                   PRIMARY KEY (`id`) USING BTREE,
+                                   UNIQUE INDEX `id`(`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 273 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '任务-成员表' ROW_FORMAT = COMPACT;
+

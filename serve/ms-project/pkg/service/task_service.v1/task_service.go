@@ -2,7 +2,6 @@ package project_service_v1
 
 import (
 	"context"
-	"fmt"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
 	"hnz.com/ms_serve/ms-common/encrypts"
@@ -28,6 +27,7 @@ type TaskService struct {
 	proTemplateRepo        repo.ProjectTemplateRepo
 	taskStagesTemplateRepo repo.TaskStagesTemplateRepo
 	taskStagesRepo         repo.TaskStagesRepo
+	taskRepo               repo.TaskRepo
 }
 
 // 初始化
@@ -39,6 +39,7 @@ func New() *TaskService {
 		proTemplateRepo:        dao.NewProjectTemplateDao(),
 		taskStagesRepo:         dao.NewTaskStagesDao(),
 		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
+		taskRepo:               dao.NewTaskDao(),
 	}
 }
 
@@ -98,7 +99,7 @@ func (t *TaskService) MemberProjectList(c context.Context, msg *taskRpc.TaskReqM
 	userMessage := &login.UserMessage{
 		MemberIds: memberIds,
 	}
-	fmt.Printf("\n userMessage--memberIds:【%s】\n", userMessage.MemberIds)
+	//fmt.Printf("\n userMessage--memberIds:【%s】\n", userMessage.MemberIds)
 	members, err := rpc.UserClient.FindMemberByIds(ctx, userMessage)
 	if err != nil {
 		zap.L().Error("project task TaskStages userClient.FindMemberInfoByIds error", zap.Error(err))
@@ -125,4 +126,61 @@ func (t *TaskService) MemberProjectList(c context.Context, msg *taskRpc.TaskReqM
 		List:  list,
 		Total: total,
 	}, nil
+}
+
+func (t *TaskService) TaskList(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskListResponse, error) {
+	stageCode := encrypts.DecryptToRes(msg.StageCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	taskList, err := t.taskRepo.FindTaskByStageCode(c, int(stageCode))
+	if err != nil {
+		zap.L().Error("project task TaskList FindTaskByStageCode error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	var taskDisplayList []*task.TaskDisplay
+	var mIds []int64
+	for _, v := range taskList {
+		display := v.ToTaskDisplay()
+		if v.Private == model.Private {
+			tm, err := t.taskRepo.FindTaskMemberByTaskId(ctx, v.Id, msg.MemberId)
+			if err != nil {
+				zap.L().Error("project task TaskList FindTaskMemberByTaskId error", zap.Error(err))
+				return nil, errs.GrpcError(model.DataBaseError)
+			}
+			if tm == nil {
+				display.CanRead = model.NoCanRead
+			} else {
+				display.CanRead = model.CanRead
+			}
+		}
+		taskDisplayList = append(taskDisplayList, display)
+		mIds = append(mIds, v.AssignTo)
+	}
+	if len(mIds) <= 0 {
+		return &taskRpc.TaskListResponse{
+			List: nil,
+		}, nil
+	}
+	memberList, err := rpc.UserClient.FindMemberByIds(c, &login.UserMessage{MemberIds: mIds})
+	if err != nil {
+		zap.L().Error("project task TaskList UserClient.FindMemberByIds error", zap.Error(err))
+		return nil, err
+	}
+
+	memberMap := make(map[int64]*login.MemberMessage)
+	for _, v := range memberList.MemberList {
+		memberMap[v.Id] = v
+	}
+	for _, v := range taskDisplayList {
+		assignTo := encrypts.DecryptToRes(v.AssignTo)
+		message := memberMap[assignTo]
+		executor := task.Executor{
+			Name:   message.Name,
+			Avatar: message.Avatar,
+		}
+		taskDisplayList[v.Id].Executor = executor
+	}
+	var taskMessageList []*taskRpc.TaskMessage
+	_ = copier.Copy(&taskMessageList, taskDisplayList)
+	return &taskRpc.TaskListResponse{List: taskMessageList}, nil
 }

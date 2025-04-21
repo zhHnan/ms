@@ -58,3 +58,7 @@ func Decrypt(cipherStr string, keyText string) (plainText string, err error) {
 func EncryptInt64(value int64, aesKey string) (cipherStr string, err error) {
 	return Encrypt(strconv.FormatInt(value, 10), aesKey)
 }
+func EncryptNoErr(value int64) string {
+	cipherStr, _ := EncryptInt64(value, AESKey)
+	return cipherStr
+}

@@ -32,3 +32,13 @@ const (
 	NoOwner int = iota
 	Owner
 )
+
+const (
+	NoExecutor = iota
+	Executor
+)
+
+const (
+	NoCanRead = iota
+	CanRead
+)
