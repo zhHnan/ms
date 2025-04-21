@@ -85,5 +85,5 @@ service LoginService {
   rpc TokenVerify(LoginMessage) returns (LoginResponse) {}
   rpc MyOrgList(UserMessage) returns (OrgListResponse) {}
   rpc FindMemberInfoById(UserMessage) returns (MemberMessage){}
-  rpc FindMemberInfoByIds(UserMessage) returns (MemberListResponse){}
+  rpc FindMemberByIds(UserMessage) returns (MemberListResponse){}
 }

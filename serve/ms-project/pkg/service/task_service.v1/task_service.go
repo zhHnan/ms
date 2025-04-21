@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
-	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/errs"
 	"hnz.com/ms_serve/ms-common/times"
@@ -16,6 +15,7 @@ import (
 	"hnz.com/ms_serve/ms-project/internal/data/task"
 	"hnz.com/ms_serve/ms-project/internal/database/tran"
 	"hnz.com/ms_serve/ms-project/internal/repo"
+	"hnz.com/ms_serve/ms-project/internal/rpc"
 	"hnz.com/ms_serve/ms-project/pkg/model"
 	"time"
 )
@@ -99,7 +99,7 @@ func (t *TaskService) MemberProjectList(c context.Context, msg *taskRpc.TaskReqM
 		MemberIds: memberIds,
 	}
 	fmt.Printf("\n userMessage--memberIds:【%s】\n", userMessage.MemberIds)
-	members, err := rpc.UserClient.FindMemberInfoByIds(ctx, userMessage)
+	members, err := rpc.UserClient.FindMemberByIds(ctx, userMessage)
 	if err != nil {
 		zap.L().Error("project task TaskStages userClient.FindMemberInfoByIds error", zap.Error(err))
 		return nil, err

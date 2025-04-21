@@ -280,9 +280,9 @@ func (l *LoginService) FindMemberInfoById(ctx context.Context, msg *login.UserMe
 	memMsg.CreateTime = times.FormatByMill(memberById.CreateTime)
 	return memMsg, nil
 }
-func (l *LoginService) FindMemberInfoByIds(ctx context.Context, msg *login.UserMessage) (*login.MemberListResponse, error) {
-	memberByIds, err := l.memberRepo.FindMemberByIds(context.Background(), msg.MemberIds)
+func (l *LoginService) FindMemberByIds(ctx context.Context, msg *login.UserMessage) (*login.MemberListResponse, error) {
 	fmt.Printf("\n userMessage--memberIds:【%s】\n", msg.MemberIds)
+	memberByIds, err := l.memberRepo.FindMemberByIds(context.Background(), msg.MemberIds)
 	if err != nil {
 		zap.L().Error("TokenVerify db FindMemberByIds error", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)

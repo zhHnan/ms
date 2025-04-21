@@ -927,7 +927,7 @@ const file_login_service_proto_rawDesc = "" +
 	"\x12MemberListResponse\x12?\n" +
 	"\n" +
 	"memberList\x18\x01 \x03(\v2\x1f.login.service.v1.MemberMessageR\n" +
-	"memberList2\xdd\x04\n" +
+	"memberList2\xd9\x04\n" +
 	"\fLoginService\x12S\n" +
 	"\n" +
 	"GetCaptcha\x12 .login.service.v1.CaptchaMessage\x1a!.login.service.v1.CaptchaResponse\"\x00\x12S\n" +
@@ -935,8 +935,8 @@ const file_login_service_proto_rawDesc = "" +
 	"\x05Login\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00\x12P\n" +
 	"\vTokenVerify\x12\x1e.login.service.v1.LoginMessage\x1a\x1f.login.service.v1.LoginResponse\"\x00\x12O\n" +
 	"\tMyOrgList\x12\x1d.login.service.v1.UserMessage\x1a!.login.service.v1.OrgListResponse\"\x00\x12V\n" +
-	"\x12FindMemberInfoById\x12\x1d.login.service.v1.UserMessage\x1a\x1f.login.service.v1.MemberMessage\"\x00\x12\\\n" +
-	"\x13FindMemberInfoByIds\x12\x1d.login.service.v1.UserMessage\x1a$.login.service.v1.MemberListResponse\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
+	"\x12FindMemberInfoById\x12\x1d.login.service.v1.UserMessage\x1a\x1f.login.service.v1.MemberMessage\"\x00\x12X\n" +
+	"\x0fFindMemberByIds\x12\x1d.login.service.v1.UserMessage\x1a$.login.service.v1.MemberListResponse\"\x00B&Z$ms-user/pkg/service/login_service.v1b\x06proto3"
 
 var (
 	file_login_service_proto_rawDescOnce sync.Once
@@ -977,14 +977,14 @@ var file_login_service_proto_depIdxs = []int32{
 	4,  // 8: login.service.v1.LoginService.TokenVerify:input_type -> login.service.v1.LoginMessage
 	9,  // 9: login.service.v1.LoginService.MyOrgList:input_type -> login.service.v1.UserMessage
 	9,  // 10: login.service.v1.LoginService.FindMemberInfoById:input_type -> login.service.v1.UserMessage
-	9,  // 11: login.service.v1.LoginService.FindMemberInfoByIds:input_type -> login.service.v1.UserMessage
+	9,  // 11: login.service.v1.LoginService.FindMemberByIds:input_type -> login.service.v1.UserMessage
 	1,  // 12: login.service.v1.LoginService.GetCaptcha:output_type -> login.service.v1.CaptchaResponse
 	3,  // 13: login.service.v1.LoginService.Register:output_type -> login.service.v1.RegisterResponse
 	5,  // 14: login.service.v1.LoginService.Login:output_type -> login.service.v1.LoginResponse
 	5,  // 15: login.service.v1.LoginService.TokenVerify:output_type -> login.service.v1.LoginResponse
 	10, // 16: login.service.v1.LoginService.MyOrgList:output_type -> login.service.v1.OrgListResponse
 	6,  // 17: login.service.v1.LoginService.FindMemberInfoById:output_type -> login.service.v1.MemberMessage
-	11, // 18: login.service.v1.LoginService.FindMemberInfoByIds:output_type -> login.service.v1.MemberListResponse
+	11, // 18: login.service.v1.LoginService.FindMemberByIds:output_type -> login.service.v1.MemberListResponse
 	12, // [12:19] is the sub-list for method output_type
 	5,  // [5:12] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
