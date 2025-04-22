@@ -80,3 +80,12 @@ func (t *TaskDao) UpdateTaskSort(ctx context.Context, conn database.DBConn, ts *
 		Error
 	return err
 }
+
+func (t *TaskDao) FindTaskByStageCodeSmallSort(ctx context.Context, stageCode int, sort int) (ts *task.Task, err error) {
+	session := t.conn.Session(ctx)
+	err = session.Where("stage_code=? and sort < ?", stageCode, sort).Order("sort desc").Limit(1).Find(&ts).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return
+}
