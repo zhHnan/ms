@@ -19,4 +19,5 @@ type ProjectRepo interface {
 	UpdateProject(ctx context.Context, proj *project.Project) error
 	FindMemberByProjectId(ctx context.Context, projectCode int64) (list []*project.ProjectMember, total int64, err error)
 	FindProjectById(ctx context.Context, code int64) (*project.Project, error)
+	FindProjectByIds(ctx context.Context, pids []int64) ([]*project.Project, error)
 }

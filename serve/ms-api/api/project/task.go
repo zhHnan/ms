@@ -171,3 +171,42 @@ func (t *HandlerTask) taskSort(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, result.Success([]int{}))
 }
+
+func (t *HandlerTask) selfList(c *gin.Context) {
+	result := &common.Result{}
+	var req *tasks.MyTaskReq
+	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
+	memberId := c.GetInt64("memberId")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		MemberId: memberId,
+		TaskType: int32(req.TaskType),
+		Type:     int32(req.Type),
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}
+	myTaskListResponse, err := rpc.TaskClient.MyTaskList(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var myTaskList []*tasks.MyTaskDisplay
+	_ = copier.Copy(&myTaskList, myTaskListResponse.List)
+	if myTaskList == nil {
+		myTaskList = []*tasks.MyTaskDisplay{}
+	}
+	for _, v := range myTaskList {
+		v.ProjectInfo = tasks.ProjectInfo{
+			Name: v.ProjectName,
+			Code: v.ProjectCode,
+		}
+	}
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"list":  myTaskList,
+		"total": myTaskListResponse.Total,
+	}))
+}

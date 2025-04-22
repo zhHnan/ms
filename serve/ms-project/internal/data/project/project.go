@@ -166,3 +166,10 @@ func ToProjectMemberInfoMap(pm []*ProjectMemberInfo) map[int64]*ProjectMemberInf
 	}
 	return m
 }
+func ToProjectMap(pList []*Project) map[int64]*Project {
+	m := make(map[int64]*Project, len(pList))
+	for _, v := range pList {
+		m[v.Id] = v
+	}
+	return m
+}

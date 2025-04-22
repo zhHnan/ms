@@ -108,3 +108,8 @@ func (p *ProjectDao) FindProjectById(ctx context.Context, code int64) (*project.
 	}
 	return proj, err
 }
+func (p *ProjectDao) FindProjectByIds(ctx context.Context, pids []int64) ([]*project.Project, error) {
+	var projects []*project.Project
+	err := p.conn.Session(ctx).Where("id in ?", pids).Find(&projects).Error
+	return projects, err
+}
