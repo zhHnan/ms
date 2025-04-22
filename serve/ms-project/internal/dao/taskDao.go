@@ -65,3 +65,18 @@ func (t *TaskDao) SaveTaskMember(ctx context.Context, conn database.DBConn, tm *
 	t.conn = conn.(*gorms.GormConn)
 	return t.conn.Tx(ctx).Save(&tm).Error
 }
+func (t *TaskDao) FindTaskById(ctx context.Context, taskCode int64) (ts *task.Task, err error) {
+	session := t.conn.Session(ctx)
+	err = session.Where("id=?", taskCode).Take(&ts).Error
+	return
+}
+
+func (t *TaskDao) UpdateTaskSort(ctx context.Context, conn database.DBConn, ts *task.Task) error {
+	t.conn = conn.(*gorms.GormConn)
+	err := t.conn.Tx(ctx).Model(&task.Task{}).
+		Where("id=?", ts.Id).
+		Select("sort", "stage_code").
+		Updates(&ts).
+		Error
+	return err
+}

@@ -13,4 +13,6 @@ type TaskRepo interface {
 	FindTaskSort(ctx context.Context, projectCode int64, stageCode int64) (int64, error)
 	SaveTask(ctx context.Context, conn database.DBConn, ts *task.Task) error
 	SaveTaskMember(ctx context.Context, conn database.DBConn, tm *task.TaskMember) error
+	FindTaskById(ctx context.Context, taskCode int64) (*task.Task, error)
+	UpdateTaskSort(ctx context.Context, conn database.DBConn, ts *task.Task) error
 }

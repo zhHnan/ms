@@ -67,6 +67,11 @@ type Executor struct {
 	Avatar string `json:"avatar"`
 	Code   string `json:"code"`
 }
+type TaskSortReq struct {
+	PreTaskCode  string `form:"preTaskCode"`
+	NextTaskCode string `form:"nextTaskCode"`
+	ToStageCode  string `form:"toStageCode"`
+}
 type TaskSaveReq struct {
 	Name        string `form:"name"`
 	StageCode   string `form:"stage_code"`

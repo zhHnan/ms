@@ -95,7 +95,7 @@ func (t *HandlerTask) taskList(c *gin.Context) {
 	stageCode := c.PostForm("stageCode")
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	list, err := rpc.TaskClient.TaskList(ctx, &taskRpc.TaskReqMessage{StageCode: stageCode})
+	list, err := rpc.TaskClient.TaskList(ctx, &taskRpc.TaskReqMessage{StageCode: stageCode, MemberId: c.GetInt64("memberId")})
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
 		c.JSON(http.StatusOK, result.Failure(code, msg))
@@ -148,4 +148,26 @@ func (t *HandlerTask) taskSave(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusOK, result.Success(td))
+}
+
+func (t *HandlerTask) taskSort(c *gin.Context) {
+	result := &common.Result{}
+	var req *tasks.TaskSortReq
+	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		PreTaskCode:  req.PreTaskCode,
+		NextTaskCode: req.NextTaskCode,
+		ToStageCode:  req.ToStageCode,
+	}
+	_, err = rpc.TaskClient.TaskSort(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
 }

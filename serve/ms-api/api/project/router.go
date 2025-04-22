@@ -38,4 +38,5 @@ func (*RouterUser) Route(r *gin.Engine) {
 	group.POST("/project_member/index", t.taskMemberList)
 	group.POST("/task_stages/tasks", t.taskList)
 	group.POST("/task/save", t.taskSave)
+	group.POST("/task/sort", t.taskSort)
 }
