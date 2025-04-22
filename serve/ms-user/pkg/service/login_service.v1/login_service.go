@@ -183,7 +183,7 @@ func (l *LoginService) Login(ctx context.Context, msg *login.LoginMessage) (*log
 	memIdStr := strconv.FormatInt(mem.Id, 10)
 	accessExp := time.Duration(config.Cfg.Jc.AccessExp*3600*24) * time.Second
 	refreshExp := time.Duration(config.Cfg.Jc.RefreshExp*3600*24) * time.Second
-	jwtToken := jwts.CreateToken(memIdStr, config.Cfg.Jc.AccessSecret, config.Cfg.Jc.RefreshSecret, accessExp, refreshExp)
+	jwtToken := jwts.CreateToken(memIdStr, config.Cfg.Jc.AccessSecret, config.Cfg.Jc.RefreshSecret, accessExp, refreshExp, msg.Ip)
 	tokenList := &login.TokenMessage{
 		AccessToken:    jwtToken.AccessToken,
 		RefreshToken:   jwtToken.RefreshToken,
@@ -208,7 +208,7 @@ func (l *LoginService) TokenVerify(ctx context.Context, msg *login.LoginMessage)
 	if strings.Contains(token, "bearer") {
 		token = strings.Replace(token, "bearer ", "", 1)
 	}
-	parseToken, err := jwts.ParseToken(token, config.Cfg.Jc.AccessSecret)
+	parseToken, err := jwts.ParseToken(token, config.Cfg.Jc.AccessSecret, msg.Ip)
 	if err != nil {
 		zap.L().Error("login token verify error！", zap.Error(err))
 		return nil, errs.GrpcError(model.NoLogin)

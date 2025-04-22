@@ -98,6 +98,8 @@ func (h *HandlerUser) login(c *gin.Context) {
 		c.JSON(http.StatusOK, result.Failure(http.StatusBadRequest, "参数格式有误"))
 		return
 	}
+	ip := GetIp(c)
+	msg.Ip = ip
 	res, err := rpc.UserClient.Login(ctx, msg)
 	if err != nil {
 		code, msg := errs.ParseGrpcError(err)
@@ -133,4 +135,13 @@ func (p *HandlerUser) myOrgList(c *gin.Context) {
 	var orgs []*user.OrganizationList
 	_ = copier.Copy(&orgs, list.OrganizationList)
 	c.JSON(http.StatusOK, result.Success(orgs))
+}
+
+// GetIp 获取ip函数
+func GetIp(c *gin.Context) string {
+	ip := c.ClientIP()
+	if ip == "::1" {
+		ip = "127.0.0.1"
+	}
+	return ip
 }

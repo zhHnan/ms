@@ -226,6 +226,7 @@ type LoginMessage struct {
 	Account       string                 `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
 	Password      string                 `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
 	Token         string                 `protobuf:"bytes,3,opt,name=token,proto3" json:"token,omitempty"`
+	Ip            string                 `protobuf:"bytes,4,opt,name=Ip,proto3" json:"Ip,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -277,6 +278,13 @@ func (x *LoginMessage) GetPassword() string {
 func (x *LoginMessage) GetToken() string {
 	if x != nil {
 		return x.Token
+	}
+	return ""
+}
+
+func (x *LoginMessage) GetIp() string {
+	if x != nil {
+		return x.Ip
 	}
 	return ""
 }
@@ -868,11 +876,12 @@ const file_login_service_proto_rawDesc = "" +
 	"\bpassword\x18\x03 \x01(\tR\bpassword\x12\x18\n" +
 	"\acaptcha\x18\x04 \x01(\tR\acaptcha\x12\x14\n" +
 	"\x05email\x18\x05 \x01(\tR\x05email\"\x12\n" +
-	"\x10RegisterResponse\"Z\n" +
+	"\x10RegisterResponse\"j\n" +
 	"\fLoginMessage\x12\x18\n" +
 	"\aaccount\x18\x01 \x01(\tR\aaccount\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\x12\x14\n" +
-	"\x05token\x18\x03 \x01(\tR\x05token\"\xd9\x01\n" +
+	"\x05token\x18\x03 \x01(\tR\x05token\x12\x0e\n" +
+	"\x02Ip\x18\x04 \x01(\tR\x02Ip\"\xd9\x01\n" +
 	"\rLoginResponse\x127\n" +
 	"\x06member\x18\x01 \x01(\v2\x1f.login.service.v1.MemberMessageR\x06member\x12Q\n" +
 	"\x10organizationList\x18\x02 \x03(\v2%.login.service.v1.OrganizationMessageR\x10organizationList\x12<\n" +

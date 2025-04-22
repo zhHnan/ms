@@ -17,7 +17,8 @@ func TokenVerify() func(c *gin.Context) {
 		//验证用户是否已经登录
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 		defer cancel()
-		resp, err := rpc.UserClient.TokenVerify(ctx, &login.LoginMessage{Token: token})
+		ip := GetIp(c)
+		resp, err := rpc.UserClient.TokenVerify(ctx, &login.LoginMessage{Token: token, Ip: ip})
 		if err != nil {
 			code, msg := errs.ParseGrpcError(err)
 			c.JSON(200, result.Failure(code, msg))
@@ -29,4 +30,13 @@ func TokenVerify() func(c *gin.Context) {
 		c.Set("organizationCode", resp.Member.OrganizationCode)
 		c.Next()
 	}
+}
+
+// GetIp 获取ip函数
+func GetIp(c *gin.Context) string {
+	ip := c.ClientIP()
+	if ip == "::1" {
+		ip = "127.0.0.1"
+	}
+	return ip
 }
