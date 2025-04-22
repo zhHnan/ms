@@ -372,7 +372,7 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *taskRpc.TaskReqMessag
 	var total int64
 	if msg.TaskType == 1 {
 		//我执行的
-		tsList, total, err = t.taskRepo.FindTaskByAssignTo(ctx, msg.MemberId, int(msg.Type))
+		tsList, total, err = t.taskRepo.FindTaskByAssignTo(ctx, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
 		if err != nil {
 			zap.L().Error("project task MyTaskList taskRepo.FindTaskByAssignTo error", zap.Error(err))
 			return nil, errs.GrpcError(model.DataBaseError)
@@ -380,7 +380,7 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *taskRpc.TaskReqMessag
 	}
 	if msg.TaskType == 2 {
 		//我执行的
-		tsList, total, err = t.taskRepo.FindTaskByMemberCode(ctx, msg.MemberId, int(msg.Type))
+		tsList, total, err = t.taskRepo.FindTaskByMemberCode(ctx, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
 		if err != nil {
 			zap.L().Error("project task MyTaskList taskRepo.FindTaskByMemberCode error", zap.Error(err))
 			return nil, errs.GrpcError(model.DataBaseError)
@@ -388,7 +388,7 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *taskRpc.TaskReqMessag
 	}
 	if msg.TaskType == 3 {
 		//我执行的
-		tsList, total, err = t.taskRepo.FindTaskByCreateBy(ctx, msg.MemberId, int(msg.Type))
+		tsList, total, err = t.taskRepo.FindTaskByCreateBy(ctx, msg.MemberId, int(msg.Type), msg.Page, msg.PageSize)
 		if err != nil {
 			zap.L().Error("project task MyTaskList taskRepo.FindTaskByCreateBy error", zap.Error(err))
 			return nil, errs.GrpcError(model.DataBaseError)

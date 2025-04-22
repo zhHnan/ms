@@ -1,11 +1,12 @@
 package project
 
 import (
+	"strconv"
+
 	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/times"
-	"hnz.com/ms_serve/ms-project/internal/data/task"
+	"hnz.com/ms_serve/ms-project/internal/data/common"
 	"hnz.com/ms_serve/ms-project/pkg/model"
-	"strconv"
 )
 
 type Project struct {
@@ -119,11 +120,11 @@ type ProjectTemplateAll struct {
 	Cover            string
 	MemberCode       string
 	IsSystem         int
-	TaskStages       []*task.TaskStagesOnlyName
+	TaskStages       []*common.TaskStagesOnlyName
 	Code             string
 }
 
-func (pt ProjectTemplate) Convert(taskStages []*task.TaskStagesOnlyName) *ProjectTemplateAll {
+func (pt ProjectTemplate) Convert(taskStages []*common.TaskStagesOnlyName) *ProjectTemplateAll {
 	organizationCode, _ := encrypts.Encrypt(strconv.FormatInt(pt.OrganizationCode, 10), model.AESKey)
 	memberCode, _ := encrypts.Encrypt(strconv.FormatInt(pt.MemberCode, 10), model.AESKey)
 	code, _ := encrypts.Encrypt(strconv.FormatInt(int64(pt.Id), 10), model.AESKey)

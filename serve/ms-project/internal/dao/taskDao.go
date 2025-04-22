@@ -89,17 +89,19 @@ func (t *TaskDao) FindTaskByStageCodeSmallSort(ctx context.Context, stageCode in
 	}
 	return
 }
-func (t *TaskDao) FindTaskByCreateBy(ctx context.Context, memberId int64, done int) (tList []*task.Task, total int64, err error) {
+func (t *TaskDao) FindTaskByCreateBy(ctx context.Context, memberId int64, done int, page int64, pageSize int64) (tList []*task.Task, total int64, err error) {
 	session := t.conn.Session(ctx)
-	err = session.Model(&task.Task{}).Where("create_by=? and deleted=0 and done=?", memberId, done).Find(&tList).Error
+	offset := (page - 1) * pageSize
+	err = session.Model(&task.Task{}).Where("create_by=? and deleted=0 and done=?", memberId, done).Limit(int(pageSize)).Offset(int(offset)).Find(&tList).Error
 	err = session.Model(&task.Task{}).Where("create_by=? and deleted=0 and done=?", memberId, done).Count(&total).Error
 	return
 }
 
-func (t *TaskDao) FindTaskByMemberCode(ctx context.Context, memberId int64, done int) (tList []*task.Task, total int64, err error) {
+func (t *TaskDao) FindTaskByMemberCode(ctx context.Context, memberId int64, done int, page int64, pageSize int64) (tList []*task.Task, total int64, err error) {
 	session := t.conn.Session(ctx)
-	sql := "select a.* from ms_task a,ms_task_member b where a.id=b.task_code and member_code=? and a.deleted=0 and a.done=?"
-	raw := session.Model(&task.Task{}).Raw(sql, memberId, done)
+	offset := (page - 1) * pageSize
+	sql := "select a.* from ms_task a,ms_task_member b where a.id=b.task_code and member_code=? and a.deleted=0 and a.done=? limit ?,?"
+	raw := session.Model(&task.Task{}).Raw(sql, memberId, done, offset, pageSize)
 	err = raw.Scan(&tList).Error
 	if err != nil {
 		return nil, 0, err
@@ -110,9 +112,10 @@ func (t *TaskDao) FindTaskByMemberCode(ctx context.Context, memberId int64, done
 	return
 }
 
-func (t *TaskDao) FindTaskByAssignTo(ctx context.Context, memberId int64, done int) (tsList []*task.Task, total int64, err error) {
+func (t *TaskDao) FindTaskByAssignTo(ctx context.Context, memberId int64, done int, page int64, pageSize int64) (tsList []*task.Task, total int64, err error) {
 	session := t.conn.Session(ctx)
-	err = session.Model(&task.Task{}).Where("assign_to=? and deleted=0 and done=?", memberId, done).Find(&tsList).Error
+	offset := (page - 1) * pageSize
+	err = session.Model(&task.Task{}).Where("assign_to=? and deleted=0 and done=?", memberId, done).Limit(int(pageSize)).Offset(int(offset)).Find(&tsList).Error
 	err = session.Model(&task.Task{}).Where("assign_to=? and deleted=0 and done=?", memberId, done).Count(&total).Error
 	return
 }

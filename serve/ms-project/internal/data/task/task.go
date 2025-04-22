@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/copier"
 	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/times"
+	"hnz.com/ms_serve/ms-project/internal/data/common"
 	"hnz.com/ms_serve/ms-project/internal/data/project"
 )
 
@@ -19,14 +20,10 @@ func (*MsTaskStagesTemplate) TableName() string {
 	return "ms_task_stages_template"
 }
 
-type TaskStagesOnlyName struct {
-	Name string
-}
-
-func CovertProjectMap(tsts []MsTaskStagesTemplate) map[int][]*TaskStagesOnlyName {
-	var tss = make(map[int][]*TaskStagesOnlyName)
+func CovertProjectMap(tsts []MsTaskStagesTemplate) map[int][]*common.TaskStagesOnlyName {
+	var tss = make(map[int][]*common.TaskStagesOnlyName)
 	for _, v := range tsts {
-		ts := &TaskStagesOnlyName{}
+		ts := &common.TaskStagesOnlyName{}
 		ts.Name = v.Name
 		tss[v.ProjectTemplateCode] = append(tss[v.ProjectTemplateCode], ts)
 	}
