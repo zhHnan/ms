@@ -30,3 +30,8 @@ func (t *TaskStagesDao) FindByProjectCode(ctx context.Context, projectCode int64
 	err = session.Model(&task.TaskStages{}).Where("project_code=?", projectCode).Count(&total).Error
 	return stages, total, err
 }
+func (t *TaskStagesDao) FindById(ctx context.Context, stageCode int) (*task.TaskStages, error) {
+	var stages task.TaskStages
+	err := t.conn.Session(ctx).Model(&task.TaskStages{}).Where("id=?", stageCode).Find(&stages).Error
+	return &stages, err
+}

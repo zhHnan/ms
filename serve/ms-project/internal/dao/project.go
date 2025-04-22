@@ -2,7 +2,9 @@ package dao
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"gorm.io/gorm"
 	"hnz.com/ms_serve/ms-project/internal/data/project"
 	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/gorms"
@@ -97,4 +99,12 @@ func (p *ProjectDao) FindMemberByProjectId(ctx context.Context, projectCode int6
 	err = session.Model(&project.ProjectMember{}).Where("project_code=?", projectCode).
 		Count(&total).Error
 	return
+}
+func (p *ProjectDao) FindProjectById(ctx context.Context, code int64) (*project.Project, error) {
+	var proj *project.Project
+	err := p.conn.Session(ctx).Where("id=?", code).Find(&proj).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return proj, err
 }

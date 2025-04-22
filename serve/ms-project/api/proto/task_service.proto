@@ -73,7 +73,8 @@ message TaskMessage{
   int32 Status  = 31;
   string code = 32;
   int32 canRead = 33;
-    ExecutorMessage executor = 34;
+  ExecutorMessage executor = 34;
+  string projectName = 35;
 }
 message TaskListResponse{
   repeated TaskMessage list = 1;

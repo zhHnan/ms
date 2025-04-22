@@ -18,4 +18,5 @@ type ProjectRepo interface {
 	DeleteProjectCollect(ctx context.Context, memId int64, projectCode int64) error
 	UpdateProject(ctx context.Context, proj *project.Project) error
 	FindMemberByProjectId(ctx context.Context, projectCode int64) (list []*project.ProjectMember, total int64, err error)
+	FindProjectById(ctx context.Context, code int64) (*project.Project, error)
 }

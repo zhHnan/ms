@@ -2,6 +2,9 @@ package project_service_v1
 
 import (
 	"context"
+	"fmt"
+	"time"
+
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
 	"hnz.com/ms_serve/ms-common/encrypts"
@@ -12,11 +15,11 @@ import (
 	"hnz.com/ms_serve/ms-project/internal/dao"
 	"hnz.com/ms_serve/ms-project/internal/data/project"
 	"hnz.com/ms_serve/ms-project/internal/data/task"
+	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/tran"
 	"hnz.com/ms_serve/ms-project/internal/repo"
 	"hnz.com/ms_serve/ms-project/internal/rpc"
 	"hnz.com/ms_serve/ms-project/pkg/model"
-	"time"
 )
 
 type TaskService struct {
@@ -132,12 +135,15 @@ func (t *TaskService) TaskList(ctx context.Context, msg *taskRpc.TaskReqMessage)
 	stageCode := encrypts.DecryptToRes(msg.StageCode)
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
+	fmt.Println("【TaskList】stageCode:", stageCode)
 	taskList, err := t.taskRepo.FindTaskByStageCode(c, int(stageCode))
 	if err != nil {
 		zap.L().Error("project task TaskList FindTaskByStageCode error", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
 	}
+	//fmt.Println("【TaskList】taskList:", taskList)
 	var taskDisplayList []*task.TaskDisplay
+	taskDisplayMap := make(map[int64]*task.TaskDisplay) // 使用map替代数组索引
 	var mIds []int64
 	for _, v := range taskList {
 		display := v.ToTaskDisplay()
@@ -154,6 +160,7 @@ func (t *TaskService) TaskList(ctx context.Context, msg *taskRpc.TaskReqMessage)
 			}
 		}
 		taskDisplayList = append(taskDisplayList, display)
+		taskDisplayMap[v.Id] = display // 将任务添加到map中，以ID为键
 		mIds = append(mIds, v.AssignTo)
 	}
 	if len(mIds) <= 0 {
@@ -178,9 +185,86 @@ func (t *TaskService) TaskList(ctx context.Context, msg *taskRpc.TaskReqMessage)
 			Name:   message.Name,
 			Avatar: message.Avatar,
 		}
-		taskDisplayList[v.Id].Executor = executor
+		// 使用map而不是数组索引来更新executor
+		taskDisplayMap[v.Id].Executor = executor
 	}
 	var taskMessageList []*taskRpc.TaskMessage
 	_ = copier.Copy(&taskMessageList, taskDisplayList)
 	return &taskRpc.TaskListResponse{List: taskMessageList}, nil
+}
+
+func (t *TaskService) SaveTask(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskMessage, error) {
+	//先检查业务
+	if msg.Name == "" {
+		return nil, errs.GrpcError(model.TaskNameNotNull)
+	}
+	stageCode := encrypts.DecryptToRes(msg.StageCode)
+	taskStages, err := t.taskStagesRepo.FindById(ctx, int(stageCode))
+	if err != nil {
+		zap.L().Error("project task SaveTask taskStagesRepo.FindById error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if taskStages == nil {
+		return nil, errs.GrpcError(model.TaskStagesNotNull)
+	}
+	projectCode := encrypts.DecryptToRes(msg.ProjectCode)
+	projectById, err := t.projectRepo.FindProjectById(ctx, projectCode)
+	if err != nil {
+		zap.L().Error("project task SaveTask projectRepo.FindProjectById error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if projectById.Deleted == model.Deleted {
+		return nil, errs.GrpcError(model.ProjectAlreadyDeleted)
+	}
+	maxIdNum, err := t.taskRepo.FindTaskMaxIdNum(ctx, projectCode)
+	if err != nil {
+		zap.L().Error("project task SaveTask taskRepo.FindTaskMaxIdNum error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	maxSort, err := t.taskRepo.FindTaskSort(ctx, projectCode, stageCode)
+	if err != nil {
+		zap.L().Error("project task SaveTask taskRepo.FindTaskSort error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	assignTo := encrypts.DecryptToRes(msg.AssignTo)
+	ts := &task.Task{
+		Name:        msg.Name,
+		CreateTime:  time.Now().UnixMilli(),
+		CreateBy:    msg.MemberId,
+		AssignTo:    assignTo,
+		ProjectCode: projectCode,
+		StageCode:   int(stageCode),
+		IdNum:       int(maxIdNum + 1),
+		Private:     projectById.OpenTaskPrivate,
+		Sort:        int(maxSort + 1),
+		BeginTime:   time.Now().UnixMilli(),
+		EndTime:     time.Now().Add(2 * 24 * time.Hour).UnixMilli(),
+	}
+	err = t.transaction.Action(func(conn database.DBConn) error {
+		err = t.taskRepo.SaveTask(ctx, conn, ts)
+		if err != nil {
+			zap.L().Error("project task SaveTask taskRepo.SaveTask error", zap.Error(err))
+			return errs.GrpcError(model.DataBaseError)
+		}
+		tm := &task.TaskMember{
+			MemberCode: msg.MemberId,
+			TaskCode:   ts.Id,
+			IsExecutor: model.Executor,
+			JoinTime:   time.Now().UnixMilli(),
+			IsOwner:    model.Owner,
+		}
+		err = t.taskRepo.SaveTaskMember(ctx, conn, tm)
+		if err != nil {
+			zap.L().Error("project task SaveTask taskRepo.SaveTaskMember error", zap.Error(err))
+			return errs.GrpcError(model.DataBaseError)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	display := ts.ToTaskDisplay()
+	tm := &taskRpc.TaskMessage{}
+	_ = copier.Copy(tm, display)
+	return tm, nil
 }

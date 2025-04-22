@@ -24,7 +24,8 @@ func TestEncrypt(t *testing.T) {
 	fmt.Printf("%s ==> %s\n", cipherByte, plainText)
 }
 func TestDecrypt(t *testing.T) {
-	var code = "3ba2043c16"
+	//var code = "3ba2043c16"
+	var code = "32a1"
 	text, err := Decrypt(code, model.AESKey)
 	fmt.Println(text, err)
 }

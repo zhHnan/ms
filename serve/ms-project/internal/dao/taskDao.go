@@ -5,6 +5,7 @@ import (
 	"errors"
 	"gorm.io/gorm"
 	"hnz.com/ms_serve/ms-project/internal/data/task"
+	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/gorms"
 )
 
@@ -24,6 +25,9 @@ func (t *TaskDao) FindTaskByStageCode(ctx context.Context, stageCode int) ([]*ta
 	err := session.Model(&task.Task{}).Where("stage_code=? and deleted = 0", stageCode).
 		Order("sort asc").
 		Find(&taskList).Error
+	if err != nil {
+		return nil, err
+	}
 	return taskList, err
 }
 
@@ -34,4 +38,30 @@ func (t *TaskDao) FindTaskMemberByTaskId(ctx context.Context, taskCode int64, me
 		return nil, nil
 	}
 	return tm, err
+}
+func (t *TaskDao) FindTaskMaxIdNum(ctx context.Context, projectCode int64) (v int64, err error) {
+	session := t.conn.Session(ctx)
+	err = session.Model(&task.Task{}).
+		Where("project_code=?", projectCode).
+		Select("COALESCE(max(id_num), 0) as maxIdNum").
+		Scan(&v).Error
+	return
+}
+
+func (t *TaskDao) FindTaskSort(ctx context.Context, projectCode int64, stageCode int64) (v int64, err error) {
+	session := t.conn.Session(ctx)
+	err = session.Model(&task.Task{}).
+		Where("project_code=? and stage_code=?", projectCode, stageCode).
+		Select("COALESCE(max(sort), 0) as sort").
+		Scan(&v).Error
+	return
+}
+func (t *TaskDao) SaveTask(ctx context.Context, conn database.DBConn, ts *task.Task) error {
+	t.conn = conn.(*gorms.GormConn)
+	return t.conn.Tx(ctx).Save(&ts).Error
+}
+
+func (t *TaskDao) SaveTaskMember(ctx context.Context, conn database.DBConn, tm *task.TaskMember) error {
+	t.conn = conn.(*gorms.GormConn)
+	return t.conn.Tx(ctx).Save(&tm).Error
 }
