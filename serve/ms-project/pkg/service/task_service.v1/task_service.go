@@ -249,9 +249,13 @@ func (t *TaskService) SaveTask(ctx context.Context, msg *taskRpc.TaskReqMessage)
 		tm := &task.TaskMember{
 			MemberCode: msg.MemberId,
 			TaskCode:   ts.Id,
-			IsExecutor: model.Executor,
 			JoinTime:   time.Now().UnixMilli(),
 			IsOwner:    model.Owner,
+		}
+		if assignTo == msg.MemberId {
+			tm.IsOwner = model.Executor
+		} else {
+			tm.IsOwner = model.NoExecutor
 		}
 		err = t.taskRepo.SaveTaskMember(ctx, conn, tm)
 		if err != nil {
@@ -264,6 +268,15 @@ func (t *TaskService) SaveTask(ctx context.Context, msg *taskRpc.TaskReqMessage)
 		return nil, err
 	}
 	display := ts.ToTaskDisplay()
+	member, err := rpc.UserClient.FindMemberInfoById(ctx, &login.UserMessage{MemId: assignTo})
+	if err != nil {
+		return nil, err
+	}
+	display.Executor = task.Executor{
+		Name:   member.Name,
+		Avatar: member.Avatar,
+		Code:   member.Code,
+	}
 	tm := &taskRpc.TaskMessage{}
 	_ = copier.Copy(tm, display)
 	return tm, nil

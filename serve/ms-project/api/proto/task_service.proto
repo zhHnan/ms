@@ -82,6 +82,7 @@ message TaskListResponse{
 message ExecutorMessage{
   string name = 1;
   string avatar = 2;
+  string code = 3;
 }
 service TaskService {
   rpc TaskStages(TaskReqMessage) returns (TaskStagesResponse){}

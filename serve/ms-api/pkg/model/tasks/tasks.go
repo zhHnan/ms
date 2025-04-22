@@ -65,6 +65,7 @@ type TaskDisplay struct {
 type Executor struct {
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
+	Code   string `json:"code"`
 }
 type TaskSaveReq struct {
 	Name        string `form:"name"`

@@ -5,6 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/go-redis/redis/v8"
 	"github.com/jinzhu/copier"
 	"go.uber.org/zap"
@@ -22,10 +27,6 @@ import (
 	"hnz.com/ms_serve/ms-user/internal/database/tran"
 	"hnz.com/ms_serve/ms-user/internal/repo"
 	"hnz.com/ms_serve/ms-user/pkg/model"
-	"log"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type LoginService struct {
@@ -265,6 +266,11 @@ func (l *LoginService) FindMemberInfoById(ctx context.Context, msg *login.UserMe
 	if err != nil {
 		zap.L().Error("TokenVerify db FindMemberById error", zap.Error(err))
 		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	// 检查memberById是否为nil，避免空指针引用
+	if memberById == nil {
+		zap.L().Error("TokenVerify db FindMemberById not found", zap.Int64("memId", msg.MemId))
+		return nil, errs.GrpcError(model.UserNotExist)
 	}
 	memMsg := &login.MemberMessage{}
 	_ = copier.Copy(memMsg, memberById)

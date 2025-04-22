@@ -15,4 +15,5 @@ var (
 	NameExist              = errs.NewError(2005, "用户名已存在")
 	CaptchaNotFound        = errs.NewError(2006, "验证码不存在或已过期")
 	AccountOrPasswordError = errs.NewError(2007, "账号或密码错误")
+	UserNotExist           = errs.NewError(2008, "任务成员不存在")
 )
