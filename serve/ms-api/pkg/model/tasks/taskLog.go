@@ -42,3 +42,10 @@ type TaskWorkTime struct {
 	Code       string `json:"code"`
 	Member     Member `json:"member"`
 }
+
+type SaveTaskWorkTimeReq struct {
+	TaskCode  string `json:"task_code" form:"taskCode"`
+	Content   string `form:"content"`
+	Num       int    `form:"num"`
+	BeginTime string `form:"beginTime"`
+}

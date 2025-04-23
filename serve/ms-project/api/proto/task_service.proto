@@ -19,6 +19,9 @@ message TaskReqMessage{
   string taskCode = 13;
   int32 all = 14;
   int32 comment = 15;
+  string content = 16;
+  int32 num = 17;
+  int64 beginTime = 18;
 }
 message TaskSortResponse{
 
@@ -207,6 +210,8 @@ message TaskWorkTimeResponse {
   repeated TaskWorkTime list = 1;
   int64 total = 2;
 }
+message SaveTaskWorkTimeResponse {
+}
 service TaskService {
   rpc TaskStages(TaskReqMessage) returns (TaskStagesResponse){}
   rpc MemberProjectList(TaskReqMessage) returns (MemberProjectResponse){}
@@ -218,4 +223,5 @@ service TaskService {
   rpc ListTaskMember(TaskReqMessage) returns(TaskMemberList){}
   rpc TaskLog(TaskReqMessage) returns(TaskLogList){}
   rpc TaskWorkTimeList(TaskReqMessage) returns(TaskWorkTimeResponse){}
+  rpc SaveTaskWorkTime(TaskReqMessage) returns(SaveTaskWorkTimeResponse){}
 }

@@ -618,6 +618,23 @@ func (t *TaskService) TaskWorkTimeList(ctx context.Context, msg *taskRpc.TaskReq
 	_ = copier.Copy(&l, displayList)
 	return &taskRpc.TaskWorkTimeResponse{List: l, Total: int64(len(l))}, nil
 }
+
+func (t *TaskService) SaveTaskWorkTime(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.SaveTaskWorkTimeResponse, error) {
+	tmt := &task.TaskWorkTime{}
+	tmt.BeginTime = msg.BeginTime
+	tmt.Num = int(msg.Num)
+	tmt.Content = msg.Content
+	tmt.TaskCode = encrypts.DecryptToRes(msg.TaskCode)
+	tmt.MemberCode = msg.MemberId
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	err := t.taskWorkTimeRepo.Save(c, tmt)
+	if err != nil {
+		zap.L().Error("project task SaveTaskWorkTime taskWorkTimeRepo.Save error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	return &taskRpc.SaveTaskWorkTimeResponse{}, nil
+}
 func createProjectLog(
 	logRepo repo.ProjectLogRepo,
 	projectCode int64,

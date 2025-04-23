@@ -10,6 +10,7 @@ import (
 	"hnz.com/ms_serve/ms-api/pkg/model/tasks"
 	common "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-common/errs"
+	"hnz.com/ms_serve/ms-common/times"
 	taskRpc "hnz.com/ms_serve/ms-grpc/task"
 	"net/http"
 	"time"
@@ -328,4 +329,28 @@ func (t *HandlerTask) taskWorkTimeList(c *gin.Context) {
 		tms = []*tasks.TaskWorkTime{}
 	}
 	c.JSON(http.StatusOK, result.Success(tms))
+}
+
+func (t *HandlerTask) saveTaskWorkTime(c *gin.Context) {
+	result := &common.Result{}
+	var req *tasks.SaveTaskWorkTimeReq
+	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		TaskCode:  req.TaskCode,
+		MemberId:  c.GetInt64("memberId"),
+		Content:   req.Content,
+		Num:       int32(req.Num),
+		BeginTime: times.ParseTime(req.BeginTime),
+	}
+	_, err = rpc.TaskClient.SaveTaskWorkTime(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	c.JSON(http.StatusOK, result.Success([]int{}))
 }
