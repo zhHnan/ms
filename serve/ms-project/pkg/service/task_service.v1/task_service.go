@@ -3,6 +3,7 @@ package project_service_v1
 import (
 	"context"
 	"fmt"
+	"hnz.com/ms_serve/ms-project/internal/data/files"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -34,6 +35,8 @@ type TaskService struct {
 	taskRepo               repo.TaskRepo
 	proLogRepo             repo.ProjectLogRepo
 	taskWorkTimeRepo       repo.TaskWorkTimeRepo
+	fileRepo               repo.FileRepo
+	sourceLinkRepo         repo.SourceLinkRepo
 }
 
 // New 初始化
@@ -48,6 +51,8 @@ func New() *TaskService {
 		taskRepo:               dao.NewTaskDao(),
 		proLogRepo:             dao.NewProjectLogDao(),
 		taskWorkTimeRepo:       dao.NewTaskWorkTimeDao(),
+		fileRepo:               dao.NewFileDao(),
+		sourceLinkRepo:         dao.NewSourceLinkDao(),
 	}
 }
 
@@ -635,6 +640,52 @@ func (t *TaskService) SaveTaskWorkTime(ctx context.Context, msg *taskRpc.TaskReq
 	}
 	return &taskRpc.SaveTaskWorkTimeResponse{}, nil
 }
+
+func (t *TaskService) SaveTaskFile(ctx context.Context, msg *taskRpc.TaskFileReqMessage) (*taskRpc.TaskFileResponse, error) {
+	taskCode := encrypts.DecryptToRes(msg.TaskCode)
+	//存file表
+	f := &files.File{
+		PathName:         msg.PathName,
+		Title:            msg.FileName,
+		Extension:        msg.Extension,
+		Size:             int(msg.Size),
+		ObjectType:       "",
+		OrganizationCode: encrypts.DecryptToRes(msg.OrganizationCode),
+		TaskCode:         encrypts.DecryptToRes(msg.TaskCode),
+		ProjectCode:      encrypts.DecryptToRes(msg.ProjectCode),
+		CreateBy:         msg.MemberId,
+		CreateTime:       time.Now().UnixMilli(),
+		Downloads:        0,
+		Extra:            "",
+		Deleted:          model.NoDeleted,
+		FileType:         msg.FileType,
+		FileUrl:          msg.FileUrl,
+		DeletedTime:      0,
+	}
+	err := t.fileRepo.Save(context.Background(), f)
+	if err != nil {
+		zap.L().Error("project task SaveTaskFile fileRepo.Save error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	//存入source_link
+	sl := &files.SourceLink{
+		SourceType:       "file",
+		SourceCode:       f.Id,
+		LinkType:         "task",
+		LinkCode:         taskCode,
+		OrganizationCode: encrypts.DecryptToRes(msg.OrganizationCode),
+		CreateBy:         msg.MemberId,
+		CreateTime:       time.Now().UnixMilli(),
+		Sort:             0,
+	}
+	err = t.sourceLinkRepo.Save(context.Background(), sl)
+	if err != nil {
+		zap.L().Error("project task SaveTaskFile sourceLinkRepo.Save error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	return &taskRpc.TaskFileResponse{}, nil
+}
+
 func createProjectLog(
 	logRepo repo.ProjectLogRepo,
 	projectCode int64,

@@ -2,17 +2,22 @@ package project
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-api/pkg/model"
 	"hnz.com/ms_serve/ms-api/pkg/model/apiProject"
+	"hnz.com/ms_serve/ms-api/pkg/model/file"
 	"hnz.com/ms_serve/ms-api/pkg/model/tasks"
 	common "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-common/errs"
+	"hnz.com/ms_serve/ms-common/files"
 	"hnz.com/ms_serve/ms-common/times"
 	taskRpc "hnz.com/ms_serve/ms-grpc/task"
 	"net/http"
+	"os"
+	"path"
 	"time"
 )
 
@@ -353,4 +358,99 @@ func (t *HandlerTask) saveTaskWorkTime(c *gin.Context) {
 		c.JSON(http.StatusOK, result.Failure(code, msg))
 	}
 	c.JSON(http.StatusOK, result.Success([]int{}))
+}
+
+func (t *HandlerTask) uploadFiles(c *gin.Context) {
+	result := &common.Result{}
+	req := file.UploadFileReq{}
+	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
+
+	multipartForm, _ := c.MultipartForm()
+	fileForm := multipartForm.File["file"]
+	key := ""
+	// 假设只上传一个文件
+	uploadFile := fileForm[0]
+	// 若没有达成分片条件
+	if req.TotalChunks == 1 {
+		path := "upload/" + req.ProjectCode + "/" + req.TaskCode + "/" + times.FormatYMD(time.Now())
+		if !files.IsExist(path) {
+			_ = os.MkdirAll(path, os.ModePerm)
+		}
+		dst := path + "/" + req.Filename
+		key = dst
+		err := c.SaveUploadedFile(uploadFile, dst)
+		if err != nil {
+			c.JSON(http.StatusOK, result.Failure(9999, err.Error()))
+			return
+		}
+	}
+	if req.TotalChunks > 1 {
+		// 分片上传
+		path := "upload/" + req.ProjectCode + "/" + req.TaskCode + "/" + times.FormatYMD(time.Now())
+		if !files.IsExist(path) {
+			_ = os.MkdirAll(path, os.ModePerm)
+		}
+		fileName := path + "/" + req.Identifier
+		// O_RDWR 作设置文件打开模式；ModePerm 是文件权限，0777 表示文件权限为 777，即所有用户都有读、写、执行权限。
+		openFile, err := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_RDWR, os.ModePerm)
+		if err != nil {
+			c.JSON(http.StatusOK, result.Failure(9999, err.Error()))
+			return
+		}
+		open, err := uploadFile.Open()
+		if err != nil {
+			c.JSON(http.StatusOK, result.Failure(9999, err.Error()))
+			return
+		}
+		defer open.Close()
+		buf := make([]byte, req.CurrentChunkSize)
+		_, _ = open.Read(buf)
+		_, err = openFile.Write(buf)
+		fmt.Println(err)
+		err = openFile.Close()
+		fmt.Println(err)
+		key = fileName
+		if req.TotalChunks == req.ChunkNumber {
+			//最后一块 重命名文件名
+			newPath := path + "/" + req.Filename
+			key = newPath
+			err := os.Rename(fileName, newPath)
+			fmt.Println(err)
+		}
+	}
+	//调用服务 存入file表
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	fileUrl := "http://localhost/" + key
+	msg := &taskRpc.TaskFileReqMessage{
+		TaskCode:         req.TaskCode,
+		ProjectCode:      req.ProjectCode,
+		OrganizationCode: c.GetString("organizationCode"),
+		PathName:         key,
+		FileName:         req.Filename,
+		Size:             int64(req.TotalSize),
+		Extension:        path.Ext(key),
+		FileUrl:          fileUrl,
+		FileType:         fileForm[0].Header.Get("Content-Type"),
+		MemberId:         c.GetInt64("memberId"),
+	}
+	if req.TotalChunks == req.ChunkNumber {
+		_, err = rpc.TaskClient.SaveTaskFile(ctx, msg)
+		if err != nil {
+			code, msg := errs.ParseGrpcError(err)
+			c.JSON(http.StatusOK, result.Failure(code, msg))
+		}
+	}
+
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"file":        key,
+		"hash":        "",
+		"key":         key,
+		"url":         "http://localhost/" + key,
+		"projectName": req.ProjectName,
+	}))
+	return
 }

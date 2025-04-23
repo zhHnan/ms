@@ -220,3 +220,38 @@ CREATE TABLE `ms_task_work_time`  (
                                       UNIQUE INDEX `id`(`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '任务工时表' ROW_FORMAT = COMPACT;
 
+CREATE TABLE `ms_file`  (
+                            `id` int(0) UNSIGNED NOT NULL AUTO_INCREMENT,
+                            `path_name` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '相对路径',
+                            `title` char(90) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '名称',
+                            `extension` char(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '扩展名',
+                            `size` int(0) UNSIGNED NULL DEFAULT 0 COMMENT '文件大小',
+                            `object_type` char(30) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '对象类型',
+                            `organization_code` bigint(0) NULL DEFAULT NULL COMMENT '组织编码',
+                            `task_code` bigint(0) NULL DEFAULT NULL COMMENT '任务编码',
+                            `project_code` bigint(0) NULL DEFAULT NULL COMMENT '项目编码',
+                            `create_by` bigint(0) NULL DEFAULT NULL COMMENT '上传人',
+                            `create_time` bigint(0) NULL DEFAULT NULL COMMENT '创建时间',
+                            `downloads` mediumint(0) UNSIGNED NULL DEFAULT 0 COMMENT '下载次数',
+                            `extra` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '额外信息',
+                            `deleted` tinyint(1) NULL DEFAULT 0 COMMENT '删除标记',
+                            `file_url` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT '完整地址',
+                            `file_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件类型',
+                            `deleted_time` bigint(0) NULL DEFAULT NULL COMMENT '删除时间',
+                            PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 44 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '文件表' ROW_FORMAT = COMPACT;
+
+CREATE TABLE `ms_source_link`  (
+                                   `id` int(0) NOT NULL AUTO_INCREMENT,
+                                   `source_type` char(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '资源类型',
+                                   `source_code` bigint(0) NULL DEFAULT NULL COMMENT '资源编号',
+                                   `link_type` char(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '关联类型',
+                                   `link_code` bigint(0) NULL DEFAULT NULL COMMENT '关联编号',
+                                   `organization_code` bigint(0) NULL DEFAULT NULL COMMENT '组织编码',
+                                   `create_by` bigint(0) NULL DEFAULT NULL COMMENT '创建人',
+                                   `create_time` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建时间',
+                                   `sort` int(0) NULL DEFAULT 0 COMMENT '排序',
+                                   PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '资源关联表' ROW_FORMAT = COMPACT;
+
+
