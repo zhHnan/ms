@@ -22,6 +22,6 @@ func (s *SourceLinkDao) Save(ctx context.Context, link *files.SourceLink) error 
 
 func (s *SourceLinkDao) FindByTaskCode(ctx context.Context, taskCode int64) (list []*files.SourceLink, err error) {
 	session := s.conn.Session(ctx)
-	err = session.Model(&files.SourceLink{}).Where("link_code=?", taskCode).Find(&list).Error
+	err = session.Model(&files.SourceLink{}).Where("link_type =? and link_code=?", "task", taskCode).Find(&list).Error
 	return
 }
