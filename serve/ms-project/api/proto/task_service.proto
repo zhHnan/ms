@@ -192,6 +192,21 @@ message TaskLogList{
   repeated TaskLog list = 1;
   int64  total = 2;
 }
+message TaskWorkTime {
+  int64 id = 1;
+  string memberCode = 2;
+  string createTime = 3;
+  string content = 4;
+  string beginTime = 5;
+  int32  num = 6;
+  string code = 7;
+  Member member = 8;
+}
+
+message TaskWorkTimeResponse {
+  repeated TaskWorkTime list = 1;
+  int64 total = 2;
+}
 service TaskService {
   rpc TaskStages(TaskReqMessage) returns (TaskStagesResponse){}
   rpc MemberProjectList(TaskReqMessage) returns (MemberProjectResponse){}
@@ -202,4 +217,5 @@ service TaskService {
   rpc ReadTask(TaskReqMessage) returns (TaskMessage){}
   rpc ListTaskMember(TaskReqMessage) returns(TaskMemberList){}
   rpc TaskLog(TaskReqMessage) returns(TaskLogList){}
+  rpc TaskWorkTimeList(TaskReqMessage) returns(TaskWorkTimeResponse){}
 }

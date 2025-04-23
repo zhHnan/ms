@@ -4,6 +4,7 @@ import (
 	"github.com/jinzhu/copier"
 	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/times"
+	"hnz.com/ms_serve/ms-project/internal/data/common"
 )
 
 type ProjectLog struct {
@@ -40,13 +41,7 @@ type ProjectLogDisplay struct {
 	ProjectCode  string
 	Icon         string
 	IsRobot      int
-	Member       Member
-}
-type Member struct {
-	Id     int64
-	Name   string
-	Code   string
-	Avatar string
+	Member       common.Member
 }
 
 func (l *ProjectLog) ToDisplay() *ProjectLogDisplay {

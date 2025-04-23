@@ -307,3 +307,25 @@ func (t *HandlerTask) taskLog(c *gin.Context) {
 		"page":  req.Page,
 	}))
 }
+
+func (t *HandlerTask) taskWorkTimeList(c *gin.Context) {
+	taskCode := c.PostForm("taskCode")
+	result := &common.Result{}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		TaskCode: taskCode,
+		MemberId: c.GetInt64("memberId"),
+	}
+	taskWorkTimeResponse, err := rpc.TaskClient.TaskWorkTimeList(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var tms []*tasks.TaskWorkTime
+	_ = copier.Copy(&tms, taskWorkTimeResponse.List)
+	if tms == nil {
+		tms = []*tasks.TaskWorkTime{}
+	}
+	c.JSON(http.StatusOK, result.Success(tms))
+}

@@ -13,6 +13,7 @@ import (
 	taskRpc "hnz.com/ms_serve/ms-grpc/task"
 	"hnz.com/ms_serve/ms-grpc/user/login"
 	"hnz.com/ms_serve/ms-project/internal/dao"
+	modelCom "hnz.com/ms_serve/ms-project/internal/data/common"
 	"hnz.com/ms_serve/ms-project/internal/data/project"
 	"hnz.com/ms_serve/ms-project/internal/data/task"
 	"hnz.com/ms_serve/ms-project/internal/database"
@@ -32,6 +33,7 @@ type TaskService struct {
 	taskStagesRepo         repo.TaskStagesRepo
 	taskRepo               repo.TaskRepo
 	proLogRepo             repo.ProjectLogRepo
+	taskWorkTimeRepo       repo.TaskWorkTimeRepo
 }
 
 // New 初始化
@@ -45,6 +47,7 @@ func New() *TaskService {
 		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
 		taskRepo:               dao.NewTaskDao(),
 		proLogRepo:             dao.NewProjectLogDao(),
+		taskWorkTimeRepo:       dao.NewTaskWorkTimeDao(),
 	}
 }
 
@@ -564,7 +567,7 @@ func (t *TaskService) TaskLog(ctx context.Context, msg *taskRpc.TaskReqMessage) 
 	for _, v := range list {
 		display := v.ToDisplay()
 		message := mMap[v.MemberCode]
-		m := project.Member{}
+		m := modelCom.Member{}
 		m.Name = message.Name
 		m.Id = message.Id
 		m.Avatar = message.Avatar
@@ -576,7 +579,45 @@ func (t *TaskService) TaskLog(ctx context.Context, msg *taskRpc.TaskReqMessage) 
 	_ = copier.Copy(&l, displayList)
 	return &taskRpc.TaskLogList{List: l, Total: total}, nil
 }
-
+func (t *TaskService) TaskWorkTimeList(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskWorkTimeResponse, error) {
+	taskCode := encrypts.DecryptToRes(msg.TaskCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	var list []*task.TaskWorkTime
+	var err error
+	list, err = t.taskWorkTimeRepo.FindWorkTimeList(c, taskCode)
+	if err != nil {
+		zap.L().Error("project task TaskWorkTimeList taskWorkTimeRepo.FindWorkTimeList error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if len(list) == 0 {
+		return &taskRpc.TaskWorkTimeResponse{}, nil
+	}
+	var displayList []*task.TaskWorkTimeDisplay
+	var mIdList []int64
+	for _, v := range list {
+		mIdList = append(mIdList, v.MemberCode)
+	}
+	messageList, err := rpc.UserClient.FindMemberByIds(c, &login.UserMessage{MemberIds: mIdList})
+	mMap := make(map[int64]*login.MemberMessage)
+	for _, v := range messageList.MemberList {
+		mMap[v.Id] = v
+	}
+	for _, v := range list {
+		display := v.ToDisplay()
+		message := mMap[v.MemberCode]
+		m := modelCom.Member{}
+		m.Name = message.Name
+		m.Id = message.Id
+		m.Avatar = message.Avatar
+		m.Code = message.Code
+		display.Member = m
+		displayList = append(displayList, display)
+	}
+	var l []*taskRpc.TaskWorkTime
+	_ = copier.Copy(&l, displayList)
+	return &taskRpc.TaskWorkTimeResponse{List: l, Total: int64(len(l))}, nil
+}
 func createProjectLog(
 	logRepo repo.ProjectLogRepo,
 	projectCode int64,
