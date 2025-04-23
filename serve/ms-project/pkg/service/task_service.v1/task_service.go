@@ -528,6 +528,55 @@ func (t *TaskService) ListTaskMember(ctx context.Context, msg *taskRpc.TaskReqMe
 	}
 	return &taskRpc.TaskMemberList{List: taskMemberMessages, Total: total}, nil
 }
+func (t *TaskService) TaskLog(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskLogList, error) {
+	taskCode := encrypts.DecryptToRes(msg.TaskCode)
+	all := msg.All
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	var list []*project.ProjectLog
+	var total int64
+	var err error
+	if all == 1 {
+		//显示全部
+		list, total, err = t.proLogRepo.FindLogByTaskCode(c, taskCode, int(msg.Comment))
+	}
+	if all == 0 {
+		//分页
+		list, total, err = t.proLogRepo.FindLogByTaskCodePage(c, taskCode, int(msg.Comment), int(msg.Page), int(msg.PageSize))
+	}
+	if err != nil {
+		zap.L().Error("project task TaskLog projectLogRepo.FindLogByTaskCodePage error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if total == 0 {
+		return &taskRpc.TaskLogList{}, nil
+	}
+	var displayList []*project.ProjectLogDisplay
+	var mIdList []int64
+	for _, v := range list {
+		mIdList = append(mIdList, v.MemberCode)
+	}
+	messageList, err := rpc.UserClient.FindMemberByIds(c, &login.UserMessage{MemberIds: mIdList})
+	mMap := make(map[int64]*login.MemberMessage)
+	for _, v := range messageList.MemberList {
+		mMap[v.Id] = v
+	}
+	for _, v := range list {
+		display := v.ToDisplay()
+		message := mMap[v.MemberCode]
+		m := project.Member{}
+		m.Name = message.Name
+		m.Id = message.Id
+		m.Avatar = message.Avatar
+		m.Code = message.Code
+		display.Member = m
+		displayList = append(displayList, display)
+	}
+	var l []*taskRpc.TaskLog
+	_ = copier.Copy(&l, displayList)
+	return &taskRpc.TaskLogList{List: l, Total: total}, nil
+}
+
 func createProjectLog(
 	logRepo repo.ProjectLogRepo,
 	projectCode int64,

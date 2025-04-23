@@ -267,3 +267,43 @@ func (t *HandlerTask) listTaskMember(c *gin.Context) {
 		"page":  page.Page,
 	}))
 }
+
+func (t *HandlerTask) taskLog(c *gin.Context) {
+	result := &common.Result{}
+	var req *tasks.TaskLogReq
+	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
+	if req.Page <= 0 {
+		req.Page = 1
+	}
+	if req.PageSize <= 0 {
+		req.PageSize = 10
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		TaskCode: req.TaskCode,
+		MemberId: c.GetInt64("memberId"),
+		Page:     int64(req.Page),
+		PageSize: int64(req.PageSize),
+		All:      int32(req.All),
+		Comment:  int32(req.Comment),
+	}
+	taskLogResponse, err := rpc.TaskClient.TaskLog(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var tms []*tasks.ProjectLogDisplay
+	_ = copier.Copy(&tms, taskLogResponse.List)
+	if tms == nil {
+		tms = []*tasks.ProjectLogDisplay{}
+	}
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"list":  tms,
+		"total": taskLogResponse.Total,
+		"page":  req.Page,
+	}))
+}

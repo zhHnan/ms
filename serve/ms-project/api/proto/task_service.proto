@@ -17,6 +17,8 @@ message TaskReqMessage{
   string nextTaskCode = 11;
   string toStageCode = 12;
   string taskCode = 13;
+  int32 all = 14;
+  int32 comment = 15;
 }
 message TaskSortResponse{
 
@@ -164,6 +166,32 @@ message TaskMemberList{
   repeated TaskMemberMessage list = 1;
   int64  total = 2;
 }
+message TaskLog {
+  int64 id = 1;
+  string MemberCode = 2;
+  string Content = 3;
+  string remark = 4;
+  string Type = 5;
+  string CreateTime = 6;
+  string SourceCode = 7;
+  string ActionType = 8;
+  string ToMemberCode = 9;
+  int32 IsComment = 10;
+  string ProjectCode = 11;
+  string Icon = 12;
+  int32 IsRobot = 13;
+  Member member = 14;
+}
+message Member{
+  int64 id = 1;
+  string name = 2;
+  string avatar = 3;
+  string code = 4;
+}
+message TaskLogList{
+  repeated TaskLog list = 1;
+  int64  total = 2;
+}
 service TaskService {
   rpc TaskStages(TaskReqMessage) returns (TaskStagesResponse){}
   rpc MemberProjectList(TaskReqMessage) returns (MemberProjectResponse){}
@@ -173,4 +201,5 @@ service TaskService {
   rpc MyTaskList(TaskReqMessage) returns (MyTaskListResponse){}
   rpc ReadTask(TaskReqMessage) returns (TaskMessage){}
   rpc ListTaskMember(TaskReqMessage) returns(TaskMemberList){}
+  rpc TaskLog(TaskReqMessage) returns(TaskLogList){}
 }

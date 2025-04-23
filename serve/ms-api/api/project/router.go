@@ -42,5 +42,5 @@ func (*RouterUser) Route(r *gin.Engine) {
 	group.POST("/task/selfList", t.selfList)
 	group.POST("/task/read", t.taskRead)
 	group.POST("/task_member", t.listTaskMember)
-	group.POST("/task/taskLog", t.listTaskMember)
+	group.POST("/task/taskLog", t.taskLog)
 }
