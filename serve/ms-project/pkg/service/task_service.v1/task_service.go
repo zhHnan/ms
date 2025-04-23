@@ -31,6 +31,7 @@ type TaskService struct {
 	taskStagesTemplateRepo repo.TaskStagesTemplateRepo
 	taskStagesRepo         repo.TaskStagesRepo
 	taskRepo               repo.TaskRepo
+	proLogRepo             repo.ProjectLogRepo
 }
 
 // New 初始化
@@ -43,6 +44,7 @@ func New() *TaskService {
 		taskStagesRepo:         dao.NewTaskStagesDao(),
 		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
 		taskRepo:               dao.NewTaskDao(),
+		proLogRepo:             dao.NewProjectLogDao(),
 	}
 }
 
@@ -277,6 +279,9 @@ func (t *TaskService) SaveTask(ctx context.Context, msg *taskRpc.TaskReqMessage)
 		Avatar: member.Avatar,
 		Code:   member.Code,
 	}
+	//添加任务动态
+	createProjectLog(t.proLogRepo, ts.ProjectCode, ts.Id, ts.Name, ts.AssignTo, "create", "task")
+
 	tm := &taskRpc.TaskMessage{}
 	_ = copier.Copy(tm, display)
 	return tm, nil
@@ -522,4 +527,31 @@ func (t *TaskService) ListTaskMember(ctx context.Context, msg *taskRpc.TaskReqMe
 		taskMemberMessages = append(taskMemberMessages, tm)
 	}
 	return &taskRpc.TaskMemberList{List: taskMemberMessages, Total: total}, nil
+}
+func createProjectLog(
+	logRepo repo.ProjectLogRepo,
+	projectCode int64,
+	taskCode int64,
+	taskName string,
+	toMemberCode int64,
+	logType string,
+	actionType string) {
+	remark := ""
+	if logType == "create" {
+		remark = "创建了任务"
+	}
+	pl := &project.ProjectLog{
+		MemberCode:  toMemberCode,
+		SourceCode:  taskCode,
+		Content:     taskName,
+		Remark:      remark,
+		ProjectCode: projectCode,
+		CreateTime:  time.Now().UnixMilli(),
+		Type:        logType,
+		ActionType:  actionType,
+		Icon:        "plus",
+		IsComment:   0,
+		IsRobot:     0,
+	}
+	logRepo.SaveProjectLog(pl)
 }
