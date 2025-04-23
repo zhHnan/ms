@@ -403,12 +403,24 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *taskRpc.TaskReqMessag
 		pids = append(pids, v.ProjectCode)
 		mids = append(mids, v.AssignTo)
 	}
-	pList, err := t.projectRepo.FindProjectByIds(ctx, pids)
+	pListChan := make(chan []*project.Project)
+	defer close(pListChan)
+	mListChan := make(chan *login.MemberListResponse)
+	defer close(mListChan)
+	go func() {
+		pList, _ := t.projectRepo.FindProjectByIds(ctx, pids)
+		pListChan <- pList
+	}()
+	go func() {
+		mList, _ := rpc.UserClient.FindMemberByIds(ctx, &login.UserMessage{
+			MemberIds: mids,
+		})
+		mListChan <- mList
+	}()
+	pList := <-pListChan
 	projectMap := project.ToProjectMap(pList)
+	mList := <-mListChan
 
-	mList, err := rpc.UserClient.FindMemberByIds(ctx, &login.UserMessage{
-		MemberIds: mids,
-	})
 	mMap := make(map[int64]*login.MemberMessage)
 	for _, v := range mList.MemberList {
 		mMap[v.Id] = v
