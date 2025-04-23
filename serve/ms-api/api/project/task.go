@@ -454,3 +454,21 @@ func (t *HandlerTask) uploadFiles(c *gin.Context) {
 	}))
 	return
 }
+
+func (t *HandlerTask) taskSources(c *gin.Context) {
+	result := &common.Result{}
+	taskCode := c.PostForm("taskCode")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	sources, err := rpc.TaskClient.TaskSources(ctx, &taskRpc.TaskReqMessage{TaskCode: taskCode})
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var slList []*file.SourceLink
+	_ = copier.Copy(&slList, sources.List)
+	if slList == nil {
+		slList = []*file.SourceLink{}
+	}
+	c.JSON(http.StatusOK, result.Success(slList))
+}

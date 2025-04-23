@@ -686,6 +686,38 @@ func (t *TaskService) SaveTaskFile(ctx context.Context, msg *taskRpc.TaskFileReq
 	return &taskRpc.TaskFileResponse{}, nil
 }
 
+func (t *TaskService) TaskSources(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskSourceResponse, error) {
+	taskCode := encrypts.DecryptToRes(msg.TaskCode)
+	sourceLinks, err := t.sourceLinkRepo.FindByTaskCode(context.Background(), taskCode)
+	if err != nil {
+		zap.L().Error("project task SaveTaskFile sourceLinkRepo.FindByTaskCode error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if len(sourceLinks) == 0 {
+		return &taskRpc.TaskSourceResponse{}, nil
+	}
+	var fIdList []int64
+	for _, v := range sourceLinks {
+		fIdList = append(fIdList, v.SourceCode)
+	}
+	fileRes, err := t.fileRepo.FindByIds(context.Background(), fIdList)
+	if err != nil {
+		zap.L().Error("project task SaveTaskFile fileRepo.FindByIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	fMap := make(map[int64]*files.File)
+	for _, v := range fileRes {
+		fMap[v.Id] = v
+	}
+	var list []*files.SourceLinkDisplay
+	for _, v := range sourceLinks {
+		list = append(list, v.ToDisplay(fMap[v.SourceCode]))
+	}
+	var slMsg []*taskRpc.TaskSourceMessage
+	_ = copier.Copy(&slMsg, list)
+	return &taskRpc.TaskSourceResponse{List: slMsg}, nil
+}
+
 func createProjectLog(
 	logRepo repo.ProjectLogRepo,
 	projectCode int64,
