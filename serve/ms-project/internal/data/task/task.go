@@ -171,6 +171,10 @@ type TaskDisplay struct {
 	Code          string
 	CanRead       int
 	Executor      Executor
+	ProjectName   string
+	StageName     string
+	PriText       string
+	StatusText    string
 }
 type Executor struct {
 	Name   string
@@ -180,7 +184,7 @@ type Executor struct {
 
 func (t *Task) ToTaskDisplay() *TaskDisplay {
 	td := &TaskDisplay{}
-	copier.Copy(td, t)
+	_ = copier.Copy(td, t)
 	td.CreateTime = times.FormatByMill(t.CreateTime)
 	td.DoneTime = times.FormatByMill(t.DoneTime)
 	td.BeginTime = times.FormatByMill(t.BeginTime)
@@ -198,6 +202,8 @@ func (t *Task) ToTaskDisplay() *TaskDisplay {
 	td.ExecuteStatus = t.GetExecuteStatusStr()
 	td.Code = encrypts.EncryptNoErr(t.Id)
 	td.CanRead = 1
+	td.StatusText = t.GetStatusStr()
+	td.PriText = t.GetPriStr()
 	return td
 }
 
@@ -299,3 +305,37 @@ func GetAccessControlType(accessControlType int) string {
 	}
 	return ""
 }
+func (t *Task) GetStatusStr() string {
+	status := t.Status
+	if status == NoStarted {
+		return "未开始"
+	}
+	if status == Started {
+		return "开始"
+	}
+	return ""
+}
+func (t *Task) GetPriStr() string {
+	status := t.Pri
+	if status == Normal {
+		return "普通"
+	}
+	if status == Urgent {
+		return "紧急"
+	}
+	if status == VeryUrgent {
+		return "非常紧急"
+	}
+	return ""
+}
+
+const (
+	Normal = iota
+	Urgent
+	VeryUrgent
+)
+
+const (
+	NoStarted = iota
+	Started
+)

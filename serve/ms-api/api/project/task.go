@@ -210,3 +210,30 @@ func (t *HandlerTask) selfList(c *gin.Context) {
 		"total": myTaskListResponse.Total,
 	}))
 }
+
+func (t *HandlerTask) taskRead(c *gin.Context) {
+	result := &common.Result{}
+	taskCode := c.PostForm("taskCode")
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		TaskCode: taskCode,
+		MemberId: c.GetInt64("memberId"),
+	}
+	taskMessage, err := rpc.TaskClient.ReadTask(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	td := &tasks.TaskDisplay{}
+	_ = copier.Copy(td, taskMessage)
+	if td != nil {
+		if td.Tags == nil {
+			td.Tags = []int{}
+		}
+		if td.ChildCount == nil {
+			td.ChildCount = []int{}
+		}
+	}
+	c.JSON(200, result.Success(td))
+}

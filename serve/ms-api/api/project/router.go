@@ -40,4 +40,5 @@ func (*RouterUser) Route(r *gin.Engine) {
 	group.POST("/task/save", t.taskSave)
 	group.POST("/task/sort", t.taskSort)
 	group.POST("/task/selfList", t.selfList)
+	group.POST("/task/read", t.taskRead)
 }

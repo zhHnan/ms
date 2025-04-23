@@ -16,6 +16,7 @@ message TaskReqMessage{
   string preTaskCode = 10;
   string nextTaskCode = 11;
   string toStageCode = 12;
+  string taskCode = 13;
 }
 message TaskSortResponse{
 
@@ -83,6 +84,9 @@ message TaskMessage{
   int32 canRead = 33;
   ExecutorMessage executor = 34;
   string projectName = 35;
+  string stageName = 36;
+  string  priText = 37;
+  string statusText = 38;
 }
 message TaskListResponse{
   repeated TaskMessage list = 1;
@@ -153,4 +157,5 @@ service TaskService {
   rpc SaveTask(TaskReqMessage) returns (TaskMessage){}
   rpc TaskSort(TaskReqMessage) returns (TaskSortResponse){}
   rpc MyTaskList(TaskReqMessage) returns (MyTaskListResponse){}
+  rpc ReadTask(TaskReqMessage) returns (TaskMessage){}
 }

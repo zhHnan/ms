@@ -437,3 +437,56 @@ func (t *TaskService) MyTaskList(ctx context.Context, msg *taskRpc.TaskReqMessag
 	_ = copier.Copy(&myMsgs, mtdList)
 	return &taskRpc.MyTaskListResponse{List: myMsgs, Total: total}, nil
 }
+func (t *TaskService) ReadTask(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskMessage, error) {
+	taskCode := encrypts.DecryptToRes(msg.TaskCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	taskInfo, err := t.taskRepo.FindTaskById(c, taskCode)
+	if err != nil {
+		zap.L().Error("project task ReadTask taskRepo FindTaskById error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	if taskInfo == nil {
+		return &taskRpc.TaskMessage{}, nil
+	}
+	display := taskInfo.ToTaskDisplay()
+	if taskInfo.Private == 1 {
+		//代表隐私模式
+		taskMember, err := t.taskRepo.FindTaskMemberByTaskId(ctx, taskInfo.Id, msg.MemberId)
+		if err != nil {
+			zap.L().Error("project task TaskList taskRepo.FindTaskMemberByTaskId error", zap.Error(err))
+			return nil, errs.GrpcError(model.DataBaseError)
+		}
+		if taskMember != nil {
+			display.CanRead = model.CanRead
+		} else {
+			display.CanRead = model.NoCanRead
+		}
+	}
+	pj, err := t.projectRepo.FindProjectById(c, taskInfo.ProjectCode)
+	if err != nil {
+		zap.L().Error("project task TaskList FindProjectById error", zap.Error(err))
+		return nil, err
+	}
+	display.ProjectName = pj.Name
+	taskStages, err := t.taskStagesRepo.FindById(c, taskInfo.StageCode)
+	if err != nil {
+		zap.L().Error("project task TaskList FindById error", zap.Error(err))
+		return nil, err
+	}
+	display.StageName = taskStages.Name
+	// in ()
+	memberMessage, err := rpc.UserClient.FindMemberInfoById(ctx, &login.UserMessage{MemId: taskInfo.AssignTo})
+	if err != nil {
+		zap.L().Error("project task TaskList UserClient.FindMemberInfoById error", zap.Error(err))
+		return nil, err
+	}
+	e := task.Executor{
+		Name:   memberMessage.Name,
+		Avatar: memberMessage.Avatar,
+	}
+	display.Executor = e
+	var taskMessage = &taskRpc.TaskMessage{}
+	_ = copier.Copy(taskMessage, display)
+	return taskMessage, nil
+}
