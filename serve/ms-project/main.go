@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	srv "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-project/config"
@@ -18,5 +19,7 @@ func main() {
 	}
 	// 初始化rpc
 	router.InitUserRpc()
+	// 开启pprof
+	pprof.Register(r)
 	srv.Run(r, config.Cfg.Sc.Addr, config.Cfg.Sc.Name, stop)
 }

@@ -1,0 +1,5 @@
+curl --location --request POST 'http://127.0.0.1:8085/project/project/selfList' \
+--header 'Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDU5NzU4NjUsImlwIjoiMTI3LjAuMC4xIiwidG9rZW4iOiIxMDAxIn0.e7jJoVctmcj2k_ceOPhJgS3GD-q3KDmCdGyl3oR9D-Y' \
+--form 'page=1' \
+--form 'pageSize=10' \
+--form 'archive=-1'
