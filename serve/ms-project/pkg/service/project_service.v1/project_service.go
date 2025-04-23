@@ -32,6 +32,8 @@ type ProjectService struct {
 	proTemplateRepo        repo.ProjectTemplateRepo
 	taskStagesTemplateRepo repo.TaskStagesTemplateRepo
 	taskStagesRepo         repo.TaskStagesRepo
+	projectLogRepo         repo.ProjectLogRepo
+	taskRepo               repo.TaskRepo
 }
 
 // 初始化
@@ -44,6 +46,8 @@ func New() *ProjectService {
 		proTemplateRepo:        dao.NewProjectTemplateDao(),
 		taskStagesRepo:         dao.NewTaskStagesDao(),
 		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
+		projectLogRepo:         dao.NewProjectLogDao(),
+		taskRepo:               dao.NewTaskDao(),
 	}
 }
 
@@ -346,4 +350,57 @@ func (p *ProjectService) UpdateProject(ctx context.Context, msg *project.UpdateP
 		return nil, errs.GrpcError(model.DataBaseError)
 	}
 	return &project.UpdateProjectResponse{}, nil
+}
+func (p *ProjectService) GetLogBySelfProject(ctx context.Context, msg *project.ProjectRpcMessage) (*project.ProjectLogResponse, error) {
+	// 根据用户id和项目id查询项目日志
+	projectLogs, total, err := p.projectLogRepo.FindLogByMemberCode(context.Background(), msg.MemberId, msg.Page, msg.PageSize)
+	if err != nil {
+		zap.L().Error("project ProjectService::GetLogBySelfProject projectLogRepo.FindLogByMemberCode error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+
+	//查询项目信息
+	pIdList := make([]int64, len(projectLogs))
+	mIdList := make([]int64, len(projectLogs))
+	taskIdList := make([]int64, len(projectLogs))
+	for _, v := range projectLogs {
+		pIdList = append(pIdList, v.ProjectCode)
+		mIdList = append(mIdList, v.MemberCode)
+		taskIdList = append(taskIdList, v.SourceCode)
+	}
+	projects, err := p.projectRepo.FindProjectByIds(context.Background(), pIdList)
+	if err != nil {
+		zap.L().Error("project ProjectService::GetLogBySelfProject projectLogRepo.FindProjectByIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	pMap := make(map[int64]*pro.Project)
+	for _, v := range projects {
+		pMap[v.Id] = v
+	}
+	messageList, _ := rpc.UserClient.FindMemberByIds(context.Background(), &login.UserMessage{MemberIds: mIdList})
+	mMap := make(map[int64]*login.MemberMessage)
+	for _, v := range messageList.MemberList {
+		mMap[v.Id] = v
+	}
+	tasks, err := p.taskRepo.FindTaskByIds(context.Background(), taskIdList)
+	if err != nil {
+		zap.L().Error("project ProjectService::GetLogBySelfProject projectLogRepo.FindTaskByIds error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	tMap := make(map[int64]*task.Task)
+	for _, v := range tasks {
+		tMap[v.Id] = v
+	}
+	var list []*pro.IndexProjectLogDisplay
+	for _, v := range projectLogs {
+		display := v.ToIndexDisplay()
+		display.ProjectName = pMap[v.ProjectCode].Name
+		display.MemberAvatar = mMap[v.MemberCode].Avatar
+		display.MemberName = mMap[v.MemberCode].Name
+		display.TaskName = tMap[v.SourceCode].Name
+		list = append(list, display)
+	}
+	var msgList []*project.ProjectLogMessage
+	_ = copier.Copy(&msgList, list)
+	return &project.ProjectLogResponse{List: msgList, Total: total}, nil
 }

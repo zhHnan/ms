@@ -161,7 +161,22 @@ message UpdateProjectMessage{
   int64 MemberId = 13;
 }
 message UpdateProjectResponse{}
-
+message ProjectLogMessage{
+  string Content  = 1;
+  string Remark       = 2;
+  string CreateTime    = 3;
+  string SourceCode    = 4;
+  int32 IsComment       = 5;
+  string ProjectCode   = 6;
+  string ProjectName   =7;
+  string MemberAvatar  =8;
+  string MemberName   =9;
+  string TaskName      = 10;
+}
+message ProjectLogResponse{
+  repeated ProjectLogMessage list = 1;
+  int64 total = 2;
+}
 service ProjectService {
   rpc Index(IndexMessage) returns (IndexResponse) {}
   rpc FindProjectByMemId(ProjectRpcMessage) returns (MyProjectResponse){}
@@ -171,4 +186,5 @@ service ProjectService {
   rpc UpdateDeletedProject(ProjectRpcMessage) returns (ProjectUpdateDeletedResponse){}
   rpc UpdateCollectProject(ProjectRpcMessage) returns (UpdateCollectResponse){}
   rpc UpdateProject(UpdateProjectMessage) returns (UpdateProjectResponse){}
+  rpc GetLogBySelfProject(ProjectRpcMessage) returns (ProjectLogResponse){}
 }
