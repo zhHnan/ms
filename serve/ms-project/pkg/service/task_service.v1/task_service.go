@@ -717,6 +717,30 @@ func (t *TaskService) TaskSources(ctx context.Context, msg *taskRpc.TaskReqMessa
 	_ = copier.Copy(&slMsg, list)
 	return &taskRpc.TaskSourceResponse{List: slMsg}, nil
 }
+func (t *TaskService) CreateComment(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.CreateCommentResponse, error) {
+	taskCode := encrypts.DecryptToRes(msg.TaskCode)
+	taskById, err := t.taskRepo.FindTaskById(context.Background(), taskCode)
+	if err != nil {
+		zap.L().Error("project task CreateComment fileRepo.FindTaskById error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	pl := &project.ProjectLog{
+		MemberCode:   msg.MemberId,
+		Content:      msg.CommentContent,
+		Remark:       msg.CommentContent,
+		Type:         "createComment",
+		CreateTime:   time.Now().UnixMilli(),
+		SourceCode:   taskCode,
+		ActionType:   "task",
+		ToMemberCode: 0,
+		IsComment:    model.Comment,
+		ProjectCode:  taskById.ProjectCode,
+		Icon:         "plus",
+		IsRobot:      0,
+	}
+	t.proLogRepo.SaveProjectLog(pl)
+	return &taskRpc.CreateCommentResponse{}, nil
+}
 
 func createProjectLog(
 	logRepo repo.ProjectLogRepo,

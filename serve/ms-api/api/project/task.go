@@ -8,6 +8,7 @@ import (
 	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-api/pkg/model"
 	"hnz.com/ms_serve/ms-api/pkg/model/apiProject"
+	"hnz.com/ms_serve/ms-api/pkg/model/comment"
 	"hnz.com/ms_serve/ms-api/pkg/model/file"
 	"hnz.com/ms_serve/ms-api/pkg/model/tasks"
 	common "hnz.com/ms_serve/ms-common"
@@ -471,4 +472,27 @@ func (t *HandlerTask) taskSources(c *gin.Context) {
 		slList = []*file.SourceLink{}
 	}
 	c.JSON(http.StatusOK, result.Success(slList))
+}
+
+func (t *HandlerTask) createComment(c *gin.Context) {
+	result := &common.Result{}
+	req := comment.CommentReq{}
+	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		TaskCode:       req.TaskCode,
+		CommentContent: req.Comment,
+		Mentions:       req.Mentions,
+		MemberId:       c.GetInt64("memberId"),
+	}
+	_, err = rpc.TaskClient.CreateComment(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	c.JSON(http.StatusOK, result.Success(true))
 }
