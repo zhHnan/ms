@@ -2,12 +2,14 @@ package midd
 
 import (
 	"context"
+	"time"
+
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"hnz.com/ms_serve/ms-api/api/rpc"
 	common "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-common/errs"
 	"hnz.com/ms_serve/ms-grpc/user/login"
-	"time"
 )
 
 func TokenVerify() func(c *gin.Context) {
@@ -39,4 +41,22 @@ func GetIp(c *gin.Context) string {
 		ip = "127.0.0.1"
 	}
 	return ip
+}
+func RequestLog() func(c *gin.Context) {
+	return func(c *gin.Context) {
+		// 记录毫秒级别时间
+		start := time.Now()
+		c.Next()
+		diff := time.Since(start).Milliseconds()
+		zap.L().Info("请求信息",
+			zap.String("ip", GetIp(c)),
+			zap.String("method", c.Request.Method),
+			zap.String("path", c.Request.URL.Path),
+			zap.String("query", c.Request.URL.RawQuery),
+			zap.String("user-agent", c.Request.UserAgent()),
+			zap.String("errors", c.Errors.ByType(gin.ErrorTypePrivate).String()),
+			zap.Int("status", c.Writer.Status()),
+			zap.Duration("cost", time.Duration(diff)*time.Millisecond),
+		)
+	}
 }
