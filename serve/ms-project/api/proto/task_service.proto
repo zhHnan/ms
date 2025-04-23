@@ -150,6 +150,20 @@ message MyTaskListResponse{
   repeated MyTaskMessage list = 1;
   int64  total = 2;
 }
+message TaskMemberMessage{
+  int64 id = 1;
+  string name = 2;
+  string avatar = 3;
+  string code = 4;
+  string memberAccountCode = 5;
+  int32 isExecutor = 6;
+  int32 isOwner = 7;
+}
+
+message TaskMemberList{
+  repeated TaskMemberMessage list = 1;
+  int64  total = 2;
+}
 service TaskService {
   rpc TaskStages(TaskReqMessage) returns (TaskStagesResponse){}
   rpc MemberProjectList(TaskReqMessage) returns (MemberProjectResponse){}
@@ -158,4 +172,5 @@ service TaskService {
   rpc TaskSort(TaskReqMessage) returns (TaskSortResponse){}
   rpc MyTaskList(TaskReqMessage) returns (MyTaskListResponse){}
   rpc ReadTask(TaskReqMessage) returns (TaskMessage){}
+  rpc ListTaskMember(TaskReqMessage) returns(TaskMemberList){}
 }

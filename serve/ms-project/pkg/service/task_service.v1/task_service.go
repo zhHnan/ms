@@ -490,3 +490,36 @@ func (t *TaskService) ReadTask(ctx context.Context, msg *taskRpc.TaskReqMessage)
 	_ = copier.Copy(taskMessage, display)
 	return taskMessage, nil
 }
+
+func (t *TaskService) ListTaskMember(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskMemberList, error) {
+	taskCode := encrypts.DecryptToRes(msg.TaskCode)
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	taskMemberPage, total, err := t.taskRepo.FindTaskMemberPage(c, taskCode, msg.Page, msg.PageSize)
+	if err != nil {
+		zap.L().Error("project task TaskList taskRepo.FindTaskMemberPage error", zap.Error(err))
+		return nil, errs.GrpcError(model.DataBaseError)
+	}
+	var mids []int64
+	for _, v := range taskMemberPage {
+		mids = append(mids, v.MemberCode)
+	}
+	messageList, err := rpc.UserClient.FindMemberByIds(ctx, &login.UserMessage{MemberIds: mids})
+	mMap := make(map[int64]*login.MemberMessage, len(messageList.MemberList))
+	for _, v := range messageList.MemberList {
+		mMap[v.Id] = v
+	}
+	var taskMemberMessages []*taskRpc.TaskMemberMessage
+	for _, v := range taskMemberPage {
+		tm := &taskRpc.TaskMemberMessage{}
+		tm.Code = encrypts.EncryptNoErr(v.MemberCode)
+		tm.Id = v.Id
+		message := mMap[v.MemberCode]
+		tm.Name = message.Name
+		tm.Avatar = message.Avatar
+		tm.IsExecutor = int32(v.IsExecutor)
+		tm.IsOwner = int32(v.IsOwner)
+		taskMemberMessages = append(taskMemberMessages, tm)
+	}
+	return &taskRpc.TaskMemberList{List: taskMemberMessages, Total: total}, nil
+}

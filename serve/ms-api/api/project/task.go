@@ -237,3 +237,33 @@ func (t *HandlerTask) taskRead(c *gin.Context) {
 	}
 	c.JSON(200, result.Success(td))
 }
+
+func (t *HandlerTask) listTaskMember(c *gin.Context) {
+	result := &common.Result{}
+	taskCode := c.PostForm("taskCode")
+	page := &model.Page{}
+	page.Bind(c)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &taskRpc.TaskReqMessage{
+		TaskCode: taskCode,
+		MemberId: c.GetInt64("memberId"),
+		Page:     page.Page,
+		PageSize: page.PageSize,
+	}
+	taskMemberResponse, err := rpc.TaskClient.ListTaskMember(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var tms []*tasks.TaskMember
+	_ = copier.Copy(&tms, taskMemberResponse.List)
+	if tms == nil {
+		tms = []*tasks.TaskMember{}
+	}
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"list":  tms,
+		"total": taskMemberResponse.Total,
+		"page":  page.Page,
+	}))
+}
