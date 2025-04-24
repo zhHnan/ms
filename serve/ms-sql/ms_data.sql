@@ -1,31 +1,4 @@
-SET NAMES utf8mb4;
-SET FOREIGN_KEY_CHECKS = 0;
 
--- ----------------------------
--- Table structure for ms_project_menu
--- ----------------------------
-DROP TABLE IF EXISTS `ms_project_menu`;
-CREATE TABLE `ms_project_menu`  (
-  `id` bigint(0) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `pid` bigint(0) UNSIGNED NOT NULL DEFAULT 0 COMMENT '父id',
-  `title` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '名称',
-  `icon` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '菜单图标',
-  `url` varchar(400) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT '链接',
-  `file_path` varchar(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '文件路径',
-  `params` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT '链接参数',
-  `node` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '#' COMMENT '权限节点',
-  `sort` int(0) UNSIGNED NULL DEFAULT 0 COMMENT '菜单排序',
-  `status` tinyint(0) UNSIGNED NULL DEFAULT 1 COMMENT '状态(0:禁用,1:启用)',
-  `create_by` bigint(0) UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建人',
-  `is_inner` tinyint(1) NULL DEFAULT 0 COMMENT '是否内页',
-  `values` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '参数默认值',
-  `show_slider` tinyint(1) NULL DEFAULT 1 COMMENT '是否显示侧栏',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 176 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '项目菜单表' ROW_FORMAT = DYNAMIC;
-
--- ----------------------------
--- Records of ms_project_menu
--- ----------------------------
 INSERT INTO `ms_project_menu` VALUES (120, 0, '工作台', 'appstore-o', 'home', 'home', ':org', '#', 0, 1, 0, 0, '', 0);
 INSERT INTO `ms_project_menu` VALUES (121, 0, '项目管理', 'project', '#', '#', '', '#', 0, 1, 0, 0, '', 1);
 INSERT INTO `ms_project_menu` VALUES (122, 121, '项目列表', 'branches', '#', '#', '', '#', 0, 1, 0, 0, '', 1);
@@ -63,3 +36,31 @@ INSERT INTO `ms_project_menu` VALUES (167, 164, '成员信息', '', 'members/pro
 INSERT INTO `ms_project_menu` VALUES (168, 153, '版本管理', '', 'project/space/features', 'project/space/features', ':code', 'project/index/info', 20, 1, 0, 1, '', 0);
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (61, '待处理', 19, 1670904236057, 1);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (62, '进行中', 19, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (63, '已完成', 19, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (65, '协议签订', 13, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (66, '图纸设计', 13, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (67, '评审及打样', 13, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (68, '构件采购', 13, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (69, '制造安装', 13, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (70, '内部检验', 13, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (71, '验收', 13, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (72, '需求收集', 12, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (73, '评估确认', 12, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (74, '需求暂缓', 12, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (75, '研发中', 12, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (76, '内测中', 12, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (77, '通知用户', 12, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (78, '已完成&归档', 12, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (79, '产品计划', 11, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (80, '即将发布', 11, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (81, '测试', 11, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (82, '准备发布', 11, 1670904236057, 0);
+INSERT INTO `ms_task_stages_template`(`id`, `name`, `project_template_code`, `create_time`, `sort`) VALUES (83, '发布成功', 11, 1670904236057, 0);
+
+INSERT INTO `ms_project_template`(`id`, `name`, `description`, `sort`, `create_time`, `organization_code`, `cover`, `member_code`, `is_system`) VALUES (11, '产品进展', '适用于互联网产品人员对产品计划、跟进及发布管理', 0, 1670904236057, 17, 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fbpic.51yuansu.com%2Fpic3%2Fcover%2F01%2F91%2F92%2F5982adf6c88ea_610.jpg&refer=http%3A%2F%2Fbpic.51yuansu.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1673496114&t=956c5614481fedea97794e161deddb00', NULL, 1);
+INSERT INTO `ms_project_template`(`id`, `name`, `description`, `sort`, `create_time`, `organization_code`, `cover`, `member_code`, `is_system`) VALUES (12, '需求管理', '适用于产品部门对需求的收集、评估及反馈管理', 0, 1670904236057, 17, 'https://img0.baidu.com/it/u=437485064,4277010738&fm=253&fmt=auto&app=138&f=JPEG?w=610&h=491', NULL, 1);
+INSERT INTO `ms_project_template`(`id`, `name`, `description`, `sort`, `create_time`, `organization_code`, `cover`, `member_code`, `is_system`) VALUES (13, '机械制造', '适用于制造商对图纸设计及制造安装的工作流程管理', 0, 1670904236057, 17, 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fbpic.51yuansu.com%2Fpic2%2Fcover%2F00%2F38%2F93%2F5812ca7a24020_610.jpg&refer=http%3A%2F%2Fbpic.51yuansu.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1673496114&t=6d03fb91b230058fc43f1b7ae00f73e3', NULL, 1);
+INSERT INTO `ms_project_template`(`id`, `name`, `description`, `sort`, `create_time`, `organization_code`, `cover`, `member_code`, `is_system`) VALUES (19, 'OKR 管理', '适用于团队的 OKR 管理', 0, 1670904236057, 17, 'https://img2.baidu.com/it/u=2241642503,1613686234&fm=253&fmt=auto&app=138&f=JPEG?w=603&h=500', 1015, 0);
