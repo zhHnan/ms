@@ -7,9 +7,8 @@ import (
 	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-api/pkg/model/account"
 	common "hnz.com/ms_serve/ms-common"
-	accountRpc "hnz.com/ms_serve/ms-grpc/account"
-
 	"hnz.com/ms_serve/ms-common/errs"
+	accountRpc "hnz.com/ms_serve/ms-grpc/account"
 	"net/http"
 	"time"
 )
@@ -22,7 +21,7 @@ func NewAccount() *HandlerAccount {
 	return &HandlerAccount{}
 }
 
-func (a HandlerAccount) account(c *gin.Context) {
+func (a *HandlerAccount) account(c *gin.Context) {
 	result := &common.Result{}
 	var req account.AccountReq
 	err := c.ShouldBind(&req)
