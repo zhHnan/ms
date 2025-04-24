@@ -12,13 +12,13 @@ func main() {
 	r := gin.Default()
 	//从配置中读取日志配置，初始化日志
 	router.InitRouter(r)
+	// 初始化rpc
+	router.InitUserRpc()
 	grpc := router.RegisterGrpc()
 	router.RegisterEtcdServer()
 	stop := func() {
 		grpc.Stop()
 	}
-	// 初始化rpc
-	router.InitUserRpc()
 	// 开启pprof
 	pprof.Register(r)
 	srv.Run(r, config.Cfg.Sc.Addr, config.Cfg.Sc.Name, stop)

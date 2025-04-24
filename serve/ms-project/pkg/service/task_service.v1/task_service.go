@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"hnz.com/ms_serve/ms-project/internal/data/files"
+	"hnz.com/ms_serve/ms-project/internal/domain"
 	"time"
 
 	"github.com/jinzhu/copier"
@@ -37,6 +38,7 @@ type TaskService struct {
 	taskWorkTimeRepo       repo.TaskWorkTimeRepo
 	fileRepo               repo.FileRepo
 	sourceLinkRepo         repo.SourceLinkRepo
+	taskWorkTimeDomain     *domain.TaskWorkTimeDomain
 }
 
 // New 初始化
@@ -53,6 +55,7 @@ func New() *TaskService {
 		taskWorkTimeRepo:       dao.NewTaskWorkTimeDao(),
 		fileRepo:               dao.NewFileDao(),
 		sourceLinkRepo:         dao.NewSourceLinkDao(),
+		taskWorkTimeDomain:     domain.NewTaskWorkTimeDomain(),
 	}
 }
 
@@ -586,38 +589,10 @@ func (t *TaskService) TaskLog(ctx context.Context, msg *taskRpc.TaskReqMessage) 
 }
 func (t *TaskService) TaskWorkTimeList(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskWorkTimeResponse, error) {
 	taskCode := encrypts.DecryptToRes(msg.TaskCode)
-	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-	defer cancel()
-	var list []*task.TaskWorkTime
-	var err error
-	list, err = t.taskWorkTimeRepo.FindWorkTimeList(c, taskCode)
-	if err != nil {
-		zap.L().Error("project task TaskWorkTimeList taskWorkTimeRepo.FindWorkTimeList error", zap.Error(err))
-		return nil, errs.GrpcError(model.DataBaseError)
-	}
-	if len(list) == 0 {
-		return &taskRpc.TaskWorkTimeResponse{}, nil
-	}
-	var displayList []*task.TaskWorkTimeDisplay
-	var mIdList []int64
-	for _, v := range list {
-		mIdList = append(mIdList, v.MemberCode)
-	}
-	messageList, err := rpc.UserClient.FindMemberByIds(c, &login.UserMessage{MemberIds: mIdList})
-	mMap := make(map[int64]*login.MemberMessage)
-	for _, v := range messageList.MemberList {
-		mMap[v.Id] = v
-	}
-	for _, v := range list {
-		display := v.ToDisplay()
-		message := mMap[v.MemberCode]
-		m := modelCom.Member{}
-		m.Name = message.Name
-		m.Id = message.Id
-		m.Avatar = message.Avatar
-		m.Code = message.Code
-		display.Member = m
-		displayList = append(displayList, display)
+	displayList, bError := t.taskWorkTimeDomain.TaskWorkTimeList(taskCode)
+	if bError != nil {
+		zap.L().Error("project task TaskWorkTimeList userRpcDomain.MemberList error", zap.Error(bError))
+		return nil, bError
 	}
 	var l []*taskRpc.TaskWorkTime
 	_ = copier.Copy(&l, displayList)
