@@ -3,6 +3,7 @@ package router
 import (
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
+	account_service "hnz.com/ms_serve/ms-grpc/account"
 	"hnz.com/ms_serve/ms-grpc/project"
 	task_service "hnz.com/ms_serve/ms-grpc/task"
 	"hnz.com/ms_serve/ms-project/internal/interceptor"
@@ -14,6 +15,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/resolver"
 	"hnz.com/ms_serve/ms-project/config"
+	accountServiceV1 "hnz.com/ms_serve/ms-project/pkg/service/account_service.v1"
 	projectServiceV1 "hnz.com/ms_serve/ms-project/pkg/service/project_service.v1"
 	taskServiceV1 "hnz.com/ms_serve/ms-project/pkg/service/task_service.v1"
 )
@@ -55,6 +57,7 @@ func RegisterGrpc() *grpc.Server {
 			//loginServiceV1.RegisterLoginServiceServer(g, &loginServiceV1.LoginService{})
 			project.RegisterProjectServiceServer(g, projectServiceV1.New())
 			task_service.RegisterTaskServiceServer(g, taskServiceV1.New())
+			account_service.RegisterAccountServiceServer(g, accountServiceV1.New())
 		}}
 	s := grpc.NewServer(interceptor.NewInterceptor().CacheInterceptor())
 	c.RegisterFunc(s)

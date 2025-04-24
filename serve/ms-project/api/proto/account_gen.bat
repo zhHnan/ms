@@ -1,0 +1,1 @@
+protoc --go_out=../../../ms-grpc/account --go_opt=paths=source_relative --go-grpc_out=../../../ms-grpc/account --go-grpc_opt=paths=source_relative account_service.proto
