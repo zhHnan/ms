@@ -7,14 +7,14 @@ import (
 )
 
 type Department struct {
-	Id               int64
-	OrganizationCode int64
-	Name             string
-	Sort             int
-	PCode            int64
-	icon             string
-	CreateTime       int64
-	Path             string
+	Id               int64  `gorm:"column:id"`
+	OrganizationCode int64  `gorm:"column:organization_code"`
+	Name             string `gorm:"column:name"`
+	Sort             int    `gorm:"column:sort"`
+	PCode            int64  `gorm:"column:pcode"` // 显式指定列名为 p_code
+	Icon             string `gorm:"column:icon"`
+	CreateTime       int64  `gorm:"column:create_time"`
+	Path             string `gorm:"column:path"`
 }
 
 func (*Department) TableName() string {

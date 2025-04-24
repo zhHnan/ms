@@ -52,3 +52,28 @@ func (d *HandlerDepartment) department(c *gin.Context) {
 		"list":  list,
 	}))
 }
+
+func (d *HandlerDepartment) save(c *gin.Context) {
+	result := &common.Result{}
+	var req *account.DepartmentReq
+	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &departmentRpc.DepartmentReqMessage{
+		Name:                 req.Name,
+		DepartmentCode:       req.DepartmentCode,
+		ParentDepartmentCode: req.ParentDepartmentCode,
+		OrganizationCode:     c.GetString("organizationCode"),
+	}
+	departmentMessage, err := rpc.DepartmentClient.Save(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var res = &account.Department{}
+	_ = copier.Copy(res, departmentMessage)
+	c.JSON(http.StatusOK, result.Success(res))
+}

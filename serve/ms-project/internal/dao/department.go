@@ -2,6 +2,9 @@ package dao
 
 import (
 	"context"
+	"errors"
+
+	"gorm.io/gorm"
 	"hnz.com/ms_serve/ms-project/internal/data/account"
 	"hnz.com/ms_serve/ms-project/internal/database/gorms"
 )
@@ -32,4 +35,23 @@ func (d *DepartmentDao) ListDepartment(organizationCode int64, parentDepartmentC
 	err = session.Count(&total).Error
 	err = session.Limit(int(size)).Offset(int((page - 1) * size)).Find(&list).Error
 	return
+}
+
+func (d *DepartmentDao) Save(dpm *account.Department) error {
+	err := d.conn.Session(context.Background()).Save(&dpm).Error
+	return err
+}
+
+func (d *DepartmentDao) FindDepartment(ctx context.Context, organizationCode int64, parentDepartmentCode int64, name string) (*account.Department, error) {
+	session := d.conn.Session(ctx)
+	query := session.Model(&account.Department{}).Where("organization_code=? AND name=?", organizationCode, name)
+	if parentDepartmentCode > 0 {
+		query = query.Where("pcode=?", parentDepartmentCode)
+	}
+	dp := &account.Department{}
+	err := query.Limit(1).Take(dp).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return dp, err
 }

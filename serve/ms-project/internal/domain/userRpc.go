@@ -2,9 +2,8 @@ package domain
 
 import (
 	"context"
-	"hnz.com/ms_serve/ms-project/internal/rpc"
-
 	"hnz.com/ms_serve/ms-grpc/user/login"
+	"hnz.com/ms_serve/ms-project/internal/rpc"
 )
 
 type UserDomain struct {
