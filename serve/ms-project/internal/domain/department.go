@@ -14,10 +14,14 @@ type DepartmentDomain struct {
 	departmentRepo repo.DepartmentRepo
 }
 
-func (d *DepartmentDomain) FindDepartmentById(id int64) (*account.Department, error) {
+func (d *DepartmentDomain) FindDepartmentById(id int64) (*account.Department, *errs.BError) {
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
-	return d.departmentRepo.FindDepartmentById(c, id)
+	res, err := d.departmentRepo.FindDepartmentById(c, id)
+	if err != nil {
+		return nil, model.DataBaseError
+	}
+	return res, nil
 }
 
 func (d *DepartmentDomain) List(organizationCode int64, parentDepartmentCode int64, page int64, size int64) ([]*account.DepartmentDisplay, int64, *errs.BError) {

@@ -29,4 +29,5 @@ message ListDepartmentMessage{
 service DepartmentService {
   rpc Save(DepartmentReqMessage) returns(DepartmentMessage){}
   rpc List(DepartmentReqMessage) returns(ListDepartmentMessage){}
+  rpc Read(DepartmentReqMessage) returns(DepartmentMessage){}
 }
