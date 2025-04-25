@@ -19,16 +19,17 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProjectService_Index_FullMethodName                = "/project.service.v1.ProjectService/Index"
-	ProjectService_FindProjectByMemId_FullMethodName   = "/project.service.v1.ProjectService/FindProjectByMemId"
-	ProjectService_FindProjectTemplate_FullMethodName  = "/project.service.v1.ProjectService/FindProjectTemplate"
-	ProjectService_SaveProject_FullMethodName          = "/project.service.v1.ProjectService/SaveProject"
-	ProjectService_GetProjectDetail_FullMethodName     = "/project.service.v1.ProjectService/GetProjectDetail"
-	ProjectService_UpdateDeletedProject_FullMethodName = "/project.service.v1.ProjectService/UpdateDeletedProject"
-	ProjectService_UpdateCollectProject_FullMethodName = "/project.service.v1.ProjectService/UpdateCollectProject"
-	ProjectService_UpdateProject_FullMethodName        = "/project.service.v1.ProjectService/UpdateProject"
-	ProjectService_GetLogBySelfProject_FullMethodName  = "/project.service.v1.ProjectService/GetLogBySelfProject"
-	ProjectService_NodeList_FullMethodName             = "/project.service.v1.ProjectService/NodeList"
+	ProjectService_Index_FullMethodName                 = "/project.service.v1.ProjectService/Index"
+	ProjectService_FindProjectByMemId_FullMethodName    = "/project.service.v1.ProjectService/FindProjectByMemId"
+	ProjectService_FindProjectTemplate_FullMethodName   = "/project.service.v1.ProjectService/FindProjectTemplate"
+	ProjectService_SaveProject_FullMethodName           = "/project.service.v1.ProjectService/SaveProject"
+	ProjectService_GetProjectDetail_FullMethodName      = "/project.service.v1.ProjectService/GetProjectDetail"
+	ProjectService_UpdateDeletedProject_FullMethodName  = "/project.service.v1.ProjectService/UpdateDeletedProject"
+	ProjectService_UpdateCollectProject_FullMethodName  = "/project.service.v1.ProjectService/UpdateCollectProject"
+	ProjectService_UpdateProject_FullMethodName         = "/project.service.v1.ProjectService/UpdateProject"
+	ProjectService_GetLogBySelfProject_FullMethodName   = "/project.service.v1.ProjectService/GetLogBySelfProject"
+	ProjectService_NodeList_FullMethodName              = "/project.service.v1.ProjectService/NodeList"
+	ProjectService_FindProjectByMemberId_FullMethodName = "/project.service.v1.ProjectService/FindProjectByMemberId"
 )
 
 // ProjectServiceClient is the client API for ProjectService service.
@@ -45,6 +46,7 @@ type ProjectServiceClient interface {
 	UpdateProject(ctx context.Context, in *UpdateProjectMessage, opts ...grpc.CallOption) (*UpdateProjectResponse, error)
 	GetLogBySelfProject(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*ProjectLogResponse, error)
 	NodeList(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*ProjectNodeResponseMessage, error)
+	FindProjectByMemberId(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*FindProjectByMemberIdResponse, error)
 }
 
 type projectServiceClient struct {
@@ -155,6 +157,16 @@ func (c *projectServiceClient) NodeList(ctx context.Context, in *ProjectRpcMessa
 	return out, nil
 }
 
+func (c *projectServiceClient) FindProjectByMemberId(ctx context.Context, in *ProjectRpcMessage, opts ...grpc.CallOption) (*FindProjectByMemberIdResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindProjectByMemberIdResponse)
+	err := c.cc.Invoke(ctx, ProjectService_FindProjectByMemberId_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProjectServiceServer is the server API for ProjectService service.
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
@@ -169,6 +181,7 @@ type ProjectServiceServer interface {
 	UpdateProject(context.Context, *UpdateProjectMessage) (*UpdateProjectResponse, error)
 	GetLogBySelfProject(context.Context, *ProjectRpcMessage) (*ProjectLogResponse, error)
 	NodeList(context.Context, *ProjectRpcMessage) (*ProjectNodeResponseMessage, error)
+	FindProjectByMemberId(context.Context, *ProjectRpcMessage) (*FindProjectByMemberIdResponse, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -208,6 +221,9 @@ func (UnimplementedProjectServiceServer) GetLogBySelfProject(context.Context, *P
 }
 func (UnimplementedProjectServiceServer) NodeList(context.Context, *ProjectRpcMessage) (*ProjectNodeResponseMessage, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NodeList not implemented")
+}
+func (UnimplementedProjectServiceServer) FindProjectByMemberId(context.Context, *ProjectRpcMessage) (*FindProjectByMemberIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FindProjectByMemberId not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}
 func (UnimplementedProjectServiceServer) testEmbeddedByValue()                        {}
@@ -410,6 +426,24 @@ func _ProjectService_NodeList_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_FindProjectByMemberId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ProjectRpcMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).FindProjectByMemberId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_FindProjectByMemberId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).FindProjectByMemberId(ctx, req.(*ProjectRpcMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProjectService_ServiceDesc is the grpc.ServiceDesc for ProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -456,6 +490,10 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NodeList",
 			Handler:    _ProjectService_NodeList_Handler,
+		},
+		{
+			MethodName: "FindProjectByMemberId",
+			Handler:    _ProjectService_FindProjectByMemberId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
