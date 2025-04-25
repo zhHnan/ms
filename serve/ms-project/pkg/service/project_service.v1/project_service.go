@@ -16,6 +16,7 @@ import (
 	"hnz.com/ms_serve/ms-project/internal/data/task"
 	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/tran"
+	"hnz.com/ms_serve/ms-project/internal/domain"
 	"hnz.com/ms_serve/ms-project/internal/repo"
 	"hnz.com/ms_serve/ms-project/internal/rpc"
 	"hnz.com/ms_serve/ms-project/pkg/model"
@@ -34,6 +35,7 @@ type ProjectService struct {
 	taskStagesRepo         repo.TaskStagesRepo
 	projectLogRepo         repo.ProjectLogRepo
 	taskRepo               repo.TaskRepo
+	projectNodeDomain      *domain.ProjectNodeDomain
 }
 
 // 初始化
@@ -48,6 +50,7 @@ func New() *ProjectService {
 		taskStagesTemplateRepo: dao.NewTaskStagesTemplateDao(),
 		projectLogRepo:         dao.NewProjectLogDao(),
 		taskRepo:               dao.NewTaskDao(),
+		projectNodeDomain:      domain.NewProjectNodeDomain(),
 	}
 }
 
@@ -403,4 +406,14 @@ func (p *ProjectService) GetLogBySelfProject(ctx context.Context, msg *project.P
 	var msgList []*project.ProjectLogMessage
 	_ = copier.Copy(&msgList, list)
 	return &project.ProjectLogResponse{List: msgList, Total: total}, nil
+}
+
+func (p *ProjectService) NodeList(c context.Context, msg *project.ProjectRpcMessage) (*project.ProjectNodeResponseMessage, error) {
+	list, err := p.projectNodeDomain.TreeList()
+	if err != nil {
+		return nil, errs.GrpcError(err)
+	}
+	var nodes []*project.ProjectNodeMessage
+	_ = copier.Copy(&nodes, list)
+	return &project.ProjectNodeResponseMessage{Nodes: nodes}, nil
 }

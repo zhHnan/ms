@@ -1777,6 +1777,150 @@ func (x *ProjectLogResponse) GetTotal() int64 {
 	return 0
 }
 
+type ProjectNodeMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Node          string                 `protobuf:"bytes,2,opt,name=node,proto3" json:"node,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Pnode         string                 `protobuf:"bytes,4,opt,name=pnode,proto3" json:"pnode,omitempty"`
+	IsLogin       int32                  `protobuf:"varint,5,opt,name=isLogin,proto3" json:"isLogin,omitempty"`
+	IsMenu        int32                  `protobuf:"varint,6,opt,name=isMenu,proto3" json:"isMenu,omitempty"`
+	IsAuth        int32                  `protobuf:"varint,7,opt,name=isAuth,proto3" json:"isAuth,omitempty"`
+	Children      []*ProjectNodeMessage  `protobuf:"bytes,8,rep,name=children,proto3" json:"children,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectNodeMessage) Reset() {
+	*x = ProjectNodeMessage{}
+	mi := &file_project_service_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectNodeMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectNodeMessage) ProtoMessage() {}
+
+func (x *ProjectNodeMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_project_service_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectNodeMessage.ProtoReflect.Descriptor instead.
+func (*ProjectNodeMessage) Descriptor() ([]byte, []int) {
+	return file_project_service_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *ProjectNodeMessage) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ProjectNodeMessage) GetNode() string {
+	if x != nil {
+		return x.Node
+	}
+	return ""
+}
+
+func (x *ProjectNodeMessage) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *ProjectNodeMessage) GetPnode() string {
+	if x != nil {
+		return x.Pnode
+	}
+	return ""
+}
+
+func (x *ProjectNodeMessage) GetIsLogin() int32 {
+	if x != nil {
+		return x.IsLogin
+	}
+	return 0
+}
+
+func (x *ProjectNodeMessage) GetIsMenu() int32 {
+	if x != nil {
+		return x.IsMenu
+	}
+	return 0
+}
+
+func (x *ProjectNodeMessage) GetIsAuth() int32 {
+	if x != nil {
+		return x.IsAuth
+	}
+	return 0
+}
+
+func (x *ProjectNodeMessage) GetChildren() []*ProjectNodeMessage {
+	if x != nil {
+		return x.Children
+	}
+	return nil
+}
+
+type ProjectNodeResponseMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Nodes         []*ProjectNodeMessage  `protobuf:"bytes,1,rep,name=nodes,proto3" json:"nodes,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ProjectNodeResponseMessage) Reset() {
+	*x = ProjectNodeResponseMessage{}
+	mi := &file_project_service_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ProjectNodeResponseMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ProjectNodeResponseMessage) ProtoMessage() {}
+
+func (x *ProjectNodeResponseMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_project_service_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ProjectNodeResponseMessage.ProtoReflect.Descriptor instead.
+func (*ProjectNodeResponseMessage) Descriptor() ([]byte, []int) {
+	return file_project_service_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *ProjectNodeResponseMessage) GetNodes() []*ProjectNodeMessage {
+	if x != nil {
+		return x.Nodes
+	}
+	return nil
+}
+
 var File_project_service_proto protoreflect.FileDescriptor
 
 const file_project_service_proto_rawDesc = "" +
@@ -1981,7 +2125,18 @@ const file_project_service_proto_rawDesc = "" +
 	" \x01(\tR\bTaskName\"e\n" +
 	"\x12ProjectLogResponse\x129\n" +
 	"\x04list\x18\x01 \x03(\v2%.project.service.v1.ProjectLogMessageR\x04list\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x03R\x05total2\xa9\a\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\xf2\x01\n" +
+	"\x12ProjectNodeMessage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04node\x18\x02 \x01(\tR\x04node\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
+	"\x05pnode\x18\x04 \x01(\tR\x05pnode\x12\x18\n" +
+	"\aisLogin\x18\x05 \x01(\x05R\aisLogin\x12\x16\n" +
+	"\x06isMenu\x18\x06 \x01(\x05R\x06isMenu\x12\x16\n" +
+	"\x06isAuth\x18\a \x01(\x05R\x06isAuth\x12B\n" +
+	"\bchildren\x18\b \x03(\v2&.project.service.v1.ProjectNodeMessageR\bchildren\"Z\n" +
+	"\x1aProjectNodeResponseMessage\x12<\n" +
+	"\x05nodes\x18\x01 \x03(\v2&.project.service.v1.ProjectNodeMessageR\x05nodes2\x8e\b\n" +
 	"\x0eProjectService\x12N\n" +
 	"\x05Index\x12 .project.service.v1.IndexMessage\x1a!.project.service.v1.IndexResponse\"\x00\x12d\n" +
 	"\x12FindProjectByMemId\x12%.project.service.v1.ProjectRpcMessage\x1a%.project.service.v1.MyProjectResponse\"\x00\x12k\n" +
@@ -1991,7 +2146,8 @@ const file_project_service_proto_rawDesc = "" +
 	"\x14UpdateDeletedProject\x12%.project.service.v1.ProjectRpcMessage\x1a0.project.service.v1.ProjectUpdateDeletedResponse\"\x00\x12j\n" +
 	"\x14UpdateCollectProject\x12%.project.service.v1.ProjectRpcMessage\x1a).project.service.v1.UpdateCollectResponse\"\x00\x12f\n" +
 	"\rUpdateProject\x12(.project.service.v1.UpdateProjectMessage\x1a).project.service.v1.UpdateProjectResponse\"\x00\x12f\n" +
-	"\x13GetLogBySelfProject\x12%.project.service.v1.ProjectRpcMessage\x1a&.project.service.v1.ProjectLogResponse\"\x00B+Z)ms-project/pkg/service/project_service.v1b\x06proto3"
+	"\x13GetLogBySelfProject\x12%.project.service.v1.ProjectRpcMessage\x1a&.project.service.v1.ProjectLogResponse\"\x00\x12c\n" +
+	"\bNodeList\x12%.project.service.v1.ProjectRpcMessage\x1a..project.service.v1.ProjectNodeResponseMessage\"\x00B+Z)ms-project/pkg/service/project_service.v1b\x06proto3"
 
 var (
 	file_project_service_proto_rawDescOnce sync.Once
@@ -2005,7 +2161,7 @@ func file_project_service_proto_rawDescGZIP() []byte {
 	return file_project_service_proto_rawDescData
 }
 
-var file_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_project_service_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_project_service_proto_goTypes = []any{
 	(*IndexMessage)(nil),                 // 0: project.service.v1.IndexMessage
 	(*MenuMessage)(nil),                  // 1: project.service.v1.MenuMessage
@@ -2024,6 +2180,8 @@ var file_project_service_proto_goTypes = []any{
 	(*UpdateProjectResponse)(nil),        // 14: project.service.v1.UpdateProjectResponse
 	(*ProjectLogMessage)(nil),            // 15: project.service.v1.ProjectLogMessage
 	(*ProjectLogResponse)(nil),           // 16: project.service.v1.ProjectLogResponse
+	(*ProjectNodeMessage)(nil),           // 17: project.service.v1.ProjectNodeMessage
+	(*ProjectNodeResponseMessage)(nil),   // 18: project.service.v1.ProjectNodeResponseMessage
 }
 var file_project_service_proto_depIdxs = []int32{
 	1,  // 0: project.service.v1.MenuMessage.children:type_name -> project.service.v1.MenuMessage
@@ -2032,29 +2190,33 @@ var file_project_service_proto_depIdxs = []int32{
 	8,  // 3: project.service.v1.ProjectTemplateMessage.taskStages:type_name -> project.service.v1.TaskStages
 	7,  // 4: project.service.v1.ProjectTemplateResponse.ptm:type_name -> project.service.v1.ProjectTemplateMessage
 	15, // 5: project.service.v1.ProjectLogResponse.list:type_name -> project.service.v1.ProjectLogMessage
-	0,  // 6: project.service.v1.ProjectService.Index:input_type -> project.service.v1.IndexMessage
-	4,  // 7: project.service.v1.ProjectService.FindProjectByMemId:input_type -> project.service.v1.ProjectRpcMessage
-	4,  // 8: project.service.v1.ProjectService.FindProjectTemplate:input_type -> project.service.v1.ProjectRpcMessage
-	4,  // 9: project.service.v1.ProjectService.SaveProject:input_type -> project.service.v1.ProjectRpcMessage
-	4,  // 10: project.service.v1.ProjectService.GetProjectDetail:input_type -> project.service.v1.ProjectRpcMessage
-	4,  // 11: project.service.v1.ProjectService.UpdateDeletedProject:input_type -> project.service.v1.ProjectRpcMessage
-	4,  // 12: project.service.v1.ProjectService.UpdateCollectProject:input_type -> project.service.v1.ProjectRpcMessage
-	13, // 13: project.service.v1.ProjectService.UpdateProject:input_type -> project.service.v1.UpdateProjectMessage
-	4,  // 14: project.service.v1.ProjectService.GetLogBySelfProject:input_type -> project.service.v1.ProjectRpcMessage
-	2,  // 15: project.service.v1.ProjectService.Index:output_type -> project.service.v1.IndexResponse
-	6,  // 16: project.service.v1.ProjectService.FindProjectByMemId:output_type -> project.service.v1.MyProjectResponse
-	9,  // 17: project.service.v1.ProjectService.FindProjectTemplate:output_type -> project.service.v1.ProjectTemplateResponse
-	5,  // 18: project.service.v1.ProjectService.SaveProject:output_type -> project.service.v1.SaveProjectMessage
-	10, // 19: project.service.v1.ProjectService.GetProjectDetail:output_type -> project.service.v1.ProjectDetailMessage
-	11, // 20: project.service.v1.ProjectService.UpdateDeletedProject:output_type -> project.service.v1.ProjectUpdateDeletedResponse
-	12, // 21: project.service.v1.ProjectService.UpdateCollectProject:output_type -> project.service.v1.UpdateCollectResponse
-	14, // 22: project.service.v1.ProjectService.UpdateProject:output_type -> project.service.v1.UpdateProjectResponse
-	16, // 23: project.service.v1.ProjectService.GetLogBySelfProject:output_type -> project.service.v1.ProjectLogResponse
-	15, // [15:24] is the sub-list for method output_type
-	6,  // [6:15] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	17, // 6: project.service.v1.ProjectNodeMessage.children:type_name -> project.service.v1.ProjectNodeMessage
+	17, // 7: project.service.v1.ProjectNodeResponseMessage.nodes:type_name -> project.service.v1.ProjectNodeMessage
+	0,  // 8: project.service.v1.ProjectService.Index:input_type -> project.service.v1.IndexMessage
+	4,  // 9: project.service.v1.ProjectService.FindProjectByMemId:input_type -> project.service.v1.ProjectRpcMessage
+	4,  // 10: project.service.v1.ProjectService.FindProjectTemplate:input_type -> project.service.v1.ProjectRpcMessage
+	4,  // 11: project.service.v1.ProjectService.SaveProject:input_type -> project.service.v1.ProjectRpcMessage
+	4,  // 12: project.service.v1.ProjectService.GetProjectDetail:input_type -> project.service.v1.ProjectRpcMessage
+	4,  // 13: project.service.v1.ProjectService.UpdateDeletedProject:input_type -> project.service.v1.ProjectRpcMessage
+	4,  // 14: project.service.v1.ProjectService.UpdateCollectProject:input_type -> project.service.v1.ProjectRpcMessage
+	13, // 15: project.service.v1.ProjectService.UpdateProject:input_type -> project.service.v1.UpdateProjectMessage
+	4,  // 16: project.service.v1.ProjectService.GetLogBySelfProject:input_type -> project.service.v1.ProjectRpcMessage
+	4,  // 17: project.service.v1.ProjectService.NodeList:input_type -> project.service.v1.ProjectRpcMessage
+	2,  // 18: project.service.v1.ProjectService.Index:output_type -> project.service.v1.IndexResponse
+	6,  // 19: project.service.v1.ProjectService.FindProjectByMemId:output_type -> project.service.v1.MyProjectResponse
+	9,  // 20: project.service.v1.ProjectService.FindProjectTemplate:output_type -> project.service.v1.ProjectTemplateResponse
+	5,  // 21: project.service.v1.ProjectService.SaveProject:output_type -> project.service.v1.SaveProjectMessage
+	10, // 22: project.service.v1.ProjectService.GetProjectDetail:output_type -> project.service.v1.ProjectDetailMessage
+	11, // 23: project.service.v1.ProjectService.UpdateDeletedProject:output_type -> project.service.v1.ProjectUpdateDeletedResponse
+	12, // 24: project.service.v1.ProjectService.UpdateCollectProject:output_type -> project.service.v1.UpdateCollectResponse
+	14, // 25: project.service.v1.ProjectService.UpdateProject:output_type -> project.service.v1.UpdateProjectResponse
+	16, // 26: project.service.v1.ProjectService.GetLogBySelfProject:output_type -> project.service.v1.ProjectLogResponse
+	18, // 27: project.service.v1.ProjectService.NodeList:output_type -> project.service.v1.ProjectNodeResponseMessage
+	18, // [18:28] is the sub-list for method output_type
+	8,  // [8:18] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_project_service_proto_init() }
@@ -2068,7 +2230,7 @@ func file_project_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_project_service_proto_rawDesc), len(file_project_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   17,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
