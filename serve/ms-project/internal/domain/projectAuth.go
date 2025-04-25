@@ -2,6 +2,7 @@ package domain
 
 import (
 	"context"
+	"strconv"
 	"time"
 
 	"go.uber.org/zap"
@@ -18,6 +19,7 @@ type ProjectAuthDomain struct {
 	projectAuthRepo     repo.ProjectAuthRepo
 	projectNodeDomain   *ProjectNodeDomain
 	projectAuthNodeRepo repo.ProjectAuthNodeRepo
+	accountDomain       *AccountDomain
 }
 
 func NewProjectAuthDomain() *ProjectAuthDomain {
@@ -25,6 +27,7 @@ func NewProjectAuthDomain() *ProjectAuthDomain {
 		projectAuthRepo:     dao.NewProjectAuthDao(),
 		projectNodeDomain:   NewProjectNodeDomain(),
 		projectAuthNodeRepo: dao.NewProjectAuthNodeDao(),
+		accountDomain:       NewAccountDomain(),
 	}
 }
 
@@ -86,4 +89,20 @@ func (d *ProjectAuthDomain) Save(conn database.DBConn, authId int64, nodes []str
 		return model.DataBaseError
 	}
 	return nil
+}
+
+func (d *ProjectAuthDomain) AuthNodes(memberId int64) ([]string, *errs.BError) {
+	res, err := d.accountDomain.FindAccount(memberId)
+	if err != nil {
+		return nil, err
+	}
+	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	authorize := res.Authorize
+	authId, _ := strconv.ParseInt(authorize, 10, 64)
+	authNodeList, dbErr := d.projectAuthNodeRepo.FindNodeStringList(c, authId)
+	if dbErr != nil {
+		return nil, model.DataBaseError
+	}
+	return authNodeList, nil
 }
