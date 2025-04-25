@@ -13,6 +13,11 @@ type ProjectNodeDomain struct {
 	projectNodeRepo repo.ProjectNodeRepo
 }
 
+func NewProjectNodeDomain() *ProjectNodeDomain {
+	return &ProjectNodeDomain{
+		projectNodeRepo: dao.NewProjectNodeDao(),
+	}
+}
 func (d *ProjectNodeDomain) TreeList() ([]*node.ProjectNodeTree, *errs.BError) {
 	nodes, err := d.projectNodeRepo.FindAll(context.Background())
 	if err != nil {
@@ -22,8 +27,10 @@ func (d *ProjectNodeDomain) TreeList() ([]*node.ProjectNodeTree, *errs.BError) {
 	return treeList, nil
 }
 
-func NewProjectNodeDomain() *ProjectNodeDomain {
-	return &ProjectNodeDomain{
-		projectNodeRepo: dao.NewProjectNodeDao(),
+func (d *ProjectNodeDomain) AllNodeList() ([]*node.ProjectNode, *errs.BError) {
+	nodes, err := d.projectNodeRepo.FindAll(context.Background())
+	if err != nil {
+		return nil, model.DataBaseError
 	}
+	return nodes, nil
 }

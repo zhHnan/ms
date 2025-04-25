@@ -49,3 +49,31 @@ func (a *HandlerAuth) authList(c *gin.Context) {
 		"page":  page.Page,
 	}))
 }
+
+func (a *HandlerAuth) apply(c *gin.Context) {
+	result := &common.Result{}
+	var req *account.ProjectAuthReq
+	err := c.ShouldBind(&req)
+	if err != nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	msg := &authRpc.AuthReqMessage{
+		Action: req.Action,
+		AuthId: req.Id,
+	}
+	applyResponse, err := rpc.AuthClient.Apply(ctx, msg)
+	if err != nil {
+		code, msg := errs.ParseGrpcError(err)
+		c.JSON(http.StatusOK, result.Failure(code, msg))
+	}
+	var list []*account.ProjectNodeAuthTree
+	_ = copier.Copy(&list, applyResponse.List)
+	var checkedList []string
+	_ = copier.Copy(&checkedList, applyResponse.CheckedList)
+	c.JSON(http.StatusOK, result.Success(gin.H{
+		"list":        list,
+		"checkedList": checkedList,
+	}))
+}

@@ -37,3 +37,17 @@ func (a *AuthService) AuthList(ctx context.Context, msg *authRpc.AuthReqMessage)
 	_ = copier.Copy(&prList, listPage)
 	return &authRpc.ListAuthMessage{List: prList, Total: total}, nil
 }
+
+func (a *AuthService) Apply(ctx context.Context, msg *authRpc.AuthReqMessage) (*authRpc.ApplyResponse, error) {
+	if msg.Action == "getnode" {
+		//获取列表
+		list, checkedList, err := a.projectAuthDomain.AllNodeAndAuth(msg.AuthId)
+		if err != nil {
+			return nil, errs.GrpcError(err)
+		}
+		var prList []*authRpc.ProjectNodeMessage
+		_ = copier.Copy(&prList, list)
+		return &authRpc.ApplyResponse{List: prList, CheckedList: checkedList}, nil
+	}
+	return &authRpc.ApplyResponse{}, nil
+}
