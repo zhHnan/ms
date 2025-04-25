@@ -2,11 +2,13 @@ package project
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/copier"
 	"hnz.com/ms_serve/ms-api/api/rpc"
 	"hnz.com/ms_serve/ms-api/pkg/model"
 	"hnz.com/ms_serve/ms-api/pkg/model/account"
+	"hnz.com/ms_serve/ms-api/pkg/model/apiProject"
 	common "hnz.com/ms_serve/ms-common"
 	"hnz.com/ms_serve/ms-common/errs"
 	authRpc "hnz.com/ms_serve/ms-grpc/auth"
@@ -52,16 +54,22 @@ func (a *HandlerAuth) authList(c *gin.Context) {
 
 func (a *HandlerAuth) apply(c *gin.Context) {
 	result := &common.Result{}
-	var req *account.ProjectAuthReq
+	var req *apiProject.ProjectAuthReq
 	err := c.ShouldBind(&req)
 	if err != nil {
 		return
+	}
+	//这是因为上方无法接口[]string类型，做不到json自动转换
+	var nodes []string
+	if req.Nodes != "" {
+		_ = json.Unmarshal([]byte(req.Nodes), &nodes)
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	msg := &authRpc.AuthReqMessage{
 		Action: req.Action,
 		AuthId: req.Id,
+		Nodes:  nodes,
 	}
 	applyResponse, err := rpc.AuthClient.Apply(ctx, msg)
 	if err != nil {

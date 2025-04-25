@@ -1,6 +1,9 @@
 package dao
 
 import (
+	"errors"
+
+	"hnz.com/ms_serve/ms-common/errs"
 	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/gorms"
 )
@@ -19,6 +22,13 @@ func (t Trans) Action(f func(conn database.DBConn) error) error {
 	t.conn.Begin()
 	err := f(t.conn)
 	if err != nil {
+		// 检查是否为BError类型
+		var bErr *errs.BError
+		if errors.As(err, &bErr) {
+			t.conn.Rollback()
+			return bErr
+		}
+		// 不是BError类型，直接返回一般错误
 		t.conn.Rollback()
 		return err
 	}

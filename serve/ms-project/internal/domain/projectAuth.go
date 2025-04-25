@@ -2,14 +2,16 @@ package domain
 
 import (
 	"context"
+	"time"
+
 	"go.uber.org/zap"
 	"hnz.com/ms_serve/ms-common/errs"
 	"hnz.com/ms_serve/ms-project/internal/dao"
 	"hnz.com/ms_serve/ms-project/internal/data/account"
 	"hnz.com/ms_serve/ms-project/internal/data/node"
+	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/repo"
 	"hnz.com/ms_serve/ms-project/pkg/model"
-	"time"
 )
 
 type ProjectAuthDomain struct {
@@ -71,4 +73,17 @@ func (d *ProjectAuthDomain) AllNodeAndAuth(authId int64) ([]*node.ProjectNodeAut
 	}
 	list := node.ToAuthNodeTreeList(treeList, authNodeList)
 	return list, authNodeList, nil
+}
+
+func (d *ProjectAuthDomain) Save(conn database.DBConn, authId int64, nodes []string) error {
+	err := d.projectAuthNodeRepo.DeleteByAuthId(context.Background(), conn, authId)
+	if err != nil {
+		return model.DataBaseError
+	}
+
+	err = d.projectAuthNodeRepo.Save(context.Background(), conn, authId, nodes)
+	if err != nil {
+		return model.DataBaseError
+	}
+	return nil
 }

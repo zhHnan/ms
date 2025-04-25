@@ -2,11 +2,13 @@ package project_service_v1
 
 import (
 	"context"
+	"fmt"
 	"github.com/jinzhu/copier"
 	"hnz.com/ms_serve/ms-common/encrypts"
 	"hnz.com/ms_serve/ms-common/errs"
 	authRpc "hnz.com/ms_serve/ms-grpc/auth"
 	"hnz.com/ms_serve/ms-project/internal/dao"
+	"hnz.com/ms_serve/ms-project/internal/database"
 	"hnz.com/ms_serve/ms-project/internal/database/tran"
 	"hnz.com/ms_serve/ms-project/internal/domain"
 	"hnz.com/ms_serve/ms-project/internal/repo"
@@ -48,6 +50,28 @@ func (a *AuthService) Apply(ctx context.Context, msg *authRpc.AuthReqMessage) (*
 		var prList []*authRpc.ProjectNodeMessage
 		_ = copier.Copy(&prList, list)
 		return &authRpc.ApplyResponse{List: prList, CheckedList: checkedList}, nil
+	}
+	if msg.Action == "save" {
+		//保存
+		nodes := msg.Nodes
+		fmt.Println("nodes:", nodes)
+		//先删在存 加事务
+		authId := msg.AuthId
+		err := a.transaction.Action(func(conn database.DBConn) error {
+			err := a.projectAuthDomain.Save(conn, authId, nodes)
+			return err
+		})
+		if err != nil {
+			// 检查错误类型，避免nil指针异常
+			berr, ok := err.(*errs.BError)
+			if !ok || berr == nil {
+				if err == nil {
+					return &authRpc.ApplyResponse{}, nil
+				}
+				return nil, err
+			}
+			return nil, errs.GrpcError(berr)
+		}
 	}
 	return &authRpc.ApplyResponse{}, nil
 }

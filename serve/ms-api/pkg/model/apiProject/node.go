@@ -10,3 +10,9 @@ type ProjectNodeTree struct {
 	Pnode    string             `json:"pnode"`
 	Children []*ProjectNodeTree `json:"children"`
 }
+
+type ProjectAuthReq struct {
+	Action string `form:"action"`
+	Id     int64  `form:"id"`
+	Nodes  string `form:"nodes" json:"nodes"`
+}

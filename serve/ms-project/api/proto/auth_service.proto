@@ -9,6 +9,7 @@ message AuthReqMessage {
   int64 pageSize = 4;
   int64 authId = 5;
   string action = 6;
+  repeated string nodes = 7;
 }
 message ProjectAuth{
   int64 id = 1;
