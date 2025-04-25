@@ -7,6 +7,7 @@ import (
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
 	account_service_v1 "hnz.com/ms_serve/ms-grpc/account"
+	auth_service_v1 "hnz.com/ms_serve/ms-grpc/auth"
 	department_service_v1 "hnz.com/ms_serve/ms-grpc/department"
 	"hnz.com/ms_serve/ms-grpc/project"
 	"hnz.com/ms_serve/ms-grpc/task"
@@ -18,6 +19,7 @@ var ProjectClient project.ProjectServiceClient
 var TaskClient task_service_v1.TaskServiceClient
 var AccountClient account_service_v1.AccountServiceClient
 var DepartmentClient department_service_v1.DepartmentServiceClient
+var AuthClient auth_service_v1.AuthServiceClient
 
 func InitProjectRpc() {
 	etcdResolver := discovery.NewResolver(config.Cfg.Ec.Addrs, logs.Lg)
@@ -30,4 +32,5 @@ func InitProjectRpc() {
 	TaskClient = task_service_v1.NewTaskServiceClient(conn)
 	AccountClient = account_service_v1.NewAccountServiceClient(conn)
 	DepartmentClient = department_service_v1.NewDepartmentServiceClient(conn)
+	AuthClient = auth_service_v1.NewAuthServiceClient(conn)
 }

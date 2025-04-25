@@ -4,11 +4,13 @@ import (
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
 	account_service "hnz.com/ms_serve/ms-grpc/account"
+	auth_service "hnz.com/ms_serve/ms-grpc/auth"
 	department_service "hnz.com/ms_serve/ms-grpc/department"
 	"hnz.com/ms_serve/ms-grpc/project"
 	task_service "hnz.com/ms_serve/ms-grpc/task"
 	"hnz.com/ms_serve/ms-project/internal/interceptor"
 	"hnz.com/ms_serve/ms-project/internal/rpc"
+	authServiceV1 "hnz.com/ms_serve/ms-project/pkg/service/auth_service.v1"
 	departmentServiceV1 "hnz.com/ms_serve/ms-project/pkg/service/department_service.v1"
 	"log"
 	"net"
@@ -61,6 +63,7 @@ func RegisterGrpc() *grpc.Server {
 			task_service.RegisterTaskServiceServer(g, taskServiceV1.New())
 			account_service.RegisterAccountServiceServer(g, accountServiceV1.New())
 			department_service.RegisterDepartmentServiceServer(g, departmentServiceV1.New())
+			auth_service.RegisterAuthServiceServer(g, authServiceV1.New())
 		}}
 	s := grpc.NewServer(interceptor.NewInterceptor().CacheInterceptor())
 	c.RegisterFunc(s)
