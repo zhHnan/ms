@@ -31,8 +31,10 @@ func main() {
 	router.InitUserRpc()
 	grpc := router.RegisterGrpc()
 	router.RegisterEtcdServer()
+	ka := config.InitKafkaWriter()
 	stop := func() {
 		grpc.Stop()
+		ka()
 	}
 	// 开启pprof
 	pprof.Register(r)

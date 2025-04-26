@@ -3,6 +3,8 @@ package project_service_v1
 import (
 	"context"
 	"fmt"
+	"hnz.com/ms_serve/ms-common/kafkas"
+	"hnz.com/ms_serve/ms-project/config"
 	"hnz.com/ms_serve/ms-project/internal/data/files"
 	"hnz.com/ms_serve/ms-project/internal/domain"
 	"time"
@@ -540,6 +542,9 @@ func (t *TaskService) ListTaskMember(ctx context.Context, msg *taskRpc.TaskReqMe
 	return &taskRpc.TaskMemberList{List: taskMemberMessages, Total: total}, nil
 }
 func (t *TaskService) TaskLog(ctx context.Context, msg *taskRpc.TaskReqMessage) (*taskRpc.TaskLogList, error) {
+	config.SendLog(kafkas.Info("TaskLog", "TaskLog", kafkas.FieldMap{
+		"msg": msg,
+	}))
 	taskCode := encrypts.DecryptToRes(msg.TaskCode)
 	all := msg.All
 	c, cancel := context.WithTimeout(context.Background(), 2*time.Second)

@@ -108,7 +108,7 @@ services:
       - "9000:9000"
     environment:
       KAFKA_BROKERCONNECT: "kafka:29092"
-      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss512k -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
     depends_on:
       - "kafka"
   kafka:
@@ -157,6 +157,24 @@ services:
       ELASTICSEARCH_HOSTS: http://es:9200
     ports:
       - 5601:5601
+  logstash:
+    image: logstash:8.6.0
+    container_name: logstash
+    volumes:
+      - ${LOGSTASH_DIR}/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ${LOGSTASH_DIR}/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ${LOGSTASH_DIR}/log/:/home/public/
+    ports:
+      - '5044:5044'
+      - '50000:50000/tcp'
+      - '50000:50000/udp'
+      - '9600:9600'
+    environment:
+      LS_JAVA_OPTS: -Xms1024m -Xmx1024m
+      TZ: Asia/Shanghai
+      MONITORING_ENABLED: false
+    depends_on:
+      - es
 # 防止容器重启后数据丢失
 volumes:
   nacos-conf:
