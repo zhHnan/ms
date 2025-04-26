@@ -33,3 +33,26 @@ jwt:
   # 单位为天
   accessExp: 7
   refreshExp: 14
+
+db:
+  separation: true
+  master:
+    name: master
+    username: root
+    password: root
+    host: 127.0.0.1
+    port: 3309
+    db: ms
+  slave:
+    - username: root
+      password: root
+      host: 127.0.0.1
+      port: 3309
+      db: ms_slave1
+      name: slave1
+    - username: root
+      password: root
+      host: 127.0.0.1
+      port: 3309
+      db: ms_slave1
+      name: slave2

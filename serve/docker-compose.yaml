@@ -46,9 +46,26 @@ services:
       - ${ETCD_PORT}:2379
       - 2380:2380
 
-  Ms-User:
-    container_name: ms-user
-    image: ms-user:latest
+#  Ms-User:
+#    container_name: ms-user
+#    image: ms-user:latest
+#    ports:
+#      - 8080:8080
+#      - 8081:8081
+
+  Nacos:
+    container_name: nacos-standalone
+    image: nacos/nacos-server:v2.2.0
+    restart: always
+    environment:
+      - MODE=standalone
+      - JVM_XMS=512m
+      - JVM_MAX=512m
+      - JVM_XMN=256m
+    privileged: true
+    volumes:
+      - ${NACOS_DIR}/data:/home/nacos/data
     ports:
-      - 8080:8080
-      - 8081:8081
+      - 8848:8848
+      - 9848:9848
+      - 9849:9849

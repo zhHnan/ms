@@ -3,26 +3,25 @@ package dao
 import (
 	"context"
 	"github.com/go-redis/redis"
-	"hnz.com/ms_serve/ms-user/config"
 	"time"
 )
 
 var Rc *RedisCache
 
 type RedisCache struct {
-	rdb *redis.Client
+	Rdb *redis.Client
 }
 
-func init() {
-	rdb := redis.NewClient(config.Cfg.ReadRedisConfig())
-	Rc = &RedisCache{rdb: rdb}
-}
+//func init() {
+//	rdb := redis.NewClient(config.Cfg.ReadRedisConfig())
+//	Rc = &RedisCache{Rdb: rdb}
+//}
 
 func (rc *RedisCache) Put(ctx context.Context, key, value string, expire time.Duration) error {
-	err := rc.rdb.Set(key, value, expire).Err()
+	err := rc.Rdb.Set(key, value, expire).Err()
 	return err
 }
 func (rc *RedisCache) Get(ctx context.Context, key string) (string, error) {
-	result, err := rc.rdb.Get(key).Result()
+	result, err := rc.Rdb.Get(key).Result()
 	return result, err
 }
