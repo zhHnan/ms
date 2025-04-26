@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/resolver"
@@ -26,7 +27,9 @@ var MenuClient menu_service_v1.MenuServiceClient
 func InitProjectRpc() {
 	etcdResolver := discovery.NewResolver(config.Cfg.Ec.Addrs, logs.Lg)
 	resolver.Register(etcdResolver)
-	conn, err := grpc.Dial("etcd:///project", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial("etcd:///project",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithChainUnaryInterceptor(otelgrpc.UnaryClientInterceptor()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}

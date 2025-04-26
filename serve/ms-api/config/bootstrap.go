@@ -34,7 +34,7 @@ func InitBootstrap() *BootConf {
 	conf.viper.SetConfigName("bootstrap")
 	conf.viper.SetConfigType("yaml")
 	conf.viper.AddConfigPath(workDir + "/config")
-	conf.viper.AddConfigPath("E:/Projects/go_proj/ms/serve/ms-user")
+	conf.viper.AddConfigPath("E:/Projects/go_proj/ms/serve/ms-api")
 	err := conf.viper.ReadInConfig()
 	if err != nil {
 		log.Fatalln(err)

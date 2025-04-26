@@ -1,6 +1,8 @@
 package router
 
 import (
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"hnz.com/ms_serve/ms-common/discovery"
 	"hnz.com/ms_serve/ms-common/logs"
 	"hnz.com/ms_serve/ms-grpc/user/login"
@@ -52,8 +54,12 @@ func RegisterGrpc() *grpc.Server {
 			//loginServiceV1.RegisterLoginServiceServer(g, &loginServiceV1.LoginService{})
 			login.RegisterLoginServiceServer(g, login_service.New())
 		}}
-	cacheInterceptor := interceptor.NewInterceptor()
-	s := grpc.NewServer(cacheInterceptor.CacheInterceptor())
+
+	s := grpc.NewServer(
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			otelgrpc.UnaryServerInterceptor(),
+			interceptor.NewInterceptor().CacheInterceptor(),
+		)))
 	//s := grpc.NewServer()
 	c.RegisterFunc(s)
 

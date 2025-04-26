@@ -25,8 +25,8 @@ func NewInterceptor() *Interceptor {
 	return &Interceptor{cache: dao.Rc, cacheMap: cacheMap}
 }
 
-func (i *Interceptor) CacheInterceptor() grpc.ServerOption {
-	return grpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+func (i *Interceptor) CacheInterceptor() func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
 		respType := i.cacheMap[info.FullMethod]
 		if respType == nil {
 			return handler(ctx, req)
@@ -84,5 +84,5 @@ func (i *Interceptor) CacheInterceptor() grpc.ServerOption {
 		zap.L().Info(info.FullMethod + "\n writer cache \n")
 
 		return resp, err
-	})
+	}
 }
