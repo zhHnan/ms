@@ -297,6 +297,8 @@ func (t *TaskService) SaveTask(ctx context.Context, msg *taskRpc.TaskReqMessage)
 
 	tm := &taskRpc.TaskMessage{}
 	_ = copier.Copy(tm, display)
+	// 向kafka 发送消息 执行缓存删除
+	config.SendCache([]byte("task"))
 	return tm, nil
 }
 

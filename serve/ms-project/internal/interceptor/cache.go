@@ -10,6 +10,7 @@ import (
 	"hnz.com/ms_serve/ms-project/internal/dao"
 	"hnz.com/ms_serve/ms-project/internal/repo"
 	"hnz.com/ms_serve/ms-user/pkg/model"
+	"strings"
 	"time"
 )
 
@@ -81,7 +82,9 @@ func (i *Interceptor) CacheInterceptor() func(ctx context.Context, req interface
 		bytes, _ := json.Marshal(resp)
 		_ = i.cache.Put(c, info.FullMethod+"::"+cacheKey, string(bytes), model.CacheExpire*time.Minute)
 		zap.L().Info(info.FullMethod + "\n writer cache \n")
-
+		if strings.HasPrefix(info.FullMethod, "/task") {
+			i.cache.HSet(c, "task", info.FullMethod+"::"+cacheKey, "")
+		}
 		return resp, err
 	}
 }

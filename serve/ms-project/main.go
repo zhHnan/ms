@@ -31,10 +31,13 @@ func main() {
 	router.InitUserRpc()
 	grpc := router.RegisterGrpc()
 	router.RegisterEtcdServer()
+	// 初始化kafka
 	ka := config.InitKafkaWriter()
+	reader := config.NewKafkaCache()
 	stop := func() {
 		grpc.Stop()
 		ka()
+		reader.R.Close()
 	}
 	// 开启pprof
 	pprof.Register(r)

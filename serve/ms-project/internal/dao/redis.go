@@ -25,3 +25,12 @@ func (rc *RedisCache) Get(ctx context.Context, key string) (string, error) {
 	result, err := rc.Rdb.Get(key).Result()
 	return result, err
 }
+func (rc *RedisCache) HSet(ctx context.Context, key string, field string, value string) {
+	rc.Rdb.HSet(key, field, value)
+}
+func (rc *RedisCache) HKeys(ctx context.Context, key string) ([]string, error) {
+	return rc.Rdb.HKeys(key).Result()
+}
+func (rc *RedisCache) Delete(ctx context.Context, keys []string) {
+	rc.Rdb.Del(keys...)
+}
